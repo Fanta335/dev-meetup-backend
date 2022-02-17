@@ -1,0 +1,36 @@
+version: '3.8'
+
+volumes:
+  db-data:
+
+services:
+  api:
+    container_name: api
+    build: .
+    tty: true
+    stdin_open: true
+    restart: always
+    ports:
+      - '3000:3000'
+    volumes:
+      - '.:/api'
+    depends_on:
+      - db
+    links:
+      - db
+
+  db: # service名は、ormconfig.tsのhostの値と同じにする
+    container_name: db
+    image: mysql:5.7.37
+    restart: always
+    ports:
+      - '3306:3306'
+    volumes:
+      - 'db-data:/var/lib/mysql'
+    env_file:
+      - .env
+    environment:
+      MYSQL_ROOT_PASSWORD: '${DB_PASSWORD}'
+      MYSQL_DATABASE: '${DB_DATABASE}'
+      MYSQL_USER: '${DB_USERNAME}'
+      MYSQL_PASSWORD: '${DB_PASSWORD}'
