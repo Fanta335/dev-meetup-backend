@@ -1,3 +1,4 @@
+import { Photo } from 'src/photos/photo.entity';
 import { User } from '../users/user.entity';
 
 export default () => ({
@@ -11,7 +12,7 @@ export default () => ({
     database: process.env.DB_DATABASE,
     entities:
       process.env.NODE_ENV === 'develop'
-        ? [User]
+        ? [User, Photo]
         : ['src/**/**.entity{.ts,.js}'],
     synchronize: process.env.NODE_ENV === 'develop' ? true : false,
   },
