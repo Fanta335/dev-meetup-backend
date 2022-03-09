@@ -1,6 +1,3 @@
-import { Photo } from 'src/photos/photo.entity';
-import { User } from '../users/user.entity';
-
 export default () => ({
   port: parseInt(process.env.PORT, 10) || 3000,
   database: {
@@ -12,8 +9,8 @@ export default () => ({
     database: process.env.DB_DATABASE,
     entities:
       process.env.NODE_ENV === 'develop'
-        ? [User, Photo]
-        : ['src/**/**.entity{.ts,.js}'],
+        ? ['dist/**/*.entity.{js,ts}']
+        : ['src/**/*.entity.{js,ts}'],
     synchronize: process.env.NODE_ENV === 'develop' ? true : false,
   },
 });
