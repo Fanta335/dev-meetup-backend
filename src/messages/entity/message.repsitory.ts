@@ -1,5 +1,5 @@
-import { Message } from 'src/entities/message.entity';
-import { User } from 'src/entities/user.entity';
+import { Message } from 'src/messages/entity/message.entity';
+import { User } from 'src/users/entity/user.entity';
 import { EntityRepository, Repository } from 'typeorm';
 import { CreateMessageDTO } from '../dto/createMessage.dto';
 
