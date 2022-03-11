@@ -6,6 +6,7 @@ import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { PhotosModule } from './photos/photos.module';
 import { MessagesModule } from './messages/messages.module';
+import { RoomsModule } from './rooms/rooms.module';
 import configuration from './config/configurations';
 
 @Module({
@@ -24,6 +25,7 @@ import configuration from './config/configurations';
     UsersModule,
     PhotosModule,
     MessagesModule,
+    RoomsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
