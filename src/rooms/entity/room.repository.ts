@@ -8,8 +8,8 @@ export class RoomsRepository extends Repository<Room> {
   createRoom({ name }: CreateRoomDTO, user: User): Promise<Room> {
     const room = new Room();
     room.name = name;
-    room.owner = user.id;
-    room.member = user.id;
+    room.owners = [user];
+    room.members = [user];
 
     return this.save(room);
   }

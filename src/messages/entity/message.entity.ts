@@ -1,7 +1,12 @@
+import { Room } from 'src/rooms/entity/room.entity';
+import { User } from 'src/users/entity/user.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -11,20 +16,27 @@ export class Message {
   @PrimaryGeneratedColumn()
   readonly id: number;
 
-  @Column()
-  authorId: number;
+  @ManyToOne(() => User, (user) => user.messages, { cascade: true })
+  @JoinColumn({ name: 'authorId' })
+  author: User;
 
-  @Column({ nullable: true, type: 'int' })
-  roomId: number;
+  @ManyToOne(() => Room, (room) => room.messages, {
+    cascade: true,
+    onDelete: 'CASCADE', // roomが削除されたらmessageも削除される
+  })
+  @JoinColumn({
+    name: 'roomId',
+  })
+  room: Room;
 
   @Column()
   content: string;
 
-  @Column({ nullable: true, type: 'int' })
-  parentMessageId: number | null;
+  @ManyToOne(() => Message, (message) => message.children, { nullable: true })
+  parent: Message;
 
-  @Column({ nullable: true, type: 'int' })
-  mentionId: number | null;
+  @OneToMany(() => Message, (message) => message.parent, { nullable: true })
+  children: Message[];
 
   @CreateDateColumn()
   readonly createdAt: Date;

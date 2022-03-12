@@ -1,7 +1,11 @@
+import { Message } from 'src/messages/entity/message.entity';
+import { User } from 'src/users/entity/user.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  ManyToMany,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -14,12 +18,16 @@ export class Room {
   @Column()
   name: string;
 
-  @Column()
-  owner: number;
+  @ManyToMany(() => User, (user) => user.myRooms)
+  owners: User[];
 
-  @Column()
-  member: number;
+  @ManyToMany(() => User, (user) => user.rooms)
+  members: User[];
 
+  @OneToMany(() => Message, (message) => message.room)
+  messages: Message[];
+
+  @OneToMany(() => User, (user) => user.id)
   @CreateDateColumn()
   readonly createdAt: Date;
 

@@ -6,13 +6,13 @@ import { CreateMessageDTO } from '../dto/createMessage.dto';
 @EntityRepository(Message)
 export class MessagesRepository extends Repository<Message> {
   createMessage(
-    { content, parentMessageId = null }: CreateMessageDTO,
+    { content, parent = null }: CreateMessageDTO,
     user: User,
   ): Promise<Message> {
     const message = new Message();
     message.content = content;
-    message.authorId = user.id;
-    message.parentMessageId = parentMessageId;
+    message.author = user;
+    message.parent = parent;
 
     return this.manager.save(message);
   }

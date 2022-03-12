@@ -1,5 +1,7 @@
+import { Message } from '../entity/message.entity';
+
 export class CreateMessageDTO {
   content: string;
 
-  parentMessageId?: number | null;
+  parent: Message;
 }
