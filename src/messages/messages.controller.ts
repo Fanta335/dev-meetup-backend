@@ -1,6 +1,7 @@
 import { Body, Controller, Get, Post } from '@nestjs/common';
 import { Message } from 'src/messages/entity/message.entity';
 import { User } from 'src/users/entity/user.entity';
+import { testUser } from 'src/users/testUser';
 import { CreateMessageDTO } from './dto/createMessage.dto';
 import { MessagesService } from './messages.service';
 
@@ -8,22 +9,10 @@ import { MessagesService } from './messages.service';
 export class MessagesController {
   constructor(private messagesService: MessagesService) {}
 
-  testUser: User = {
-    id: 12345,
-    firstName: 'test',
-    lastName: 'user',
-    photos: [],
-    messages: [],
-    myRooms: [],
-    rooms: [],
-    createdAt: new Date('2022-03-12T13:16:06'),
-    updatedAt: new Date('2022-03-12T13:16:06'),
-  };
-
   @Post()
   create(
     @Body() createMessageDTO: CreateMessageDTO,
-    user: User = this.testUser,
+    user: User = testUser,
   ): Promise<Message> {
     return this.messagesService.createMessage(createMessageDTO, user);
   }
