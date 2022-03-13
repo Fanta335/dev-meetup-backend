@@ -11,7 +11,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-@Entity() // relationはあとで追記する
+@Entity()
 export class Message {
   @PrimaryGeneratedColumn()
   readonly id: number;
