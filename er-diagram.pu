@@ -1,0 +1,60 @@
+@startuml er
+entity "user" {
+  +id: INT(11)
+  --
+  firstName: VARCHAR(255)
+  lastName: VARCHAR(255)
+  createdAt: DATETIME(6)
+  updatedAt: DATETIME(6)
+}
+
+entity "message" {
+  +id: INT(11)
+  --
+  content: VARCHAR(255)
+  authorId: INT(11)
+  roomId: INT(11)
+  parentId: INT(11)
+  createdAt: DATETIME(6)
+  updatedAt: DATETIME(6)
+}
+
+entity "room" {
+  +id: INT(11)
+  --
+  name: VARCHAR(255)
+  createdAt: DATETIME(6)
+  updatedAt: DATETIME(6)
+}
+
+entity "photo" {
+  +id: INT(11)
+  --
+  name: VARCHAR(255)
+  createdAt: DATETIME(6)
+  updatedAt: DATETIME(6)
+  userId: INT(11)
+}
+
+entity "user_rooms_room" {
+  +userId: INT(11)
+  +roomId: INT(11)
+  --
+}
+
+entity "user_my_rooms_room" {
+  +userId: INT(11)
+  +roomId: INT(11)
+  --
+}
+
+user ||---o{ photo
+user ||--o{ user_rooms_room
+room ||--o{ user_rooms_room
+user ||-u-o{ user_my_rooms_room
+room ||-u-o{ user_my_rooms_room
+user ||-l-o{ message
+message --o| message
+
+
+@enduml
