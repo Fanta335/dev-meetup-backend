@@ -1,32 +1,44 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DeleteResult, Repository } from 'typeorm';
-import { CreateUserDTO } from './dto/user.dto';
+import { CreateUserDTO } from './dto/createUser.dto';
+import { UpdateUserDTO } from './dto/updateUser.dto';
 import { User } from './entity/user.entity';
+import { UsersRepository } from './entity/user.repository';
 
 @Injectable()
 export class UsersService {
   constructor(
-    @InjectRepository(User)
-    private usersRepository: Repository<User>,
+    @InjectRepository(UsersRepository)
+    private usersRepository: UsersRepository,
   ) {}
 
-  async create(newUser: CreateUserDTO): Promise<User> {
-    const user = this.usersRepository.create(newUser);
-    const result = await this.usersRepository.save(user);
-    return result;
+  createUser({ firstName, lastName }: CreateUserDTO): Promise<User> {
+    return this.usersRepository.createUser({ firstName, lastName });
   }
 
-  findAll(): Promise<User[]> {
-    return this.usersRepository.find();
+  findAllUsers(): Promise<User[]> {
+    return this.usersRepository.findAllUsers();
   }
 
-  findOne(id: string): Promise<User> {
-    return this.usersRepository.findOne(id);
+  async findByUserId(id: number): Promise<User> {
+    const user = await this.usersRepository.findOne(id);
+    if (!user) {
+      throw new NotFoundException(`User not found matched id: '${id}'.`);
+    }
+    return user;
   }
 
-  async remove(id: string): Promise<DeleteResult> {
-    const result = await this.usersRepository.delete(id);
-    return result;
+  async updateUser(id: number, { firstName, lastName }: UpdateUserDTO) {
+    const user = await this.findByUserId(id);
+    user.firstName = firstName;
+    user.lastName = lastName;
+
+    return this.usersRepository.save(user);
+  }
+
+  async deleteUser(id: number): Promise<User> {
+    const user = await this.findByUserId(id);
+
+    return this.usersRepository.remove(user);
   }
 }

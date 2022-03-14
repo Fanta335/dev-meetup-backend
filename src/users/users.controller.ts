@@ -1,29 +1,46 @@
-import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
-import { CreateUserDTO } from './dto/user.dto';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+} from '@nestjs/common';
+import { CreateUserDTO } from './dto/createUser.dto';
 import { UsersService } from './users.service';
 import { User } from './entity/user.entity';
+import { UpdateUserDTO } from './dto/updateUser.dto';
 
 @Controller('users')
 export class UsersController {
   constructor(private usersService: UsersService) {}
 
   @Post()
-  async create(@Body() createUserDTO: CreateUserDTO) {
-    return this.usersService.create(createUserDTO);
+  createUser(@Body() createUserDTO: CreateUserDTO): Promise<User> {
+    return this.usersService.createUser(createUserDTO);
   }
 
   @Get()
-  async findAll(): Promise<User[]> {
-    return this.usersService.findAll();
+  findAllUsers(): Promise<User[]> {
+    return this.usersService.findAllUsers();
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string): Promise<User> {
-    return this.usersService.findOne(id);
+  findByUserId(@Param('id') id: string): Promise<User> {
+    return this.usersService.findByUserId(Number(id));
+  }
+
+  @Put(':id')
+  updateUser(
+    @Param('id') id: string,
+    @Body() updateUserDTO: UpdateUserDTO,
+  ): Promise<User> {
+    return this.usersService.updateUser(Number(id), updateUserDTO);
   }
 
   @Delete(':id')
-  async remove(@Param('id') id: string) {
-    return this.usersService.remove(id);
+  deleteUser(@Param('id') id: string): Promise<User> {
+    return this.usersService.deleteUser(Number(id));
   }
 }
