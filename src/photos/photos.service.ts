@@ -1,32 +1,37 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DeleteResult, Repository } from 'typeorm';
-import { CreatePhotoDTO } from './dto/photo.dto';
+import { User } from 'src/users/entity/user.entity';
+import { CreatePhotoDTO } from './dto/createPhoto.dto';
 import { Photo } from './entity/photo.entity';
+import { PhotosRepository } from './entity/photo.repository';
 
 @Injectable()
 export class PhotosService {
   constructor(
-    @InjectRepository(Photo)
-    private photosRepository: Repository<Photo>,
+    @InjectRepository(PhotosRepository)
+    private photosRepository: PhotosRepository,
   ) {}
 
-  async create(newPhoto: CreatePhotoDTO) {
-    const photo = this.photosRepository.create(newPhoto);
-    const result = await this.photosRepository.save(photo);
-    return result;
+  createPhoto(user: User, createPhotoDTO: CreatePhotoDTO): Promise<Photo> {
+    return this.photosRepository.createPhoto(createPhotoDTO, user);
   }
 
-  findAll(): Promise<Photo[]> {
-    return this.photosRepository.find();
+  getAllPhotos(): Promise<Photo[]> {
+    return this.photosRepository.getAllPhotos();
   }
 
-  findOne(id: string): Promise<Photo> {
-    return this.photosRepository.findOne(id);
+  async getByPhotoId(id: number): Promise<Photo> {
+    const photo = await this.photosRepository.getByPhotoId(id);
+    if (!photo) {
+      throw new NotFoundException(`Photo not found matched id: '${id}'`);
+    }
+
+    return photo;
   }
 
-  async remove(id: string): Promise<DeleteResult> {
-    const result = await this.photosRepository.delete(id);
-    return result;
+  async deletePhoto(id: number): Promise<Photo> {
+    const photo = await this.getByPhotoId(id);
+
+    return this.photosRepository.remove(photo);
   }
 }

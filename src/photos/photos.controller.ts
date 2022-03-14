@@ -1,5 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
-import { CreatePhotoDTO } from './dto/photo.dto';
+import { User } from 'src/users/entity/user.entity';
+import { CreatePhotoDTO } from './dto/createPhoto.dto';
 import { Photo } from './entity/photo.entity';
 import { PhotosService } from './photos.service';
 
@@ -8,22 +9,22 @@ export class PhotosController {
   constructor(private photosService: PhotosService) {}
 
   @Post()
-  async create(@Body() createPhotoDTO: CreatePhotoDTO) {
-    return this.photosService.create(createPhotoDTO);
+  async createPhoto(user: User, @Body() createPhotoDTO: CreatePhotoDTO) {
+    return this.photosService.createPhoto(user, createPhotoDTO);
   }
 
   @Get()
-  async findAll(): Promise<Photo[]> {
-    return this.photosService.findAll();
+  async getAllPhotos(): Promise<Photo[]> {
+    return this.photosService.getAllPhotos();
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string): Promise<Photo> {
-    return this.photosService.findOne(id);
+  async getByPhotoId(@Param('id') id: string): Promise<Photo> {
+    return this.photosService.getByPhotoId(Number(id));
   }
 
   @Delete(':id')
-  async remove(@Param('id') id: string) {
-    return this.photosService.remove(id);
+  async deletePhoto(@Param('id') id: string) {
+    return this.photosService.deletePhoto(Number(id));
   }
 }
