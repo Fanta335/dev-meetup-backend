@@ -6,6 +6,7 @@ import {
   ManyToOne,
   CreateDateColumn,
   UpdateDateColumn,
+  JoinColumn,
 } from 'typeorm';
 
 @Entity()
@@ -16,9 +17,13 @@ export class Photo {
   @Column({ length: 500 })
   name: string;
 
+  @Column({ nullable: false })
+  userId: number;
+
   @ManyToOne(() => User, (user) => user.photos, {
     onDelete: 'CASCADE',
   })
+  @JoinColumn({ name: 'userId' })
   user: User;
 
   @CreateDateColumn()
