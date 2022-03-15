@@ -16,9 +16,17 @@ export class Message {
   @PrimaryGeneratedColumn()
   readonly id: number;
 
-  @ManyToOne(() => User, (user) => user.messages, { cascade: true })
+  @Column({ nullable: false })
+  authorId: number;
+
+  @ManyToOne(() => User, (user) => user.messages, {
+    cascade: true,
+  })
   @JoinColumn({ name: 'authorId' })
   author: User;
+
+  @Column()
+  roomId: number;
 
   @ManyToOne(() => Room, (room) => room.messages, {
     cascade: true,
