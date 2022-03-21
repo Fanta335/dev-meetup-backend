@@ -6,11 +6,14 @@ import {
   Param,
   Post,
   Put,
+  UseGuards,
 } from '@nestjs/common';
 import { CreateUserDTO } from './dto/createUser.dto';
 import { UsersService } from './users.service';
 import { User } from './entity/user.entity';
 import { UpdateUserDTO } from './dto/updateUser.dto';
+import { AuthGuard } from '@nestjs/passport';
+import { GetUser } from './get-user.decorator';
 
 @Controller('users')
 export class UsersController {
@@ -22,7 +25,8 @@ export class UsersController {
   }
 
   @Get()
-  findAllUsers(): Promise<User[]> {
+  findAllUsers(@GetUser() user: User): Promise<User[]> {
+    console.log(user);
     return this.usersService.findAllUsers();
   }
 
