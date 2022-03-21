@@ -24,6 +24,7 @@ export class UsersController {
     return this.usersService.createUser(createUserDTO);
   }
 
+  @UseGuards(AuthGuard('jwt'))
   @Get()
   findAllUsers(@GetUser() user: User): Promise<User[]> {
     console.log(user);
