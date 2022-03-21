@@ -11,6 +11,8 @@ export default () => ({
       process.env.NODE_ENV === 'develop'
         ? ['dist/**/*.entity.{js,ts}']
         : ['src/**/*.entity.{js,ts}'],
-    synchronize: process.env.NODE_ENV === 'develop' ? true : false,
+    migrations: ['dist/migrations/*.{js,ts}'],
+    // synchronize: process.env.NODE_ENV === 'develop' ? true : false,
+    synchronize: false,
   },
 });
