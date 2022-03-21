@@ -6,7 +6,9 @@ import {
   Param,
   Post,
   Put,
+  UseGuards,
 } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { User } from 'src/users/entity/user.entity';
 import { CreateRoomDTO } from './dto/createRoom.dto';
 import { UpdateRoomDTO } from './dto/updateRoom.dto';
@@ -17,6 +19,7 @@ import { RoomsService } from './rooms.service';
 export class RoomsController {
   constructor(private roomsService: RoomsService) {}
 
+  @UseGuards(AuthGuard('jwt'))
   @Post()
   createRoom(@Body() createRoomDTO: CreateRoomDTO, user: User): Promise<Room> {
     return this.roomsService.createRoom(createRoomDTO, user);
@@ -37,6 +40,7 @@ export class RoomsController {
     return this.roomsService.getByRoomName(name);
   }
 
+  @UseGuards(AuthGuard('jwt'))
   @Put()
   updateRoom(
     @Param(':id') id: number,
@@ -45,6 +49,7 @@ export class RoomsController {
     return this.roomsService.updateRoom(id, updateRoomDTO);
   }
 
+  @UseGuards(AuthGuard('jwt'))
   @Delete()
   deleteRoom(id: number): Promise<Room> {
     return this.roomsService.deleteRoom(id);

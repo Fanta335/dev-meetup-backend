@@ -18,10 +18,10 @@ export class User {
   readonly id: number;
 
   @Column()
-  firstName: string;
+  name: string;
 
   @Column()
-  lastName: string;
+  email: string;
 
   @OneToMany(() => Photo, (photo) => photo.user)
   photos: Photo[];

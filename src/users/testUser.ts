@@ -2,8 +2,8 @@ import { User } from './entity/user.entity';
 
 export const testUser: User = {
   id: 12345,
-  firstName: 'test',
-  lastName: 'user',
+  name: 'test_user',
+  email: 'test-user@example.com',
   photos: [],
   messages: [],
   myRooms: [],
