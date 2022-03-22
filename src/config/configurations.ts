@@ -9,8 +9,13 @@ export default () => ({
     database: process.env.DB_DATABASE,
     entities:
       process.env.NODE_ENV === 'develop'
-        ? ['dist/**/*.entity.{js,ts}']
-        : ['src/**/*.entity.{js,ts}'],
-    synchronize: process.env.NODE_ENV === 'develop' ? true : false,
+        ? [`${__dirname}/../../dist/**/*.entity.{js,ts}`]
+        : [`${__dirname}/../**/*.entity.{js,ts}`],
+    migrations: ['dist/migrations/*.{js,ts}'],
+    cli: {
+      migrationsDir: 'src/migrations',
+    },
+    // synchronize: process.env.NODE_ENV === 'develop' ? true : false,
+    synchronize: false,
   },
 });
