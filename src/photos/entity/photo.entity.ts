@@ -18,7 +18,7 @@ export class Photo {
   name: string;
 
   @Column({ nullable: false })
-  userId: number;
+  userId: string;
 
   @ManyToOne(() => User, (user) => user.photos, {
     onDelete: 'CASCADE',

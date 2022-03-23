@@ -14,8 +14,8 @@ import {
 
 @Entity()
 export class User {
-  @PrimaryColumn()
-  id: number;
+  @PrimaryColumn('varchar', { length: 30 })
+  id: string;
 
   @Column()
   name: string;

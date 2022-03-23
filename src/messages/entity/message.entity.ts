@@ -17,7 +17,7 @@ export class Message {
   readonly id: number;
 
   @Column({ nullable: false })
-  authorId: number;
+  authorId: string;
 
   @ManyToOne(() => User, (user) => user.messages, {
     cascade: true,
