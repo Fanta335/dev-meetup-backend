@@ -4,7 +4,7 @@ import { Room } from 'src/rooms/entity/room.entity';
 import {
   Entity,
   Column,
-  PrimaryGeneratedColumn,
+  PrimaryColumn,
   OneToMany,
   CreateDateColumn,
   UpdateDateColumn,
@@ -14,8 +14,8 @@ import {
 
 @Entity()
 export class User {
-  @PrimaryGeneratedColumn()
-  readonly id: number;
+  @PrimaryColumn()
+  id: number;
 
   @Column()
   name: string;
