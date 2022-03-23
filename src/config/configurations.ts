@@ -11,9 +11,9 @@ export default () => ({
       process.env.NODE_ENV === 'develop'
         ? [`${__dirname}/../../dist/**/*.entity.{js,ts}`]
         : [`${__dirname}/../**/*.entity.{js,ts}`],
-    migrations: ['../../dist/migrations/*.{js,ts}'],
+    migrations: [`${__dirname}/../../../dist/migrations/*.{js,ts}`],
     cli: {
-      migrationsDir: '../../dist/migrations',
+      migrationsDir: `${__dirname}/../../../dist/migrations`,
     },
     // synchronize: process.env.NODE_ENV === 'develop' ? true : false,
     synchronize: false,
