@@ -18,6 +18,8 @@ services:
       - db
     links:
       - db
+    environment:
+      - DB_HOST=db
 
   db: # service名は、ormconfig.tsのhostの値と同じにする
     container_name: db
