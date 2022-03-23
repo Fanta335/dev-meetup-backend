@@ -7,10 +7,7 @@ export default () => ({
     username: process.env.DB_USERNAME,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_DATABASE,
-    entities:
-      process.env.NODE_ENV === 'develop'
-        ? [`${__dirname}/../../dist/**/*.entity.{js,ts}`]
-        : [`${__dirname}/../**/*.entity.{js,ts}`],
+    entities: [`${__dirname}/../../dist/**/*.entity.{js,ts}`],
     migrations: [`${__dirname}/../../../dist/migrations/*.{js,ts}`],
     cli: {
       migrationsDir: `${__dirname}/../../../dist/migrations`,
