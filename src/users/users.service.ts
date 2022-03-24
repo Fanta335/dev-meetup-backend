@@ -28,6 +28,14 @@ export class UsersService {
     return user;
   }
 
+  async findByUserSubId(subId: string): Promise<User> {
+    const user = await this.usersRepository.findByUserSubId(subId);
+    if (!user) {
+      throw new NotFoundException(`User not found matched subId: '${subId}'.`);
+    }
+    return user;
+  }
+
   async updateUser(id: number, { name, email }: UpdateUserDTO) {
     const user = await this.findByUserId(id);
     user.name = name;

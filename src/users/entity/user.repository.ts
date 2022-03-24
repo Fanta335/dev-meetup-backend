@@ -4,9 +4,9 @@ import { User } from './user.entity';
 
 @EntityRepository(User)
 export class UsersRepository extends Repository<User> {
-  createUser({ sub, name, email }: CreateUserDTO): Promise<User> {
+  createUser({ name, email, subId }: CreateUserDTO): Promise<User> {
     const newUser = new User();
-    newUser.subId = sub;
+    newUser.subId = subId;
     newUser.name = name;
     newUser.email = email;
     newUser.photos = [];
@@ -23,5 +23,13 @@ export class UsersRepository extends Repository<User> {
 
   async findByUserId(id: number): Promise<User> {
     return this.findOne(id);
+  }
+
+  async findByUserSubId(subId: string): Promise<User> {
+    return this.findOne({
+      where: {
+        subId: subId,
+      },
+    });
   }
 }

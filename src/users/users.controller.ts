@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { CreateUserDTO } from './dto/createUser.dto';
@@ -13,7 +14,7 @@ import { UsersService } from './users.service';
 import { User } from './entity/user.entity';
 import { UpdateUserDTO } from './dto/updateUser.dto';
 import { AuthGuard } from '@nestjs/passport';
-import { GetUser } from './get-user.decorator';
+// import { GetUser } from './get-user.decorator';
 
 @Controller('users')
 export class UsersController {
@@ -26,9 +27,15 @@ export class UsersController {
 
   @UseGuards(AuthGuard('jwt'))
   @Get()
-  findAllUsers(@GetUser() user: User): Promise<User[]> {
-    console.log(user);
+  findAllUsers(): Promise<User[]> {
+    // console.log(user);
     return this.usersService.findAllUsers();
+  }
+
+  @Get('search')
+  findByUserSubId(@Query('sub-id') subId: string): Promise<User> {
+    console.log(subId);
+    return this.usersService.findByUserSubId(subId);
   }
 
   @Get(':id')
