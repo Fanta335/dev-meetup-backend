@@ -4,9 +4,9 @@ import { User } from './user.entity';
 
 @EntityRepository(User)
 export class UsersRepository extends Repository<User> {
-  createUser({ id, name, email }: CreateUserDTO): Promise<User> {
+  createUser({ sub, name, email }: CreateUserDTO): Promise<User> {
     const newUser = new User();
-    newUser.id = id;
+    newUser.subId = sub;
     newUser.name = name;
     newUser.email = email;
     newUser.photos = [];

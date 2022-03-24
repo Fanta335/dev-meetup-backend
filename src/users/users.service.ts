@@ -12,8 +12,8 @@ export class UsersService {
     private usersRepository: UsersRepository,
   ) {}
 
-  createUser({ id, name, email }: CreateUserDTO): Promise<User> {
-    return this.usersRepository.createUser({ id, name, email });
+  createUser(createUserDTO: CreateUserDTO): Promise<User> {
+    return this.usersRepository.createUser(createUserDTO);
   }
 
   findAllUsers(): Promise<User[]> {

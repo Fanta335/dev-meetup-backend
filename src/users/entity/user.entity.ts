@@ -4,18 +4,21 @@ import { Room } from 'src/rooms/entity/room.entity';
 import {
   Entity,
   Column,
-  PrimaryColumn,
   OneToMany,
   CreateDateColumn,
   UpdateDateColumn,
   ManyToMany,
   JoinTable,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
 
 @Entity()
 export class User {
-  @PrimaryColumn('varchar', { length: 30 })
-  id: string;
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column({ type: 'varchar', length: 30, unique: true })
+  subId: string;
 
   @Column()
   name: string;
