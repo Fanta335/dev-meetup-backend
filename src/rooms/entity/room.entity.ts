@@ -20,10 +20,10 @@ export class Room {
   name: string;
 
   @Column()
-  ownersId: number[];
+  ownerId: number;
 
   @Column()
-  membersId: number[];
+  memberId: number;
 
   @CreateDateColumn()
   createdAt: Date;
