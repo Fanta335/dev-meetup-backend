@@ -6,11 +6,11 @@ import { Room } from './room.entity';
 
 @EntityRepository(Room)
 export class RoomsRepository extends Repository<Room> {
-  createRoom({ name }: CreateRoomDTO, user: User): Promise<Room> {
+  createRoom({ name }: CreateRoomDTO, userId: number): Promise<Room> {
     const room = new Room();
     room.name = name;
-    room.owners = [user];
-    room.members = [user];
+    room.owners = [userId];
+    room.members = [userId];
 
     return this.save(room);
   }

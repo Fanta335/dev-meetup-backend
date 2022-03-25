@@ -7,12 +7,13 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   JoinColumn,
+  DeleteDateColumn,
 } from 'typeorm';
 
 @Entity()
 export class Photo {
   @PrimaryGeneratedColumn()
-  readonly id: number;
+  id: number;
 
   @Column({ length: 500 })
   name: string;
@@ -20,15 +21,19 @@ export class Photo {
   @Column({ nullable: false })
   userId: number;
 
-  @ManyToOne(() => User, (user) => user.photos, {
-    onDelete: 'CASCADE',
-  })
-  @JoinColumn({ name: 'userId' })
-  user: User;
-
   @CreateDateColumn()
-  readonly createdAt: Date;
+  createdAt: Date;
 
   @UpdateDateColumn()
-  readonly updatedAt: Date;
+  updatedAt: Date;
+
+  @DeleteDateColumn()
+  deletedAt: Date;
+
+  @ManyToOne(() => User, (user) => user.photos, {
+    // When the user is deleted, the photo is also deleted.
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn()
+  user: User;
 }

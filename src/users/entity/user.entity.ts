@@ -10,6 +10,7 @@ import {
   ManyToMany,
   JoinTable,
   PrimaryGeneratedColumn,
+  DeleteDateColumn,
 } from 'typeorm';
 
 @Entity()
@@ -26,6 +27,15 @@ export class User {
   @Column({ unique: true })
   email: string;
 
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
+
+  @DeleteDateColumn()
+  deletedAt: Date;
+
   @OneToMany(() => Photo, (photo) => photo.user)
   photos: Photo[];
 
@@ -33,16 +43,31 @@ export class User {
   messages: Message[];
 
   @ManyToMany(() => Room, (room) => room.owners)
-  @JoinTable()
+  @JoinTable({
+    // Name of the junction table will be as follows.
+    name: 'ownership',
+    joinColumn: {
+      name: 'ownerId',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'roomId',
+      referencedColumnName: 'id',
+    },
+  })
   myRooms: Room[];
 
   @ManyToMany(() => Room, (room) => room.members)
-  @JoinTable()
+  @JoinTable({
+    name: 'belonging',
+    joinColumn: {
+      name: 'memberId',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'roomId',
+      referencedColumnName: 'id',
+    },
+  })
   rooms: Room[];
-
-  @CreateDateColumn()
-  readonly createdAt: Date;
-
-  @UpdateDateColumn()
-  readonly updatedAt: Date;
 }

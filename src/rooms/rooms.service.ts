@@ -1,6 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from 'src/users/entity/user.entity';
 import { CreateRoomDTO } from './dto/createRoom.dto';
 import { UpdateRoomDTO } from './dto/updateRoom.dto';
 import { Room } from './entity/room.entity';
@@ -13,8 +12,8 @@ export class RoomsService {
     private roomsRepository: RoomsRepository,
   ) {}
 
-  createRoom(createRoom: CreateRoomDTO, user: User): Promise<Room> {
-    return this.roomsRepository.createRoom(createRoom, user);
+  createRoom(createRoom: CreateRoomDTO, userId: number): Promise<Room> {
+    return this.roomsRepository.createRoom(createRoom, userId);
   }
 
   getAllRooms(): Promise<Room[]> {

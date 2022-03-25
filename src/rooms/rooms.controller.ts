@@ -21,8 +21,8 @@ export class RoomsController {
 
   @UseGuards(AuthGuard('jwt'))
   @Post()
-  createRoom(@Body() createRoomDTO: CreateRoomDTO, user: User): Promise<Room> {
-    return this.roomsService.createRoom(createRoomDTO, user);
+  createRoom(@Body() createRoomDTO: CreateRoomDTO, userId: number): Promise<Room> {
+    return this.roomsService.createRoom(createRoomDTO, userId);
   }
 
   @Get()

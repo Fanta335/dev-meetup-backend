@@ -3,6 +3,7 @@ import { User } from 'src/users/entity/user.entity';
 import {
   Column,
   CreateDateColumn,
+  DeleteDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
@@ -14,28 +15,13 @@ import {
 @Entity()
 export class Message {
   @PrimaryGeneratedColumn()
-  readonly id: number;
+  id: number;
 
   @Column({ nullable: false })
   authorId: number;
 
-  @ManyToOne(() => User, (user) => user.messages, {
-    cascade: true,
-  })
-  @JoinColumn({ name: 'authorId' })
-  author: User;
-
   @Column()
   roomId: number;
-
-  @ManyToOne(() => Room, (room) => room.messages, {
-    cascade: true,
-    onDelete: 'CASCADE', // roomが削除されたらmessageも削除される
-  })
-  @JoinColumn({
-    name: 'roomId',
-  })
-  room: Room;
 
   @Column()
   content: string;
@@ -47,8 +33,26 @@ export class Message {
   children: Message[];
 
   @CreateDateColumn()
-  readonly createdAt: Date;
+  createdAt: Date;
 
   @UpdateDateColumn()
-  readonly updatedAt: Date;
+  updatedAt: Date;
+
+  @DeleteDateColumn()
+  deletedAt: Date;
+
+  @ManyToOne(() => User, (user) => user.messages, {
+    cascade: true,
+  })
+  @JoinColumn({ name: 'authorId' })
+  author: User;
+
+  @ManyToOne(() => Room, (room) => room.messages, {
+    cascade: true,
+    onDelete: 'CASCADE', // roomが削除されたらmessageも削除される
+  })
+  @JoinColumn({
+    name: 'roomId',
+  })
+  room: Room;
 }
