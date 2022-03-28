@@ -12,8 +12,8 @@ export class RoomsService {
     private roomsRepository: RoomsRepository,
   ) {}
 
-  createRoom(createRoom: CreateRoomDTO, userId: number): Promise<Room> {
-    return this.roomsRepository.createRoom(createRoom, userId);
+  createRoom(createRoomDTO: CreateRoomDTO): Promise<Room> {
+    return this.roomsRepository.createRoom(createRoomDTO);
   }
 
   getAllRooms(): Promise<Room[]> {

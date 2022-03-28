@@ -1,4 +1,3 @@
-import { User } from 'src/users/entity/user.entity';
 import { EntityRepository, Repository } from 'typeorm';
 import { CreateRoomDTO } from '../dto/createRoom.dto';
 import { UpdateRoomDTO } from '../dto/updateRoom.dto';
@@ -6,11 +5,11 @@ import { Room } from './room.entity';
 
 @EntityRepository(Room)
 export class RoomsRepository extends Repository<Room> {
-  createRoom({ name }: CreateRoomDTO, userId: number): Promise<Room> {
+  createRoom({ name, userId }: CreateRoomDTO): Promise<Room> {
     const room = new Room();
     room.name = name;
-    room.owners = [userId];
-    room.members = [userId];
+    room.ownerId = userId;
+    room.memberId = userId;
 
     return this.save(room);
   }

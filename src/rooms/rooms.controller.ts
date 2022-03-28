@@ -9,7 +9,6 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { User } from 'src/users/entity/user.entity';
 import { CreateRoomDTO } from './dto/createRoom.dto';
 import { UpdateRoomDTO } from './dto/updateRoom.dto';
 import { Room } from './entity/room.entity';
@@ -21,8 +20,8 @@ export class RoomsController {
 
   @UseGuards(AuthGuard('jwt'))
   @Post()
-  createRoom(@Body() createRoomDTO: CreateRoomDTO, userId: number): Promise<Room> {
-    return this.roomsService.createRoom(createRoomDTO, userId);
+  createRoom(@Body() createRoomDTO: CreateRoomDTO): Promise<Room> {
+    return this.roomsService.createRoom(createRoomDTO);
   }
 
   @Get()
