@@ -9,10 +9,6 @@ export class UsersRepository extends Repository<User> {
     newUser.subId = subId;
     newUser.name = name;
     newUser.email = email;
-    newUser.photos = [];
-    newUser.messages = [];
-    newUser.myRooms = [];
-    newUser.rooms = [];
 
     return this.save(newUser);
   }
