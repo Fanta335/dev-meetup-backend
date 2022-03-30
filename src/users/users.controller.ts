@@ -14,12 +14,16 @@ import { UsersService } from './users.service';
 import { User } from './entity/user.entity';
 import { UpdateUserDTO } from './dto/updateUser.dto';
 import { AuthGuard } from '@nestjs/passport';
+import { PermissionsGuard } from 'src/authz/permissions.guard';
+import { Permissions } from 'src/authz/permissions.decorator';
 
 @Controller('users')
 export class UsersController {
   constructor(private usersService: UsersService) {}
 
+  @UseGuards(AuthGuard('jwt'), PermissionsGuard)
   @Post()
+  @Permissions('create:users')
   createUser(@Body() createUserDTO: CreateUserDTO): Promise<User> {
     return this.usersService.createUser(createUserDTO);
   }
@@ -27,7 +31,6 @@ export class UsersController {
   @UseGuards(AuthGuard('jwt'))
   @Get()
   findAllUsers(): Promise<User[]> {
-    // console.log(user);
     return this.usersService.findAllUsers();
   }
 
