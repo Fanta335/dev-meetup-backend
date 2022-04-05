@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
@@ -17,6 +18,7 @@ import { Room } from './entity/room.entity';
 import { RoomsService } from './rooms.service';
 
 @Controller('rooms')
+@UseGuards(AuthGuard('jwt'))
 export class RoomsController {
   constructor(private roomsService: RoomsService) {}
 
@@ -29,23 +31,32 @@ export class RoomsController {
     return this.roomsService.createRoom(token, createRoomDTO);
   }
 
-  @UseGuards(AuthGuard('jwt'))
   @Get()
   getAllRooms(): Promise<Room[]> {
     return this.roomsService.getAllRooms();
   }
 
-  @Get()
-  getByRoomId(@Param(':id') id: number): Promise<Room> {
+  @Get('search')
+  searchRooms(
+    // @Query('name') name?: string,
+    @Query('owner') owner: number,
+    // @Query('member') member?: number,
+  ): Promise<Room[]> {
+    if (typeof owner === 'number') {
+      return this.roomsService.getOwnRooms(owner);
+    }
+  }
+
+  @Get(':id')
+  getByRoomId(@Param('id') id: number): Promise<Room> {
     return this.roomsService.getByRoomId(id);
   }
 
-  @Get()
+  @Get(':name')
   getByRoomName(@Body() name: string): Promise<Room> {
     return this.roomsService.getByRoomName(name);
   }
 
-  @UseGuards(AuthGuard('jwt'))
   @Put()
   updateRoom(
     @Param(':id') id: number,

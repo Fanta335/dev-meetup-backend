@@ -27,6 +27,13 @@ export class RoomsRepository extends Repository<Room> {
     return this.findOne({ name: name });
   }
 
+  getOwnRooms(ownerId: number): Promise<Room[]> {
+    return this.createQueryBuilder('room')
+      .leftJoin('room.owners', 'user')
+      .where('user.id = :id', { id: ownerId })
+      .getMany();
+  }
+
   async updateRoom(id: number, updateRoomDTO: UpdateRoomDTO): Promise<Room> {
     return this.save({ id: id, ...updateRoomDTO });
   }

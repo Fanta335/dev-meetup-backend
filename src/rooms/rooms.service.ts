@@ -49,6 +49,17 @@ export class RoomsService {
     return room;
   }
 
+  async getOwnRooms(ownerId: number): Promise<Room[]> {
+    const rooms = await this.roomsRepository.getOwnRooms(ownerId);
+    if (!rooms) {
+      throw new NotFoundException(
+        `Room not found that belongs to the user of id: ${ownerId}`,
+      );
+    }
+
+    return rooms;
+  }
+
   updateRoom(id: number, updateRoomDTO: UpdateRoomDTO): Promise<Room> {
     return this.roomsRepository.updateRoom(id, updateRoomDTO);
   }
