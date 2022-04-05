@@ -1,5 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { UsersRepository } from 'src/users/entity/user.repository';
+import { UserAccessToken } from 'src/users/types';
 import { CreateRoomDTO } from './dto/createRoom.dto';
 import { UpdateRoomDTO } from './dto/updateRoom.dto';
 import { Room } from './entity/room.entity';
@@ -10,10 +12,19 @@ export class RoomsService {
   constructor(
     @InjectRepository(RoomsRepository)
     private roomsRepository: RoomsRepository,
+    private usersRepository: UsersRepository,
   ) {}
 
-  createRoom(createRoomDTO: CreateRoomDTO): Promise<Room> {
-    return this.roomsRepository.createRoom(createRoomDTO);
+  namespace = process.env.AUTH0_NAMESPACE;
+  claimMysqlUser = this.namespace + '/mysqlUser';
+
+  async createRoom(
+    token: UserAccessToken,
+    createRoomDTO: CreateRoomDTO,
+  ): Promise<Room> {
+    const userId = token[this.claimMysqlUser].id;
+    const user = await this.usersRepository.findByUserId(userId);
+    return this.roomsRepository.createRoom(user, createRoomDTO);
   }
 
   getAllRooms(): Promise<Room[]> {

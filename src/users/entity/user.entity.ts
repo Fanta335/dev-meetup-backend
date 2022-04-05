@@ -42,7 +42,9 @@ export class User {
   @OneToMany(() => Message, (message) => message.author)
   messages: Message[];
 
-  @ManyToMany(() => Room, (room) => room.owners)
+  @ManyToMany(() => Room, (room) => room.owners, {
+    onDelete: 'CASCADE',
+  })
   @JoinTable({
     // Name of the junction table will be as follows.
     name: 'ownership',
@@ -57,7 +59,9 @@ export class User {
   })
   myRooms: Room[];
 
-  @ManyToMany(() => Room, (room) => room.members)
+  @ManyToMany(() => Room, (room) => room.members, {
+    onDelete: 'CASCADE',
+  })
   @JoinTable({
     name: 'belonging',
     joinColumn: {

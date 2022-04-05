@@ -16,6 +16,7 @@ import { UpdateUserDTO } from './dto/updateUser.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { PermissionsGuard } from 'src/authz/permissions.guard';
 import { Permissions } from 'src/authz/permissions.decorator';
+import { GetAccessToken } from './get-access-token.decorator';
 
 @Controller('users')
 export class UsersController {
@@ -30,7 +31,7 @@ export class UsersController {
 
   @UseGuards(AuthGuard('jwt'))
   @Get()
-  findAllUsers(): Promise<User[]> {
+  findAllUsers(@GetAccessToken() token): Promise<User[]> {
     return this.usersService.findAllUsers();
   }
 

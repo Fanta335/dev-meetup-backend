@@ -19,12 +19,6 @@ export class Room {
   @Column()
   name: string;
 
-  @Column()
-  ownerId: number;
-
-  @Column()
-  memberId: number;
-
   @CreateDateColumn()
   createdAt: Date;
 
@@ -34,10 +28,16 @@ export class Room {
   @DeleteDateColumn()
   deletedAt: Date;
 
-  @ManyToMany(() => User, (user) => user.myRooms)
+  @ManyToMany(() => User, (user) => user.myRooms, {
+    onDelete: 'CASCADE',
+    nullable: false,
+  })
   owners: User[];
 
-  @ManyToMany(() => User, (user) => user.rooms)
+  @ManyToMany(() => User, (user) => user.rooms, {
+    onDelete: 'CASCADE',
+    nullable: false,
+  })
   members: User[];
 
   @OneToMany(() => Message, (message) => message.room)

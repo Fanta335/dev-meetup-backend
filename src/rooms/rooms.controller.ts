@@ -9,6 +9,8 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { GetAccessToken } from 'src/users/get-access-token.decorator';
+import { UserAccessToken } from 'src/users/types';
 import { CreateRoomDTO } from './dto/createRoom.dto';
 import { UpdateRoomDTO } from './dto/updateRoom.dto';
 import { Room } from './entity/room.entity';
@@ -20,10 +22,14 @@ export class RoomsController {
 
   @UseGuards(AuthGuard('jwt'))
   @Post()
-  createRoom(@Body() createRoomDTO: CreateRoomDTO): Promise<Room> {
-    return this.roomsService.createRoom(createRoomDTO);
+  createRoom(
+    @GetAccessToken() token: UserAccessToken,
+    @Body() createRoomDTO: CreateRoomDTO,
+  ): Promise<Room> {
+    return this.roomsService.createRoom(token, createRoomDTO);
   }
 
+  @UseGuards(AuthGuard('jwt'))
   @Get()
   getAllRooms(): Promise<Room[]> {
     return this.roomsService.getAllRooms();
