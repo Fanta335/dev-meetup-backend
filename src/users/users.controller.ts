@@ -36,7 +36,6 @@ export class UsersController {
 
   @Get('search')
   findByUserSubId(@Query('sub-id') subId: string): Promise<User> {
-    console.log(subId);
     return this.usersService.findByUserSubId(subId);
   }
 
