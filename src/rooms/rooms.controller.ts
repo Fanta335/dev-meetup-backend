@@ -6,7 +6,6 @@ import {
   Param,
   Post,
   Put,
-  Query,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
@@ -36,20 +35,28 @@ export class RoomsController {
     return this.roomsService.getAllRooms();
   }
 
-  @Get('search')
-  searchRooms(
-    // @Query('name') name?: string,
-    @Query('owner') owner: number,
-    // @Query('member') member?: number,
-  ): Promise<Room[]> {
-    if (typeof owner === 'number') {
-      return this.roomsService.getOwnRooms(owner);
-    }
+  @Get('own-rooms')
+  getOwnRooms(@GetAccessToken() token: UserAccessToken): Promise<Room[]> {
+    return this.roomsService.getOwnRooms(token);
   }
 
+  // @Get('search')
+  // searchRooms(
+  //   // @Query('name') name?: string,
+  //   @Query('owner') owner: number,
+  //   // @Query('member') member?: number,
+  // ): Promise<Room[]> {
+  //   if (typeof owner === 'number') {
+  //     return this.roomsService.getOwnRooms(owner);
+  //   }
+  // }
+
   @Get(':id')
-  getByRoomId(@Param('id') id: number): Promise<Room> {
-    return this.roomsService.getByRoomId(id);
+  getRoomDetailById(
+    @GetAccessToken() token: UserAccessToken,
+    @Param('id') id: number,
+  ): Promise<Room> {
+    return this.roomsService.getRoomDetailById(token, id);
   }
 
   @Get(':name')

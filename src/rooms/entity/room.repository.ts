@@ -34,6 +34,15 @@ export class RoomsRepository extends Repository<Room> {
       .getMany();
   }
 
+  getRoomDetail(id: number): Promise<Room> {
+    return this.findOne({
+      where: { id: id },
+      relations: ['members', 'messages'],
+    });
+  }
+
+  // userRepository.find({ relations: ["profile", "photos", "videos"] });
+
   async updateRoom(id: number, updateRoomDTO: UpdateRoomDTO): Promise<Room> {
     return this.save({ id: id, ...updateRoomDTO });
   }

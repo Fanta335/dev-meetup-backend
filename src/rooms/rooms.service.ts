@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UsersRepository } from 'src/users/entity/user.repository';
 import { UserAccessToken } from 'src/users/types';
@@ -15,6 +19,7 @@ export class RoomsService {
     private usersRepository: UsersRepository,
   ) {}
 
+  // Define claim in order to get user metadata.
   namespace = process.env.AUTH0_NAMESPACE;
   claimMysqlUser = this.namespace + '/mysqlUser';
 
@@ -22,7 +27,7 @@ export class RoomsService {
     token: UserAccessToken,
     createRoomDTO: CreateRoomDTO,
   ): Promise<Room> {
-    const userId = token[this.claimMysqlUser].id;
+    const userId: number = token[this.claimMysqlUser].id;
     const user = await this.usersRepository.findByUserId(userId);
     return this.roomsRepository.createRoom(user, createRoomDTO);
   }
@@ -49,7 +54,8 @@ export class RoomsService {
     return room;
   }
 
-  async getOwnRooms(ownerId: number): Promise<Room[]> {
+  async getOwnRooms(token: UserAccessToken): Promise<Room[]> {
+    const ownerId: number = token[this.claimMysqlUser].id;
     const rooms = await this.roomsRepository.getOwnRooms(ownerId);
     if (!rooms) {
       throw new NotFoundException(
@@ -58,6 +64,28 @@ export class RoomsService {
     }
 
     return rooms;
+  }
+
+  async getRoomDetailById(token: UserAccessToken, id: number): Promise<Room> {
+    const userId: number = token[this.claimMysqlUser].id;
+    const room = await this.roomsRepository.getRoomDetail(id);
+
+    // Check if the room exists.
+    if (!room) {
+      throw new NotFoundException(`Room not found matched id: ${id}`);
+    }
+
+    // Check if the user is a member of the room.
+    const isMember =
+      room.members.find((member) => member.id === userId) !== undefined;
+
+    if (!isMember) {
+      throw new ForbiddenException(
+        `You do not have the permission to access this resource. Only members of the room have the permission.`,
+      );
+    }
+
+    return room;
   }
 
   updateRoom(id: number, updateRoomDTO: UpdateRoomDTO): Promise<Room> {
