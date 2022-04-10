@@ -37,7 +37,7 @@ export class RoomsRepository extends Repository<Room> {
   getRoomDetail(id: number): Promise<Room> {
     return this.findOne({
       where: { id: id },
-      relations: ['members', 'messages'],
+      relations: ['owners', 'members', 'messages'],
     });
   }
 
