@@ -18,13 +18,13 @@ export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'varchar', length: 24, unique: true })
+  @Column({ type: 'varchar', length: 24, unique: true, select: false })
   subId: string;
 
   @Column()
   name: string;
 
-  @Column({ unique: true })
+  @Column({ unique: true, select: false })
   email: string;
 
   @CreateDateColumn()
