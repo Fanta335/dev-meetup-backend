@@ -1,7 +1,8 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { Message } from 'src/messages/entity/message.entity';
-import { Room } from 'src/rooms/entity/room.entity';
-import { User } from 'src/users/entity/user.entity';
+import { GetAccessToken } from 'src/users/get-access-token.decorator';
+import { UserAccessToken } from 'src/users/types';
 import { CreateMessageDTO } from './dto/createMessage.dto';
 import { MessagesService } from './messages.service';
 
@@ -9,13 +10,13 @@ import { MessagesService } from './messages.service';
 export class MessagesController {
   constructor(private messagesService: MessagesService) {}
 
+  @UseGuards(AuthGuard('jwt'))
   @Post()
   create(
+    @GetAccessToken() token: UserAccessToken,
     @Body() createMessageDTO: CreateMessageDTO,
-    user: User,
-    room: Room,
   ): Promise<Message> {
-    return this.messagesService.createMessage(createMessageDTO, user, room);
+    return this.messagesService.createMessage(token, createMessageDTO);
   }
 
   @Get()
