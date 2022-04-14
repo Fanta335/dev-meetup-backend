@@ -7,14 +7,6 @@ export const GetAccessToken = createParamDecorator(
   },
 );
 
-export const GetWsData = createParamDecorator(
-  (data: unknown, ctx: ExecutionContext) => {
-    const client = ctx.switchToWs().getClient();
-    const resultData = ctx.switchToWs().getData();
-    console.log('client: ', client, 'resultData: ', resultData);
-  },
-);
-
 export const GetJwtFromWsClient = createParamDecorator(
   (data: unknown, ctx: ExecutionContext) => {
     const jwt: string = ctx.switchToWs().getClient().handshake.auth.token;
