@@ -21,6 +21,7 @@ export class MessageGateway implements OnGatewayInit, OnGatewayConnection {
 
   constructor(private messageService: MessagesService) {}
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async afterInit(server: any) {
     console.log('WebSocket server initialized.');
   }
