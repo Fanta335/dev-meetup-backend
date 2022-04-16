@@ -1,9 +1,15 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { AddUserToRoomDTO } from './dto/addUserToRoom.dto';
 import { CreateUserDTO } from './dto/createUser.dto';
 import { UpdateUserDTO } from './dto/updateUser.dto';
 import { User } from './entity/user.entity';
 import { UsersRepository } from './entity/user.repository';
+import { UserAccessToken } from './types';
 
 @Injectable()
 export class UsersService {
@@ -11,6 +17,9 @@ export class UsersService {
     @InjectRepository(UsersRepository)
     private usersRepository: UsersRepository,
   ) {}
+
+  namespace = process.env.AUTH0_NAMESPACE;
+  claimMysqlUser = this.namespace + '/mysqlUser';
 
   createUser(createUserDTO: CreateUserDTO): Promise<User> {
     return this.usersRepository.createUser(createUserDTO);
@@ -21,7 +30,7 @@ export class UsersService {
   }
 
   async findByUserId(id: number): Promise<User> {
-    const user = await this.usersRepository.findOne(id);
+    const user = await this.usersRepository.findByUserId(id);
     if (!user) {
       throw new NotFoundException(`User not found matched id: '${id}'.`);
     }
@@ -36,12 +45,37 @@ export class UsersService {
     return user;
   }
 
-  async updateUser(id: number, { name, email }: UpdateUserDTO) {
-    const user = await this.findByUserId(id);
-    user.name = name;
-    user.email = email;
+  async updateUser(
+    token: UserAccessToken,
+    id: number,
+    updateUserDTO: UpdateUserDTO,
+  ): Promise<User> {
+    const userIdFromToken: number = token[this.claimMysqlUser].id;
 
-    return this.usersRepository.save(user);
+    // Check if the updating user is the person himself/herself.
+    if (userIdFromToken !== id) {
+      throw new ForbiddenException(
+        `You do not have the permission to access this resource. Only the person himself/herself can update.`,
+      );
+    }
+
+    const user = await this.usersRepository.findByUserId(id);
+    const newUser = {
+      ...user,
+      ...updateUserDTO,
+    };
+
+    return this.usersRepository.save(newUser);
+  }
+
+  async addUserToRoom(
+    token: UserAccessToken,
+    addUserToRoomDTO: AddUserToRoomDTO,
+  ): Promise<void> {
+    const userId: number = token[this.claimMysqlUser].id;
+    const { roomIdToJoin } = addUserToRoomDTO;
+
+    return this.usersRepository.addUserToRoom(userId, roomIdToJoin);
   }
 
   async deleteUser(id: number): Promise<User> {

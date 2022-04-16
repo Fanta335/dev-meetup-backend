@@ -16,8 +16,12 @@ import { UpdateUserDTO } from './dto/updateUser.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { PermissionsGuard } from 'src/authz/permissions.guard';
 import { Permissions } from 'src/authz/permissions.decorator';
+import { GetAccessToken } from './get-access-token.decorator';
+import { UserAccessToken } from './types';
+import { AddUserToRoomDTO } from './dto/addUserToRoom.dto';
 
 @Controller('users')
+@UseGuards(AuthGuard('jwt'))
 export class UsersController {
   constructor(private usersService: UsersService) {}
 
@@ -28,7 +32,6 @@ export class UsersController {
     return this.usersService.createUser(createUserDTO);
   }
 
-  @UseGuards(AuthGuard('jwt'))
   @Get()
   findAllUsers(): Promise<User[]> {
     return this.usersService.findAllUsers();
@@ -39,6 +42,14 @@ export class UsersController {
     return this.usersService.findByUserSubId(subId);
   }
 
+  @Put('room-management')
+  addUserToRoom(
+    @GetAccessToken() token: UserAccessToken,
+    @Body() addUserToRoomDTO: AddUserToRoomDTO,
+  ): Promise<void> {
+    return this.usersService.addUserToRoom(token, addUserToRoomDTO);
+  }
+
   @Get(':id')
   findByUserId(@Param('id') id: number): Promise<User> {
     return this.usersService.findByUserId(id);
@@ -46,10 +57,11 @@ export class UsersController {
 
   @Put(':id')
   updateUser(
+    @GetAccessToken() token: UserAccessToken,
     @Param('id') id: string,
     @Body() updateUserDTO: UpdateUserDTO,
   ): Promise<User> {
-    return this.usersService.updateUser(Number(id), updateUserDTO);
+    return this.usersService.updateUser(token, Number(id), updateUserDTO);
   }
 
   @Delete(':id')

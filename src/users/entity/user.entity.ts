@@ -57,7 +57,7 @@ export class User {
       referencedColumnName: 'id',
     },
   })
-  myRooms: Room[];
+  ownRooms: Room[];
 
   @ManyToMany(() => Room, (room) => room.members, {
     onDelete: 'CASCADE',
@@ -73,5 +73,5 @@ export class User {
       referencedColumnName: 'id',
     },
   })
-  rooms: Room[];
+  belongingRooms: Room[];
 }
