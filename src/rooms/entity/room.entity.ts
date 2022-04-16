@@ -28,13 +28,13 @@ export class Room {
   @DeleteDateColumn()
   deletedAt: Date;
 
-  @ManyToMany(() => User, (user) => user.myRooms, {
+  @ManyToMany(() => User, (user) => user.ownRooms, {
     onDelete: 'CASCADE',
     nullable: false,
   })
   owners: User[];
 
-  @ManyToMany(() => User, (user) => user.rooms, {
+  @ManyToMany(() => User, (user) => user.belongingRooms, {
     onDelete: 'CASCADE',
     nullable: false,
   })

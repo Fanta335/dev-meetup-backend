@@ -50,13 +50,17 @@ export class RoomsController {
   //     return this.roomsService.getOwnRooms(owner);
   //   }
   // }
-
   @Get(':id')
+  getRoomById(@Param('id') id: string): Promise<Room> {
+    return this.roomsService.getRoomById(Number(id));
+  }
+
+  @Get(':id/detail')
   getRoomDetailById(
     @GetAccessToken() token: UserAccessToken,
-    @Param('id') id: number,
+    @Param('id') id: string,
   ): Promise<Room> {
-    return this.roomsService.getRoomDetailById(token, id);
+    return this.roomsService.getRoomDetailById(token, Number(id));
   }
 
   @Get(':name')
@@ -66,10 +70,10 @@ export class RoomsController {
 
   @Put()
   updateRoom(
-    @Param(':id') id: number,
+    @Param(':id') id: string,
     @Body() updateRoomDTO: UpdateRoomDTO,
   ): Promise<Room> {
-    return this.roomsService.updateRoom(id, updateRoomDTO);
+    return this.roomsService.updateRoom(Number(id), updateRoomDTO);
   }
 
   @UseGuards(AuthGuard('jwt'))

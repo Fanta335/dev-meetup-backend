@@ -19,11 +19,11 @@ export class RoomsRepository extends Repository<Room> {
     return this.find();
   }
 
-  getByRoomId(id: number): Promise<Room> {
+  getRoomById(id: number): Promise<Room> {
     return this.findOne(id);
   }
 
-  getByRoomName(name: string): Promise<Room> {
+  getRoomByName(name: string): Promise<Room> {
     return this.findOne({ name: name });
   }
 
@@ -40,8 +40,6 @@ export class RoomsRepository extends Repository<Room> {
       relations: ['owners', 'members', 'messages'],
     });
   }
-
-  // userRepository.find({ relations: ["profile", "photos", "videos"] });
 
   async updateRoom(id: number, updateRoomDTO: UpdateRoomDTO): Promise<Room> {
     return this.save({ id: id, ...updateRoomDTO });

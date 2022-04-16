@@ -37,7 +37,7 @@ export class RoomsService {
   }
 
   async getByRoomId(id: number): Promise<Room> {
-    const room = await this.roomsRepository.getByRoomId(id);
+    const room = await this.roomsRepository.getRoomById(id);
     if (!room) {
       throw new NotFoundException(`Room not found matched id: ${id}`);
     }
@@ -46,7 +46,7 @@ export class RoomsService {
   }
 
   async getByRoomName(name: string): Promise<Room> {
-    const room = await this.roomsRepository.getByRoomName(name);
+    const room = await this.roomsRepository.getRoomByName(name);
     if (!room) {
       throw new NotFoundException(`Room not found matched name: ${name}`);
     }
@@ -64,6 +64,16 @@ export class RoomsService {
     }
 
     return rooms;
+  }
+
+  async getRoomById(id: number): Promise<Room> {
+    const room = await this.roomsRepository.getRoomById(id);
+
+    if (!room) {
+      throw new NotFoundException(`Room not found matched id: ${id}`);
+    }
+
+    return room;
   }
 
   async getRoomDetailById(token: UserAccessToken, id: number): Promise<Room> {
