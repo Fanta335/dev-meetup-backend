@@ -22,42 +22,54 @@ export class MessageGateway implements OnGatewayInit, OnGatewayConnection {
   constructor(private messageService: MessagesService) {}
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async afterInit(server: any) {
+  async afterInit(server: Server) {
     console.log('WebSocket server initialized.');
   }
 
   async handleConnection(client: Socket) {
     const user = await this.messageService.getUserFromSocket(client);
-    console.log(user);
+    if (user !== undefined) console.log('user: ', user);
   }
 
   @SubscribeMessage('send_message')
   async listenForMessages(
-    @MessageBody() content: string,
+    @MessageBody() body: { roomId: string; content: string },
     @ConnectedSocket() client: Socket,
   ) {
-    console.log(content);
+    console.log('body: ', body);
+    const { roomId, content } = body;
     const author = await this.messageService.getUserFromSocket(client);
-    this.server.emit('recieve_message', { content, author });
+    console.log('author ', author);
+    const message = await this.messageService.createMessage({
+      authorId: author.id,
+      roomId: Number(roomId),
+      content: content,
+    });
+    console.log('saved message: ', message);
+    this.server.to(roomId).emit('receive_message', message);
   }
 
-  @SubscribeMessage('messageToServer')
-  async handleMessage(
+  @SubscribeMessage('join_room')
+  async handleJoinRoom(
     @ConnectedSocket() client: Socket,
-    @MessageBody() body: { content: string },
+    @MessageBody() body: { roomId: string },
   ) {
-    console.log('body', body);
+    console.log('join room body', body);
+    const { roomId } = body;
+    client.join(roomId);
+    console.log('rooms: ', client.rooms);
+    this.server.to(roomId).emit('joined_room', roomId);
+    console.log('join!');
   }
 
-  @SubscribeMessage('joinRoom')
-  async handleJoinRoom(client: Socket, room: string) {
-    client.join(room);
-    client.emit('joinRoom', room);
-  }
-
-  @SubscribeMessage('leaveRoom')
-  async handleLeaveRoom(client: Socket, room: string) {
-    client.leave(room);
-    client.emit('leftRoom', room);
+  @SubscribeMessage('leave_room')
+  async handleLeaveRoom(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() body: { roomId: string },
+  ) {
+    const { roomId } = body;
+    client.leave(roomId);
+    this.server.to(roomId).emit('left_room', roomId);
+    console.log('left room from: ', roomId);
   }
 }

@@ -1,4 +1,5 @@
 export class CreateMessageDTO {
-  content: string;
+  authorId: number;
   roomId: number;
+  content: string;
 }

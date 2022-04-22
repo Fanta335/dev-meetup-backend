@@ -1,16 +1,16 @@
 import { Message } from 'src/messages/entity/message.entity';
-import { User } from 'src/users/entity/user.entity';
 import { EntityRepository, Repository } from 'typeorm';
 import { CreateMessageDTO } from '../dto/createMessage.dto';
 
 @EntityRepository(Message)
 export class MessagesRepository extends Repository<Message> {
-  createMessage(
-    user: User,
-    { content, roomId }: CreateMessageDTO,
-  ): Promise<Message> {
+  createMessage({
+    authorId,
+    content,
+    roomId,
+  }: CreateMessageDTO): Promise<Message> {
     const message = new Message();
-    message.authorId = user.id;
+    message.authorId = authorId;
     message.roomId = roomId;
     message.content = content;
 

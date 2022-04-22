@@ -27,10 +27,10 @@ export class RoomsRepository extends Repository<Room> {
     return this.findOne({ name: name });
   }
 
-  getOwnRooms(ownerId: number): Promise<Room[]> {
+  getBelongingRooms(memberId: number): Promise<Room[]> {
     return this.createQueryBuilder('room')
-      .leftJoin('room.owners', 'user')
-      .where('user.id = :id', { id: ownerId })
+      .leftJoin('room.members', 'user')
+      .where('user.id = :id', { id: memberId })
       .getMany();
   }
 

@@ -5,9 +5,9 @@ import { Socket } from 'socket.io';
 import { Message } from 'src/messages/entity/message.entity';
 import { User } from 'src/users/entity/user.entity';
 import { UsersRepository } from 'src/users/entity/user.repository';
-import { UserAccessToken } from 'src/users/types';
 import { CreateMessageDTO } from './dto/createMessage.dto';
 import { MessagesRepository } from './entity/message.repsitory';
+import jwt_decode from 'jwt-decode';
 
 @Injectable()
 export class MessagesService {
@@ -20,13 +20,8 @@ export class MessagesService {
   namespace = process.env.AUTH0_NAMESPACE;
   claimMysqlUser = this.namespace + '/mysqlUser';
 
-  async createMessage(
-    token: UserAccessToken,
-    createMessageDTO: CreateMessageDTO,
-  ): Promise<Message> {
-    const userId: number = token[this.claimMysqlUser].id;
-    const user = await this.usersRepository.findByUserId(userId);
-    return this.messagesRepository.createMessage(user, createMessageDTO);
+  async createMessage(createMessageDTO: CreateMessageDTO): Promise<Message> {
+    return this.messagesRepository.createMessage(createMessageDTO);
   }
 
   getAllMessages(): Promise<Message[]> {
@@ -52,12 +47,21 @@ export class MessagesService {
   }
 
   async getUserFromSocket(socket: Socket): Promise<User> {
-    const token: string = socket.handshake.auth.token;
-    const userId: number = token[this.claimMysqlUser];
+    const token = socket.handshake.auth.token;
+    // console.log('token:', token);
+
+    const decoded = jwt_decode(token);
+    // console.log('decoded: ', decoded);
+    const userId: number = decoded[this.claimMysqlUser].id;
+    // console.log(userId);
     const user = await this.usersRepository.findByUserId(userId);
+
     if (!user) {
       throw new WsException('Invalid credentials.');
     }
+
     return user;
+    // if (typeof token === 'string') {
+    // }
   }
 }

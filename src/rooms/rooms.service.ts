@@ -54,12 +54,12 @@ export class RoomsService {
     return room;
   }
 
-  async getOwnRooms(token: UserAccessToken): Promise<Room[]> {
-    const ownerId: number = token[this.claimMysqlUser].id;
-    const rooms = await this.roomsRepository.getOwnRooms(ownerId);
+  async getBelongingRooms(token: UserAccessToken): Promise<Room[]> {
+    const memberId: number = token[this.claimMysqlUser].id;
+    const rooms = await this.roomsRepository.getBelongingRooms(memberId);
     if (!rooms) {
       throw new NotFoundException(
-        `Room not found that belongs to the user of id: ${ownerId}`,
+        `Room not found that belongs to the user of id: ${memberId}`,
       );
     }
 

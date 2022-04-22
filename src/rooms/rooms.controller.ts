@@ -35,9 +35,9 @@ export class RoomsController {
     return this.roomsService.getAllRooms();
   }
 
-  @Get('own-rooms')
-  getOwnRooms(@GetAccessToken() token: UserAccessToken): Promise<Room[]> {
-    return this.roomsService.getOwnRooms(token);
+  @Get('belonging-rooms')
+  getBelongingRooms(@GetAccessToken() token: UserAccessToken): Promise<Room[]> {
+    return this.roomsService.getBelongingRooms(token);
   }
 
   // @Get('search')
