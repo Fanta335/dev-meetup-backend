@@ -21,6 +21,10 @@ export class MessagesRepository extends Repository<Message> {
     return this.find();
   }
 
+  getById(id: number): Promise<Message> {
+    return this.findOne(id);
+  }
+
   getByRoomId(): Promise<Message[]> {
     return this.find({ relations: ['room'] });
   }

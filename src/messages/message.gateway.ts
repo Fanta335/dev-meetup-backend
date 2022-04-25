@@ -36,17 +36,33 @@ export class MessageGateway implements OnGatewayInit, OnGatewayConnection {
     @MessageBody() body: { roomId: string; content: string },
     @ConnectedSocket() client: Socket,
   ) {
-    console.log('body: ', body);
+    // console.log('body: ', body);
     const { roomId, content } = body;
     const author = await this.messageService.getUserFromSocket(client);
-    console.log('author ', author);
+    // console.log('author ', author);
     const message = await this.messageService.createMessage({
       authorId: author.id,
       roomId: Number(roomId),
       content: content,
     });
-    console.log('saved message: ', message);
+    // console.log('saved message: ', message);
     this.server.to(roomId).emit('receive_message', message);
+  }
+
+  @SubscribeMessage('update_message')
+  async handleUpdateMessage(
+    @MessageBody() body: { roomId: string; messageId: number; content: string },
+    @ConnectedSocket() client: Socket,
+  ) {
+    const { roomId, messageId, content } = body;
+    const author = await this.messageService.getUserFromSocket(client);
+    const updatedMessage = await this.messageService.updateMessage({
+      messageId,
+      authorId: author.id,
+      content,
+    });
+
+    this.server.to(roomId).emit('receive_message', updatedMessage);
   }
 
   @SubscribeMessage('join_room')
@@ -54,12 +70,12 @@ export class MessageGateway implements OnGatewayInit, OnGatewayConnection {
     @ConnectedSocket() client: Socket,
     @MessageBody() body: { roomId: string },
   ) {
-    console.log('join room body', body);
+    // console.log('join room body', body);
     const { roomId } = body;
     client.join(roomId);
-    console.log('rooms: ', client.rooms);
+    // console.log('rooms: ', client.rooms);
     this.server.to(roomId).emit('joined_room', roomId);
-    console.log('join!');
+    // console.log('join!');
   }
 
   @SubscribeMessage('leave_room')
@@ -70,6 +86,6 @@ export class MessageGateway implements OnGatewayInit, OnGatewayConnection {
     const { roomId } = body;
     client.leave(roomId);
     this.server.to(roomId).emit('left_room', roomId);
-    console.log('left room from: ', roomId);
+    // console.log('left room from: ', roomId);
   }
 }

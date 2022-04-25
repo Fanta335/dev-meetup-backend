@@ -11,7 +11,7 @@ export class MessagesController {
 
   @UseGuards(AuthGuard('jwt'))
   @Post()
-  create(@Body() createMessageDTO: CreateMessageDTO): Promise<Message> {
+  createMessage(@Body() createMessageDTO: CreateMessageDTO): Promise<Message> {
     return this.messagesService.createMessage(createMessageDTO);
   }
 

@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { WsException } from '@nestjs/websockets';
 import { Socket } from 'socket.io';
@@ -8,6 +12,7 @@ import { UsersRepository } from 'src/users/entity/user.repository';
 import { CreateMessageDTO } from './dto/createMessage.dto';
 import { MessagesRepository } from './entity/message.repsitory';
 import jwt_decode from 'jwt-decode';
+import { UpdateMessageDTO } from './dto/updateMessage.dto';
 
 @Injectable()
 export class MessagesService {
@@ -63,5 +68,21 @@ export class MessagesService {
     return user;
     // if (typeof token === 'string') {
     // }
+  }
+
+  async updateMessage({
+    messageId,
+    authorId,
+    content,
+  }: UpdateMessageDTO): Promise<Message> {
+    const messageToUpdate = await this.messagesRepository.getById(messageId);
+    if (messageToUpdate.authorId !== authorId) {
+      throw new ForbiddenException(
+        "You don't have permission to change message content. Only author of the message can edit.",
+      );
+    }
+    messageToUpdate.content = content;
+
+    return await this.messagesRepository.save(messageToUpdate);
   }
 }
