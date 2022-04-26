@@ -65,6 +65,23 @@ export class MessageGateway implements OnGatewayInit, OnGatewayConnection {
     this.server.to(roomId).emit('receive_message', updatedMessage);
   }
 
+  @SubscribeMessage('remove_message')
+  async handleRemoveMessage(
+    @MessageBody() body: { roomId: string; messageId: number },
+    @ConnectedSocket() client: Socket,
+  ) {
+    const { roomId, messageId } = body;
+    const author = await this.messageService.getUserFromSocket(client);
+    const softRemovedMessage = await this.messageService.softRemoveMessage({
+      messageId,
+      authorId: author.id,
+    });
+
+    // console.log('removed message: ', softRemovedMessage);
+
+    this.server.to(roomId).emit('receive_message_removed', softRemovedMessage);
+  }
+
   @SubscribeMessage('join_room')
   async handleJoinRoom(
     @ConnectedSocket() client: Socket,

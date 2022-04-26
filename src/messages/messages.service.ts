@@ -13,6 +13,7 @@ import { CreateMessageDTO } from './dto/createMessage.dto';
 import { MessagesRepository } from './entity/message.repsitory';
 import jwt_decode from 'jwt-decode';
 import { UpdateMessageDTO } from './dto/updateMessage.dto';
+import { SoftRemoveMessageDTO } from './dto/softRemoveMessage.dto';
 
 @Injectable()
 export class MessagesService {
@@ -31,6 +32,14 @@ export class MessagesService {
 
   getAllMessages(): Promise<Message[]> {
     return this.messagesRepository.getAllMessages();
+  }
+
+  async getById(id: number): Promise<Message> {
+    const message = await this.messagesRepository.getById(id);
+    if (!message) {
+      throw new NotFoundException(`Message not found matched id: '${id}'.`);
+    }
+    return message;
   }
 
   async getByRoomId(): Promise<Message[]> {
@@ -75,7 +84,7 @@ export class MessagesService {
     authorId,
     content,
   }: UpdateMessageDTO): Promise<Message> {
-    const messageToUpdate = await this.messagesRepository.getById(messageId);
+    const messageToUpdate = await this.getById(messageId);
     if (messageToUpdate.authorId !== authorId) {
       throw new ForbiddenException(
         "You don't have permission to change message content. Only author of the message can edit.",
@@ -84,5 +93,22 @@ export class MessagesService {
     messageToUpdate.content = content;
 
     return await this.messagesRepository.save(messageToUpdate);
+  }
+
+  async softRemoveMessage({
+    messageId,
+    authorId,
+  }: SoftRemoveMessageDTO): Promise<Message> {
+    const messageToSoftRemove = await this.getById(messageId);
+    if (messageToSoftRemove.authorId !== authorId) {
+      throw new ForbiddenException(
+        "You don't have permission to delete this message. Only author of the message can delete.",
+      );
+    }
+
+    const result = await this.messagesRepository.softDelete(messageId);
+    console.log('delete result: ', result);
+
+    return messageToSoftRemove;
   }
 }
