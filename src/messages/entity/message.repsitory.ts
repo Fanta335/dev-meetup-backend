@@ -8,11 +8,13 @@ export class MessagesRepository extends Repository<Message> {
     authorId,
     content,
     roomId,
+    parentId,
   }: CreateMessageDTO): Promise<Message> {
     const message = new Message();
     message.authorId = authorId;
     message.roomId = roomId;
     message.content = content;
+    message.parentId = parentId;
 
     return this.save(message);
   }

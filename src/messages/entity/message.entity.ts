@@ -26,6 +26,9 @@ export class Message {
   @Column()
   content: string;
 
+  @Column({ nullable: true })
+  parentId: number;
+
   @ManyToOne(() => Message, (message) => message.children, { nullable: true })
   parent: Message;
 

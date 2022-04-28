@@ -33,17 +33,18 @@ export class MessageGateway implements OnGatewayInit, OnGatewayConnection {
 
   @SubscribeMessage('send_message')
   async listenForMessages(
-    @MessageBody() body: { roomId: string; content: string },
+    @MessageBody() body: { roomId: string; content: string; parentId: number },
     @ConnectedSocket() client: Socket,
   ) {
     // console.log('body: ', body);
-    const { roomId, content } = body;
+    const { roomId, content, parentId } = body;
     const author = await this.messageService.getUserFromSocket(client);
     // console.log('author ', author);
     const message = await this.messageService.createMessage({
       authorId: author.id,
       roomId: Number(roomId),
       content: content,
+      parentId: parentId,
     });
     // console.log('saved message: ', message);
     this.server.to(roomId).emit('receive_message', message);
