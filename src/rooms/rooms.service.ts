@@ -11,6 +11,8 @@ import { SearchRoomDTO } from './dto/searchRoom.dto';
 import { UpdateRoomDTO } from './dto/updateRoom.dto';
 import { Room } from './entity/room.entity';
 import { RoomsRepository } from './entity/room.repository';
+import { orderParser } from './utils/orderParser';
+import { sortParser } from './utils/sortParser';
 
 @Injectable()
 export class RoomsService {
@@ -78,8 +80,17 @@ export class RoomsService {
   }
 
   async searchRooms(searchRoomDTO: SearchRoomDTO): Promise<Room[]> {
-    const rooms = await this.roomsRepository.searchRooms(searchRoomDTO);
-    console.log('rooms: ', rooms);
+    const { sort, order } = searchRoomDTO;
+    const parsedSort = sortParser(sort);
+    const parsedOrder = orderParser(order);
+
+    const rooms = await this.roomsRepository.searchRooms(
+      searchRoomDTO,
+      parsedSort,
+      parsedOrder,
+    );
+    // console.log('rooms: ', rooms);
+
     return rooms;
   }
 

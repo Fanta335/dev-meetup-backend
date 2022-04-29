@@ -13,6 +13,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { GetAccessToken } from 'src/users/get-access-token.decorator';
 import { UserAccessToken } from 'src/users/types';
 import { CreateRoomDTO } from './dto/createRoom.dto';
+import { SortOptionsType, OrderOptionsType } from './dto/searchRoom.dto';
 import { UpdateRoomDTO } from './dto/updateRoom.dto';
 import { Room } from './entity/room.entity';
 import { RoomsService } from './rooms.service';
@@ -45,9 +46,11 @@ export class RoomsController {
     @Query('query') query: string,
     @Query('offset') offset: number,
     @Query('limit') limit: number,
+    @Query('sort') sort: SortOptionsType,
+    @Query('order') order: OrderOptionsType,
     // @Query('categoryId') categoryId: number,
   ): Promise<Room[]> {
-    return this.roomsService.searchRooms({ query, offset, limit });
+    return this.roomsService.searchRooms({ query, offset, limit, sort, order });
   }
 
   @Get(':id')
