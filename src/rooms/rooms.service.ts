@@ -7,6 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { UsersRepository } from 'src/users/entity/user.repository';
 import { UserAccessToken } from 'src/users/types';
 import { CreateRoomDTO } from './dto/createRoom.dto';
+import { SearchRoomDTO } from './dto/searchRoom.dto';
 import { UpdateRoomDTO } from './dto/updateRoom.dto';
 import { Room } from './entity/room.entity';
 import { RoomsRepository } from './entity/room.repository';
@@ -74,6 +75,12 @@ export class RoomsService {
     }
 
     return room;
+  }
+
+  async searchRooms(searchRoomDTO: SearchRoomDTO): Promise<Room[]> {
+    const rooms = await this.roomsRepository.searchRooms(searchRoomDTO);
+    console.log('rooms: ', rooms);
+    return rooms;
   }
 
   async getRoomDetailById(token: UserAccessToken, id: number): Promise<Room> {

@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
@@ -21,7 +22,6 @@ import { RoomsService } from './rooms.service';
 export class RoomsController {
   constructor(private roomsService: RoomsService) {}
 
-  @UseGuards(AuthGuard('jwt'))
   @Post()
   createRoom(
     @GetAccessToken() token: UserAccessToken,
@@ -40,16 +40,16 @@ export class RoomsController {
     return this.roomsService.getBelongingRooms(token);
   }
 
-  // @Get('search')
-  // searchRooms(
-  //   // @Query('name') name?: string,
-  //   @Query('owner') owner: number,
-  //   // @Query('member') member?: number,
-  // ): Promise<Room[]> {
-  //   if (typeof owner === 'number') {
-  //     return this.roomsService.getOwnRooms(owner);
-  //   }
-  // }
+  @Get('search')
+  searchRooms(
+    @Query('query') query: string,
+    @Query('offset') offset: number,
+    @Query('limit') limit: number,
+    // @Query('categoryId') categoryId: number,
+  ): Promise<Room[]> {
+    return this.roomsService.searchRooms({ query, offset, limit });
+  }
+
   @Get(':id')
   getRoomById(@Param('id') id: string): Promise<Room> {
     return this.roomsService.getRoomById(Number(id));
@@ -76,7 +76,6 @@ export class RoomsController {
     return this.roomsService.updateRoom(Number(id), updateRoomDTO);
   }
 
-  @UseGuards(AuthGuard('jwt'))
   @Delete()
   deleteRoom(id: number): Promise<Room> {
     return this.roomsService.deleteRoom(id);

@@ -1,6 +1,7 @@
 import { User } from 'src/users/entity/user.entity';
 import { EntityRepository, Repository } from 'typeorm';
 import { CreateRoomDTO } from '../dto/createRoom.dto';
+import { SearchRoomDTO } from '../dto/searchRoom.dto';
 import { UpdateRoomDTO } from '../dto/updateRoom.dto';
 import { Room } from './room.entity';
 
@@ -31,6 +32,16 @@ export class RoomsRepository extends Repository<Room> {
     return this.createQueryBuilder('room')
       .leftJoin('room.members', 'user')
       .where('user.id = :id', { id: memberId })
+      .getMany();
+  }
+
+  searchRooms(searchRoomDTO: SearchRoomDTO): Promise<Room[]> {
+    const { query, offset, limit } = searchRoomDTO;
+
+    return this.createQueryBuilder('room')
+      .where('room.name LIKE :name', { name: `%${query}%` })
+      .take(limit)
+      .skip(offset)
       .getMany();
   }
 
