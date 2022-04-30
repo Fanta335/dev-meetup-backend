@@ -16,8 +16,11 @@ export class Room {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({ length: 50 })
   name: string;
+
+  @Column({ length: 120 })
+  description: string;
 
   @CreateDateColumn()
   createdAt: Date;
