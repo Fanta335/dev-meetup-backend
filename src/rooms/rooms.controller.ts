@@ -71,9 +71,9 @@ export class RoomsController {
     return this.roomsService.getByRoomName(name);
   }
 
-  @Put()
+  @Put(':id')
   updateRoom(
-    @Param(':id') id: string,
+    @Param('id') id: string,
     @Body() updateRoomDTO: UpdateRoomDTO,
   ): Promise<Room> {
     return this.roomsService.updateRoom(Number(id), updateRoomDTO);
