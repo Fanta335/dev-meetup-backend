@@ -1,3 +1,4 @@
+import { BadRequestException } from '@nestjs/common';
 import {
   KeyOfSortOptions,
   SortOptions,
@@ -8,6 +9,8 @@ export const sortParser = (sort: SortOptionsType): KeyOfSortOptions => {
   if (sort === SortOptions.CreatedAt) {
     return 'CreatedAt';
   } else {
-    throw new Error(`Wrong query parameter: 'sort=${sort}'.`);
+    throw new BadRequestException(
+      `Wrong query parameter: 'sort=${sort}'. Parameter 'sort' should be 'date'.`,
+    );
   }
 };

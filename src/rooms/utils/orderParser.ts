@@ -1,3 +1,4 @@
+import { BadRequestException } from '@nestjs/common';
 import { KeyOfOrderOptions, OrderOptionsType } from '../dto/searchRoom.dto';
 
 export const orderParser = (order: OrderOptionsType): KeyOfOrderOptions => {
@@ -6,6 +7,8 @@ export const orderParser = (order: OrderOptionsType): KeyOfOrderOptions => {
   } else if (order === 'd') {
     return 'DESC';
   } else {
-    throw new Error(`Wrong query parameter: 'order=${order}'.`);
+    throw new BadRequestException(
+      `Wrong query parameter: 'order=${order}'. Parameter 'order' should be 'a' or 'd'.`,
+    );
   }
 };
