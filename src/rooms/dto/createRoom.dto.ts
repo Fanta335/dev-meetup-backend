@@ -1,3 +1,5 @@
+import { IsString } from 'class-validator';
+
 export class CreateRoomDTO {
-  name: string;
+  @IsString() name: string;
 }

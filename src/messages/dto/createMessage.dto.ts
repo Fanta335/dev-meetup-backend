@@ -1,6 +1,8 @@
+import { IsNumber, IsString } from 'class-validator';
+
 export class CreateMessageDTO {
-  authorId: number;
-  roomId: number;
-  content: string;
-  parentId: number | null;
+  @IsNumber() authorId: number;
+  @IsNumber() roomId: number;
+  @IsString() content: string;
+  @IsNumber() parentId: number | null;
 }

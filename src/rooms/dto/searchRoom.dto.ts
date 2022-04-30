@@ -1,9 +1,11 @@
+import { IsNumber, IsString } from 'class-validator';
+
 export class SearchRoomDTO {
-  query: string;
-  offset: number;
-  limit: number;
-  sort: SortOptionsType;
-  order: OrderOptionsType;
+  @IsString() query: string;
+  @IsNumber() offset: number;
+  @IsNumber() limit: number;
+  @IsString() sort: SortOptionsType;
+  @IsString() order: OrderOptionsType;
   // categoryId: number;
 }
 
