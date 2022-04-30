@@ -12,7 +12,7 @@ export default () => ({
     cli: {
       migrationsDir: `${__dirname}/../../../dist/migrations`,
     },
-    // synchronize: process.env.NODE_ENV === 'develop' ? true : false,
-    synchronize: false,
+    synchronize: process.env.NODE_ENV === 'develop' ? true : false,
+    // synchronize: false,
   },
 });
