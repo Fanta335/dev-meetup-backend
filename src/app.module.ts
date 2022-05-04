@@ -3,6 +3,11 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { UsersModule } from './users/users.module';
+import { PhotosModule } from './photos/photos.module';
+import { MessagesModule } from './messages/messages.module';
+import { RoomsModule } from './rooms/rooms.module';
+import { AuthzModule } from './authz/authz.module';
 import configuration from './config/configurations';
 
 @Module({
@@ -18,6 +23,11 @@ import configuration from './config/configurations';
         ...configService.get('database'),
       }),
     }),
+    UsersModule,
+    PhotosModule,
+    MessagesModule,
+    RoomsModule,
+    AuthzModule,
   ],
   controllers: [AppController],
   providers: [AppService],
