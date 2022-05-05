@@ -46,8 +46,10 @@ export class RoomsRepository extends Repository<Room> {
   ): Promise<Room[]> {
     const { query, offset, limit } = searchRoomDTO;
 
+    // Add number of members property to room entity.
     return this.createQueryBuilder('room')
       .where('room.name LIKE :name', { name: `%${query}%` })
+      .loadRelationCountAndMap('room.numOfMembers', 'room.members', 'user')
       .orderBy(`room.${parsedSort}`, parsedOrder)
       .take(limit)
       .skip(offset)
