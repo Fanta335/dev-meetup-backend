@@ -116,7 +116,23 @@ export class RoomsService {
     return room;
   }
 
-  updateRoom(id: number, updateRoomDTO: UpdateRoomDTO): Promise<Room> {
+  async updateRoom(
+    id: number,
+    token: UserAccessToken,
+    updateRoomDTO: UpdateRoomDTO,
+  ): Promise<Room> {
+    const userId: number = token[this.claimMysqlUser].id;
+    const roomToBeUpdated = await this.roomsRepository.getRoomWithOwners(id);
+    const isOwnerOfRoom = roomToBeUpdated.owners.some(
+      (user) => user.id === userId,
+    );
+
+    if (!isOwnerOfRoom) {
+      throw new ForbiddenException(
+        `You do not have the permission to update this resource. Only owners of the room have the permission.`,
+      );
+    }
+
     return this.roomsRepository.updateRoom(id, updateRoomDTO);
   }
 

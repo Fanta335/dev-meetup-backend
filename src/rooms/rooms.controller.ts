@@ -74,9 +74,10 @@ export class RoomsController {
   @Put(':id')
   updateRoom(
     @Param('id') id: string,
+    @GetAccessToken() token: UserAccessToken,
     @Body() updateRoomDTO: UpdateRoomDTO,
   ): Promise<Room> {
-    return this.roomsService.updateRoom(Number(id), updateRoomDTO);
+    return this.roomsService.updateRoom(Number(id), token, updateRoomDTO);
   }
 
   @Delete()
