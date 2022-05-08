@@ -19,6 +19,7 @@ import { Permissions } from 'src/authz/permissions.decorator';
 import { GetAccessToken } from './get-access-token.decorator';
 import { UserAccessToken } from './types';
 import { AddUserToRoomDTO } from './dto/addUserToRoom.dto';
+import { Room } from 'src/rooms/entity/room.entity';
 
 @Controller('users')
 @UseGuards(AuthGuard('jwt'))
@@ -55,6 +56,14 @@ export class UsersController {
     return this.usersService.findByUserId(id);
   }
 
+  @Get(':id/belonging-rooms')
+  getBelongingRooms(
+    @GetAccessToken() token: UserAccessToken,
+    @Param('id') id: string,
+  ): Promise<Room[]> {
+    return this.usersService.getBelongingRooms(token, Number(id));
+  }
+
   @Put(':id')
   updateUser(
     @GetAccessToken() token: UserAccessToken,
@@ -62,6 +71,32 @@ export class UsersController {
     @Body() updateUserDTO: UpdateUserDTO,
   ): Promise<User> {
     return this.usersService.updateUser(token, Number(id), updateUserDTO);
+  }
+
+  @Put(':userId/belonging-rooms/add/:roomId')
+  addMemberToRoom(
+    @GetAccessToken() token: UserAccessToken,
+    @Param('userId') userId: string,
+    @Param('roomId') roomId: string,
+  ): Promise<void> {
+    return this.usersService.addMemberToRoom(
+      token,
+      Number(userId),
+      Number(roomId),
+    );
+  }
+
+  @Put(':userId/belonging-rooms/remove/:roomId')
+  removeMemberFromRoom(
+    @GetAccessToken() token: UserAccessToken,
+    @Param('userId') userId: string,
+    @Param('roomId') roomId: string,
+  ): Promise<void> {
+    return this.usersService.removeMemberFromRoom(
+      token,
+      Number(userId),
+      Number(roomId),
+    );
   }
 
   @Delete(':id')

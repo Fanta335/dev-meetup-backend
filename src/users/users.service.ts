@@ -4,6 +4,8 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Room } from 'src/rooms/entity/room.entity';
+import { RoomsRepository } from 'src/rooms/entity/room.repository';
 import { AddUserToRoomDTO } from './dto/addUserToRoom.dto';
 import { CreateUserDTO } from './dto/createUser.dto';
 import { UpdateUserDTO } from './dto/updateUser.dto';
@@ -16,6 +18,7 @@ export class UsersService {
   constructor(
     @InjectRepository(UsersRepository)
     private usersRepository: UsersRepository,
+    private roomsRepository: RoomsRepository,
   ) {}
 
   namespace = process.env.AUTH0_NAMESPACE;
@@ -45,6 +48,19 @@ export class UsersService {
     return user;
   }
 
+  async getBelongingRooms(token: UserAccessToken, id: number): Promise<Room[]> {
+    const userIdFromToken: number = token[this.claimMysqlUser].id;
+
+    // Check if the updating user is the person themselves.
+    if (userIdFromToken !== id) {
+      throw new ForbiddenException(
+        `You do not have the permission to access this resource. Only the person themselves have permission.`,
+      );
+    }
+
+    return this.roomsRepository.getBelongingRooms(id);
+  }
+
   async updateUser(
     token: UserAccessToken,
     id: number,
@@ -52,10 +68,10 @@ export class UsersService {
   ): Promise<User> {
     const userIdFromToken: number = token[this.claimMysqlUser].id;
 
-    // Check if the updating user is the person himself/herself.
+    // Check if the updating user is the person themselves.
     if (userIdFromToken !== id) {
       throw new ForbiddenException(
-        `You do not have the permission to access this resource. Only the person himself/herself can update.`,
+        `You do not have the permission to access this resource. Only the person themselves can update.`,
       );
     }
 
@@ -75,7 +91,39 @@ export class UsersService {
     const userId: number = token[this.claimMysqlUser].id;
     const { roomIdToJoin } = addUserToRoomDTO;
 
-    return this.usersRepository.addUserToRoom(userId, roomIdToJoin);
+    return this.usersRepository.addMemberToRoom(userId, roomIdToJoin);
+  }
+
+  async addMemberToRoom(
+    token: UserAccessToken,
+    userId: number,
+    roomId: number,
+  ): Promise<void> {
+    const userIdFromToken: number = token[this.claimMysqlUser].id;
+
+    if (userIdFromToken !== userId) {
+      throw new ForbiddenException(
+        `You do not have the permission to access this resource. Only the person themselves can update.`,
+      );
+    }
+
+    return this.usersRepository.addMemberToRoom(userId, roomId);
+  }
+
+  async removeMemberFromRoom(
+    token: UserAccessToken,
+    userId: number,
+    roomId: number,
+  ): Promise<void> {
+    const userIdFromToken: number = token[this.claimMysqlUser].id;
+
+    if (userIdFromToken !== userId) {
+      throw new ForbiddenException(
+        `You do not have the permission to access this resource. Only the person themselves can update.`,
+      );
+    }
+
+    return this.usersRepository.removeMemberFromRoom(userId, roomId);
   }
 
   async deleteUser(id: number): Promise<User> {

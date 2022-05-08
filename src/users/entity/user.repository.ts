@@ -29,10 +29,17 @@ export class UsersRepository extends Repository<User> {
     });
   }
 
-  async addUserToRoom(userId: number, roomIdToJoin: number) {
+  async addMemberToRoom(userId: number, roomId: number) {
     await this.createQueryBuilder()
       .relation(User, 'belongingRooms')
       .of(userId)
-      .add(roomIdToJoin);
+      .add(roomId);
+  }
+
+  async removeMemberFromRoom(userId: number, roomId: number) {
+    await this.createQueryBuilder()
+      .relation(User, 'belongingRooms')
+      .of(userId)
+      .remove(roomId);
   }
 }
