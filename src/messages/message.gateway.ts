@@ -8,6 +8,7 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { RoomsService } from 'src/rooms/rooms.service';
 import { MessagesService } from './messages.service';
 
 @WebSocketGateway({
@@ -19,7 +20,10 @@ export class MessageGateway implements OnGatewayInit, OnGatewayConnection {
   @WebSocketServer()
   server: Server;
 
-  constructor(private messageService: MessagesService) {}
+  constructor(
+    private messageService: MessagesService,
+    private roomsService: RoomsService,
+  ) {}
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async afterInit(server: Server) {
@@ -92,7 +96,9 @@ export class MessageGateway implements OnGatewayInit, OnGatewayConnection {
     const { roomId } = body;
     client.join(roomId);
     // console.log('rooms: ', client.rooms);
-    this.server.to(roomId).emit('joined_room', roomId);
+    const members = await this.roomsService.getRoomMembersById(Number(roomId));
+    // console.log('room: ', room);
+    this.server.to(roomId).emit('joined_room', members);
     // console.log('join!');
   }
 
@@ -103,7 +109,8 @@ export class MessageGateway implements OnGatewayInit, OnGatewayConnection {
   ) {
     const { roomId } = body;
     client.leave(roomId);
-    this.server.to(roomId).emit('left_room', roomId);
+    const members = await this.roomsService.getRoomMembersById(Number(roomId));
+    this.server.to(roomId).emit('left_room', members);
     // console.log('left room from: ', roomId);
   }
 }

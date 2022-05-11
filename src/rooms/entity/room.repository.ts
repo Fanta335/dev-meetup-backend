@@ -6,14 +6,17 @@ import {
   KeyOfSortOptions,
   SearchRoomDTO,
 } from '../dto/searchRoom.dto';
-import { UpdateRoomDTO } from '../dto/updateRoom.dto';
 import { Room } from './room.entity';
 
 @EntityRepository(Room)
 export class RoomsRepository extends Repository<Room> {
-  async createRoom(user: User, { name }: CreateRoomDTO): Promise<Room> {
+  async createRoom(
+    user: User,
+    { name, description }: CreateRoomDTO,
+  ): Promise<Room> {
     const room = new Room();
     room.name = name;
+    room.description = description;
     room.owners = [user];
     room.members = [user];
 
@@ -70,7 +73,12 @@ export class RoomsRepository extends Repository<Room> {
     });
   }
 
-  async updateRoom(id: number, updateRoomDTO: UpdateRoomDTO): Promise<Room> {
-    return this.save({ id: id, ...updateRoomDTO });
+  async getRoomMembersById(id: number): Promise<User[]> {
+    const room = await this.findOne({
+      where: { id: id },
+      relations: ['members'],
+    });
+
+    return room.members;
   }
 }

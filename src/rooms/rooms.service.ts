@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { User } from 'src/users/entity/user.entity';
 import { UsersRepository } from 'src/users/entity/user.repository';
 import { UserAccessToken } from 'src/users/types';
 import { CreateRoomDTO } from './dto/createRoom.dto';
@@ -116,6 +117,10 @@ export class RoomsService {
     return room;
   }
 
+  async getRoomMembersById(id: number): Promise<User[]> {
+    return this.roomsRepository.getRoomMembersById(id);
+  }
+
   async updateRoom(
     id: number,
     token: UserAccessToken,
@@ -133,7 +138,15 @@ export class RoomsService {
       );
     }
 
-    return this.roomsRepository.updateRoom(id, updateRoomDTO);
+    // owners property is no longer needed to update rooms table.
+    delete roomToBeUpdated.owners;
+
+    const newRoom: Room = {
+      ...roomToBeUpdated,
+      ...updateRoomDTO,
+    };
+
+    return this.roomsRepository.save(newRoom);
   }
 
   async deleteRoom(id: number): Promise<Room> {
