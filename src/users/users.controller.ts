@@ -18,7 +18,6 @@ import { PermissionsGuard } from 'src/authz/permissions.guard';
 import { Permissions } from 'src/authz/permissions.decorator';
 import { GetAccessToken } from './get-access-token.decorator';
 import { UserAccessToken } from './types';
-import { AddUserToRoomDTO } from './dto/addUserToRoom.dto';
 import { Room } from 'src/rooms/entity/room.entity';
 
 @Controller('users')
@@ -41,14 +40,6 @@ export class UsersController {
   @Get('search')
   findByUserSubId(@Query('sub-id') subId: string): Promise<User> {
     return this.usersService.findByUserSubId(subId);
-  }
-
-  @Put('room-management')
-  addUserToRoom(
-    @GetAccessToken() token: UserAccessToken,
-    @Body() addUserToRoomDTO: AddUserToRoomDTO,
-  ): Promise<void> {
-    return this.usersService.addUserToRoom(token, addUserToRoomDTO);
   }
 
   @Get(':id')
@@ -78,7 +69,7 @@ export class UsersController {
     @GetAccessToken() token: UserAccessToken,
     @Param('userId') userId: string,
     @Param('roomId') roomId: string,
-  ): Promise<void> {
+  ): Promise<Room[]> {
     return this.usersService.addMemberToRoom(
       token,
       Number(userId),
@@ -91,7 +82,7 @@ export class UsersController {
     @GetAccessToken() token: UserAccessToken,
     @Param('userId') userId: string,
     @Param('roomId') roomId: string,
-  ): Promise<void> {
+  ): Promise<Room[]> {
     return this.usersService.removeMemberFromRoom(
       token,
       Number(userId),
