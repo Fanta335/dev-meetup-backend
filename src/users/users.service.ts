@@ -6,7 +6,6 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Room } from 'src/rooms/entity/room.entity';
 import { RoomsRepository } from 'src/rooms/entity/room.repository';
-import { AddUserToRoomDTO } from './dto/addUserToRoom.dto';
 import { CreateUserDTO } from './dto/createUser.dto';
 import { UpdateUserDTO } from './dto/updateUser.dto';
 import { User } from './entity/user.entity';
@@ -84,21 +83,11 @@ export class UsersService {
     return this.usersRepository.save(newUser);
   }
 
-  async addUserToRoom(
-    token: UserAccessToken,
-    addUserToRoomDTO: AddUserToRoomDTO,
-  ): Promise<void> {
-    const userId: number = token[this.claimMysqlUser].id;
-    const { roomIdToJoin } = addUserToRoomDTO;
-
-    return this.usersRepository.addMemberToRoom(userId, roomIdToJoin);
-  }
-
   async addMemberToRoom(
     token: UserAccessToken,
     userId: number,
     roomId: number,
-  ): Promise<void> {
+  ): Promise<Room[]> {
     const userIdFromToken: number = token[this.claimMysqlUser].id;
 
     if (userIdFromToken !== userId) {
@@ -107,14 +96,24 @@ export class UsersService {
       );
     }
 
-    return this.usersRepository.addMemberToRoom(userId, roomId);
+    const currentBelongingRooms = await this.roomsRepository.getBelongingRooms(
+      userId,
+    );
+    const isNewRoom = currentBelongingRooms.every((room) => room.id !== roomId);
+    if (!isNewRoom) {
+      return currentBelongingRooms;
+    }
+
+    await this.usersRepository.addMemberToRoom(userId, roomId);
+
+    return this.roomsRepository.getBelongingRooms(userId);
   }
 
   async removeMemberFromRoom(
     token: UserAccessToken,
     userId: number,
     roomId: number,
-  ): Promise<void> {
+  ): Promise<Room[]> {
     const userIdFromToken: number = token[this.claimMysqlUser].id;
 
     if (userIdFromToken !== userId) {
@@ -123,7 +122,17 @@ export class UsersService {
       );
     }
 
-    return this.usersRepository.removeMemberFromRoom(userId, roomId);
+    const currentBelongingRooms = await this.roomsRepository.getBelongingRooms(
+      userId,
+    );
+    const isNewRoom = currentBelongingRooms.every((room) => room.id !== roomId);
+    if (isNewRoom) {
+      return currentBelongingRooms;
+    }
+
+    await this.usersRepository.removeMemberFromRoom(userId, roomId);
+
+    return this.roomsRepository.getBelongingRooms(userId);
   }
 
   async deleteUser(id: number): Promise<User> {
