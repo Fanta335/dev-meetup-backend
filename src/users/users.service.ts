@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { FilesService } from 'src/files/files.service';
 import { Room } from 'src/rooms/entity/room.entity';
 import { RoomsRepository } from 'src/rooms/entity/room.repository';
 import { CreateUserDTO } from './dto/createUser.dto';
@@ -18,6 +19,7 @@ export class UsersService {
     @InjectRepository(UsersRepository)
     private usersRepository: UsersRepository,
     private roomsRepository: RoomsRepository,
+    private filesService: FilesService,
   ) {}
 
   namespace = process.env.AUTH0_NAMESPACE;
@@ -133,6 +135,34 @@ export class UsersService {
     await this.usersRepository.removeMemberFromRoom(userId, roomId);
 
     return this.roomsRepository.getBelongingRooms(userId);
+  }
+
+  async addAvatar(
+    token: UserAccessToken,
+    imageBuffer: Buffer,
+    filename: string,
+  ): Promise<User> {
+    const avatar = await this.filesService.uploadPublicFile(
+      imageBuffer,
+      filename,
+    );
+    const userIdFromToken: number = token[this.claimMysqlUser].id;
+    const user = await this.usersRepository.findByUserId(userIdFromToken);
+
+    return this.usersRepository.save({ ...user, avatar });
+  }
+
+  async deleteAvatar(token: UserAccessToken) {
+    const userIdFromToken: number = token[this.claimMysqlUser].id;
+    const user = await this.usersRepository.findByUserId(userIdFromToken);
+    const fieldId = user.avatar.id;
+    if (fieldId) {
+      await this.usersRepository.update(userIdFromToken, {
+        ...user,
+        avatar: null,
+      });
+      await this.filesService.deletePublicFile(fieldId);
+    }
   }
 
   async deleteUser(id: number): Promise<User> {

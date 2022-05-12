@@ -7,7 +7,9 @@ import {
   Post,
   Put,
   Query,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { CreateUserDTO } from './dto/createUser.dto';
 import { UsersService } from './users.service';
@@ -19,6 +21,8 @@ import { Permissions } from 'src/authz/permissions.decorator';
 import { GetAccessToken } from './get-access-token.decorator';
 import { UserAccessToken } from './types';
 import { Room } from 'src/rooms/entity/room.entity';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { Express } from 'express';
 
 @Controller('users')
 @UseGuards(AuthGuard('jwt'))
@@ -30,6 +34,15 @@ export class UsersController {
   @Permissions('create:users')
   createUser(@Body() createUserDTO: CreateUserDTO): Promise<User> {
     return this.usersService.createUser(createUserDTO);
+  }
+
+  @Post('avatar')
+  @UseInterceptors(FileInterceptor('file'))
+  AddAvatar(
+    @GetAccessToken() token: UserAccessToken,
+    @UploadedFile() file: Express.Multer.File,
+  ): Promise<User> {
+    return this.usersService.addAvatar(token, file.buffer, file.originalname);
   }
 
   @Get()
@@ -88,6 +101,11 @@ export class UsersController {
       Number(userId),
       Number(roomId),
     );
+  }
+
+  @Delete('avatar')
+  deleteAvatar(@GetAccessToken() token: UserAccessToken) {
+    return this.usersService.deleteAvatar(token);
   }
 
   @Delete(':id')

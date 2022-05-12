@@ -1,3 +1,4 @@
+import { PublicFile } from 'src/files/entity/publicFile.entity';
 import { Message } from 'src/messages/entity/message.entity';
 import { Photo } from 'src/photos/entity/photo.entity';
 import { Room } from 'src/rooms/entity/room.entity';
@@ -11,6 +12,8 @@ import {
   JoinTable,
   PrimaryGeneratedColumn,
   DeleteDateColumn,
+  OneToOne,
+  JoinColumn,
 } from 'typeorm';
 
 @Entity()
@@ -74,4 +77,11 @@ export class User {
     },
   })
   belongingRooms: Room[];
+
+  @JoinColumn()
+  @OneToOne(() => PublicFile, {
+    eager: true,
+    nullable: true,
+  })
+  avatar: PublicFile;
 }

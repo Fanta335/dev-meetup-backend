@@ -8,6 +8,7 @@ import { PhotosModule } from './photos/photos.module';
 import { MessagesModule } from './messages/messages.module';
 import { RoomsModule } from './rooms/rooms.module';
 import { AuthzModule } from './authz/authz.module';
+import { FilesModule } from './files/files.module';
 import configuration from './config/configurations';
 
 @Module({
@@ -28,6 +29,7 @@ import configuration from './config/configurations';
     MessagesModule,
     RoomsModule,
     AuthzModule,
+    FilesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
