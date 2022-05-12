@@ -4,6 +4,8 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Message } from 'src/messages/entity/message.entity';
+import { MessagesRepository } from 'src/messages/entity/message.repsitory';
 import { User } from 'src/users/entity/user.entity';
 import { UsersRepository } from 'src/users/entity/user.repository';
 import { UserAccessToken } from 'src/users/types';
@@ -21,6 +23,7 @@ export class RoomsService {
     @InjectRepository(RoomsRepository)
     private roomsRepository: RoomsRepository,
     private usersRepository: UsersRepository,
+    private messageRepository: MessagesRepository,
   ) {}
 
   // Define claim in order to get user metadata.
@@ -115,6 +118,10 @@ export class RoomsService {
     }
 
     return room;
+  }
+
+  async getLimitedMessage(id: number): Promise<Message[]> {
+    return this.messageRepository.getLimitedMessages(id);
   }
 
   async getRoomMembersById(id: number): Promise<User[]> {

@@ -10,6 +10,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { Message } from 'src/messages/entity/message.entity';
 import { GetAccessToken } from 'src/users/get-access-token.decorator';
 import { UserAccessToken } from 'src/users/types';
 import { CreateRoomDTO } from './dto/createRoom.dto';
@@ -69,6 +70,11 @@ export class RoomsController {
   @Get(':name')
   getByRoomName(@Body() name: string): Promise<Room> {
     return this.roomsService.getByRoomName(name);
+  }
+
+  @Get(':id/limited')
+  getLimitedMessage(@Param('id') id: string): Promise<Message[]> {
+    return this.roomsService.getLimitedMessage(Number(id));
   }
 
   @Put(':id')
