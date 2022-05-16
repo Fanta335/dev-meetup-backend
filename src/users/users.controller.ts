@@ -22,7 +22,6 @@ import { GetAccessToken } from './get-access-token.decorator';
 import { UserAccessToken } from './types';
 import { Room } from 'src/rooms/entity/room.entity';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { Express } from 'express';
 
 @Controller('users')
 @UseGuards(AuthGuard('jwt'))
@@ -38,11 +37,17 @@ export class UsersController {
 
   @Post('avatar')
   @UseInterceptors(FileInterceptor('file'))
-  AddAvatar(
+  addAvatar(
     @GetAccessToken() token: UserAccessToken,
     @UploadedFile() file: Express.Multer.File,
   ): Promise<User> {
-    return this.usersService.addAvatar(token, file.buffer, file.originalname);
+    console.log('file: ', file);
+    return this.usersService.addAvatar(
+      token,
+      file.buffer,
+      file.originalname,
+      file.mimetype,
+    );
   }
 
   @Get()

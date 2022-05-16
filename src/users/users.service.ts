@@ -141,10 +141,12 @@ export class UsersService {
     token: UserAccessToken,
     imageBuffer: Buffer,
     filename: string,
+    mimetype: string,
   ): Promise<User> {
     const avatar = await this.filesService.uploadPublicFile(
       imageBuffer,
       filename,
+      mimetype,
     );
     const userIdFromToken: number = token[this.claimMysqlUser].id;
     const user = await this.usersRepository.findByUserId(userIdFromToken);

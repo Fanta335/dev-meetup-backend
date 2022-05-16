@@ -17,6 +17,7 @@ export class FilesService {
   async uploadPublicFile(
     dataBuffer: Buffer,
     filename: string,
+    mimetype: string,
   ): Promise<PublicFile> {
     const s3 = new S3();
     const uploadResult = await s3
@@ -24,6 +25,7 @@ export class FilesService {
         Bucket: this.configService.get('AWS_PUBLIC_BUCKET_NAME'),
         Body: dataBuffer,
         Key: `${uuid()}-${filename}`,
+        ContentType: `${mimetype}`,
       })
       .promise();
 
