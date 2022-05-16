@@ -1,3 +1,4 @@
+import { PublicFile } from 'src/files/entity/publicFile.entity';
 import { Message } from 'src/messages/entity/message.entity';
 import { User } from 'src/users/entity/user.entity';
 import {
@@ -5,8 +6,10 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  JoinColumn,
   ManyToMany,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -45,4 +48,11 @@ export class Room {
 
   @OneToMany(() => Message, (message) => message.room)
   messages: Message[];
+
+  @JoinColumn()
+  @OneToOne(() => PublicFile, {
+    eager: true,
+    nullable: true,
+  })
+  avatar: PublicFile;
 }

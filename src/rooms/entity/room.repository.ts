@@ -1,3 +1,4 @@
+import { PublicFile } from 'src/files/entity/publicFile.entity';
 import { User } from 'src/users/entity/user.entity';
 import { EntityRepository, Repository } from 'typeorm';
 import { CreateRoomDTO } from '../dto/createRoom.dto';
@@ -13,12 +14,14 @@ export class RoomsRepository extends Repository<Room> {
   async createRoom(
     user: User,
     { name, description }: CreateRoomDTO,
+    avatar: PublicFile,
   ): Promise<Room> {
     const room = new Room();
     room.name = name;
     room.description = description;
     room.owners = [user];
     room.members = [user];
+    room.avatar = avatar;
 
     return this.save(room);
   }
@@ -45,6 +48,7 @@ export class RoomsRepository extends Repository<Room> {
   getBelongingRooms(memberId: number): Promise<Room[]> {
     return this.createQueryBuilder('room')
       .leftJoin('room.members', 'user')
+      .leftJoinAndSelect('room.avatar', 'public_file')
       .where('user.id = :id', { id: memberId })
       .getMany();
   }
@@ -58,18 +62,19 @@ export class RoomsRepository extends Repository<Room> {
 
     // Add number of members property to room entity.
     return this.createQueryBuilder('room')
-      .where('room.name LIKE :name', { name: `%${query}%` })
+      .leftJoinAndSelect('room.avatar', 'public_file')
       .loadRelationCountAndMap('room.numOfMembers', 'room.members', 'user')
+      .where('room.name LIKE :name', { name: `%${query}%` })
       .orderBy(`room.${parsedSort}`, parsedOrder)
-      .take(limit)
-      .skip(offset)
+      .limit(limit)
+      .offset(offset)
       .getMany();
   }
 
   getRoomDetail(id: number): Promise<Room> {
     return this.findOne({
       where: { id: id },
-      relations: ['owners', 'members', 'messages'],
+      relations: ['owners', 'members', 'messages', 'avatar'],
     });
   }
 

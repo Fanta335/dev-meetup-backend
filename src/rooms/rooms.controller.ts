@@ -7,9 +7,12 @@ import {
   Post,
   Put,
   Query,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { Message } from 'src/messages/entity/message.entity';
 import { GetAccessToken } from 'src/users/get-access-token.decorator';
 import { UserAccessToken } from 'src/users/types';
@@ -25,11 +28,13 @@ export class RoomsController {
   constructor(private roomsService: RoomsService) {}
 
   @Post()
+  @UseInterceptors(FileInterceptor('file'))
   createRoom(
     @GetAccessToken() token: UserAccessToken,
+    @UploadedFile() file: Express.Multer.File,
     @Body() createRoomDTO: CreateRoomDTO,
   ): Promise<Room> {
-    return this.roomsService.createRoom(token, createRoomDTO);
+    return this.roomsService.createRoom(token, file, createRoomDTO);
   }
 
   @Get()
@@ -80,6 +85,7 @@ export class RoomsController {
   @Put(':id')
   updateRoom(
     @Param('id') id: string,
+    // @UploadedFile() file: Express.Multer.File,
     @GetAccessToken() token: UserAccessToken,
     @Body() updateRoomDTO: UpdateRoomDTO,
   ): Promise<Room> {

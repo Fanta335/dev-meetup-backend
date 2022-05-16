@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { FilesService } from 'src/files/files.service';
 import { Message } from 'src/messages/entity/message.entity';
 import { MessagesRepository } from 'src/messages/entity/message.repsitory';
 import { User } from 'src/users/entity/user.entity';
@@ -24,6 +25,7 @@ export class RoomsService {
     private roomsRepository: RoomsRepository,
     private usersRepository: UsersRepository,
     private messageRepository: MessagesRepository,
+    private filesService: FilesService,
   ) {}
 
   // Define claim in order to get user metadata.
@@ -32,11 +34,18 @@ export class RoomsService {
 
   async createRoom(
     token: UserAccessToken,
+    file: Express.Multer.File,
     createRoomDTO: CreateRoomDTO,
   ): Promise<Room> {
+    const { buffer, originalname, mimetype } = file;
+    const avatar = await this.filesService.uploadPublicFile(
+      buffer,
+      originalname,
+      mimetype,
+    );
     const userId: number = token[this.claimMysqlUser].id;
     const user = await this.usersRepository.findByUserId(userId);
-    return this.roomsRepository.createRoom(user, createRoomDTO);
+    return this.roomsRepository.createRoom(user, createRoomDTO, avatar);
   }
 
   getAllRooms(): Promise<Room[]> {
@@ -154,6 +163,23 @@ export class RoomsService {
     };
 
     return this.roomsRepository.save(newRoom);
+  }
+
+  async addAvatar(
+    token: UserAccessToken,
+    imageBuffer: Buffer,
+    filename: string,
+    mimetype: string,
+  ): Promise<User> {
+    const avatar = await this.filesService.uploadPublicFile(
+      imageBuffer,
+      filename,
+      mimetype,
+    );
+    const userIdFromToken: number = token[this.claimMysqlUser].id;
+    const user = await this.usersRepository.findByUserId(userIdFromToken);
+
+    return this.usersRepository.save({ ...user, avatar });
   }
 
   async deleteRoom(id: number): Promise<Room> {
