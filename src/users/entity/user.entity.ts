@@ -1,6 +1,5 @@
 import { PublicFile } from 'src/files/entity/publicFile.entity';
 import { Message } from 'src/messages/entity/message.entity';
-import { Photo } from 'src/photos/entity/photo.entity';
 import { Room } from 'src/rooms/entity/room.entity';
 import {
   Entity,
@@ -38,9 +37,6 @@ export class User {
 
   @DeleteDateColumn()
   deletedAt: Date;
-
-  @OneToMany(() => Photo, (photo) => photo.user)
-  photos: Photo[];
 
   @OneToMany(() => Message, (message) => message.author)
   messages: Message[];
