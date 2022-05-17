@@ -140,6 +140,7 @@ export class RoomsService {
   async updateRoom(
     id: number,
     token: UserAccessToken,
+    file: Express.Multer.File,
     updateRoomDTO: UpdateRoomDTO,
   ): Promise<Room> {
     const userId: number = token[this.claimMysqlUser].id;
@@ -156,6 +157,22 @@ export class RoomsService {
 
     // owners property is no longer needed to update rooms table.
     delete roomToBeUpdated.owners;
+
+    if (file) {
+      const { buffer, originalname, mimetype } = file;
+      const avatar = await this.filesService.uploadPublicFile(
+        buffer,
+        originalname,
+        mimetype,
+      );
+      const newRoom: Room = {
+        ...roomToBeUpdated,
+        ...updateRoomDTO,
+        avatar,
+      };
+
+      return this.roomsRepository.save(newRoom);
+    }
 
     const newRoom: Room = {
       ...roomToBeUpdated,

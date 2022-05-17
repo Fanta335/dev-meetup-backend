@@ -83,13 +83,16 @@ export class RoomsController {
   }
 
   @Put(':id')
+  @UseInterceptors(FileInterceptor('file'))
   updateRoom(
     @Param('id') id: string,
-    // @UploadedFile() file: Express.Multer.File,
     @GetAccessToken() token: UserAccessToken,
+    @UploadedFile() file: Express.Multer.File,
     @Body() updateRoomDTO: UpdateRoomDTO,
   ): Promise<Room> {
-    return this.roomsService.updateRoom(Number(id), token, updateRoomDTO);
+    console.log('file: ', file);
+    console.log('dto: ', updateRoomDTO);
+    return this.roomsService.updateRoom(Number(id), token, file, updateRoomDTO);
   }
 
   @Delete()
