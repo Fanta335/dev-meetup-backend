@@ -106,7 +106,7 @@ export class MessagesService {
     const messageToSoftRemove = await this.getById(messageId);
     if (messageToSoftRemove.authorId !== authorId) {
       throw new ForbiddenException(
-        "You don't have permission to delete this message. Only author of the message can delete.",
+        "You don't have permission to delete this message. Only author of the message can delete it.",
       );
     }
 
