@@ -199,9 +199,23 @@ export class RoomsService {
     return this.usersRepository.save({ ...user, avatar });
   }
 
-  async deleteRoom(id: number): Promise<Room> {
-    const room = await this.getByRoomId(id);
+  async softDeleteRoom(roomId: number, token: UserAccessToken): Promise<Room> {
+    const roomToSoftDelete = await this.roomsRepository.findOne({
+      relations: ['owners'],
+      where: { id: roomId },
+    });
+    const ownerIds = roomToSoftDelete.owners.map((owner) => owner.id);
+    const userId: number = token[this.claimMysqlUser].id;
+    const isOwner = ownerIds.some((ownerId) => ownerId === userId);
 
-    return this.roomsRepository.remove(room);
+    if (!isOwner) {
+      throw new ForbiddenException(
+        "You don't have permission to delete this room. Only admin of the room can delete it.",
+      );
+    }
+
+    const result = await this.roomsRepository.softDelete(roomId);
+    console.log('delete result: ', result);
+    return roomToSoftDelete;
   }
 }

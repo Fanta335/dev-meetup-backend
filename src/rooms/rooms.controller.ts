@@ -95,8 +95,11 @@ export class RoomsController {
     return this.roomsService.updateRoom(Number(id), token, file, updateRoomDTO);
   }
 
-  @Delete()
-  deleteRoom(id: number): Promise<Room> {
-    return this.roomsService.deleteRoom(id);
+  @Delete(':id')
+  deleteRoom(
+    @Param('id') id: string,
+    @GetAccessToken() token: UserAccessToken,
+  ): Promise<Room> {
+    return this.roomsService.softDeleteRoom(Number(id), token);
   }
 }
