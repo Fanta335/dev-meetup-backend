@@ -60,6 +60,11 @@ export class UsersController {
     return this.usersService.findByUserSubId(subId);
   }
 
+  @Get('profile')
+  getUserProfile(@GetAccessToken() token: UserAccessToken): Promise<User> {
+    return this.usersService.getUserProfile(token);
+  }
+
   @Get(':id')
   findByUserId(@Param('id') id: number): Promise<User> {
     return this.usersService.findByUserId(id);
@@ -73,13 +78,24 @@ export class UsersController {
     return this.usersService.getBelongingRooms(token, Number(id));
   }
 
+  // ユーザー名、emailなどの更新機能は保留
+  // @Put(':id')
+  // updateUser(
+  //   @GetAccessToken() token: UserAccessToken,
+  //   @Param('id') id: string,
+  //   @Body() updateUserDTO: UpdateUserDTO,
+  // ): Promise<User> {
+  //   return this.usersService.updateUser(token, Number(id), updateUserDTO);
+  // }
+
   @Put(':id')
-  updateUser(
-    @GetAccessToken() token: UserAccessToken,
+  @UseInterceptors(FileInterceptor('file'))
+  updateUserAvatar(
     @Param('id') id: string,
-    @Body() updateUserDTO: UpdateUserDTO,
+    @GetAccessToken() token: UserAccessToken,
+    @UploadedFile() file: Express.Multer.File,
   ): Promise<User> {
-    return this.usersService.updateUser(token, Number(id), updateUserDTO);
+    return this.usersService.updateUserAvatar(Number(id), token, file);
   }
 
   @Put(':userId/belonging-rooms/add/:roomId')

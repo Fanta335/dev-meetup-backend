@@ -49,6 +49,11 @@ export class UsersService {
     return user;
   }
 
+  async getUserProfile(token: UserAccessToken): Promise<User> {
+    const userIdFromToken: number = token[this.claimMysqlUser].id;
+    return this.usersRepository.getUserProfile(userIdFromToken);
+  }
+
   async getBelongingRooms(token: UserAccessToken, id: number): Promise<Room[]> {
     const userIdFromToken: number = token[this.claimMysqlUser].id;
 
@@ -80,6 +85,35 @@ export class UsersService {
     const newUser = {
       ...user,
       ...updateUserDTO,
+    };
+
+    return this.usersRepository.save(newUser);
+  }
+
+  async updateUserAvatar(
+    id: number,
+    token: UserAccessToken,
+    file: Express.Multer.File,
+  ): Promise<User> {
+    const userId: number = token[this.claimMysqlUser].id;
+
+    if (id !== userId) {
+      throw new ForbiddenException(
+        `You do not have the permission to access this resource. Only the person themselves can update.`,
+      );
+    }
+
+    const userToBeUpdated = await this.usersRepository.findByUserId(id);
+
+    const { buffer, originalname, mimetype } = file;
+    const avatar = await this.filesService.uploadPublicFile(
+      buffer,
+      originalname,
+      mimetype,
+    );
+    const newUser: User = {
+      ...userToBeUpdated,
+      avatar,
     };
 
     return this.usersRepository.save(newUser);
@@ -124,12 +158,25 @@ export class UsersService {
       );
     }
 
-    const currentBelongingRooms = await this.roomsRepository.getBelongingRooms(
-      userId,
-    );
-    const isNewRoom = currentBelongingRooms.every((room) => room.id !== roomId);
-    if (isNewRoom) {
-      return currentBelongingRooms;
+    const roomToLeave = await this.roomsRepository.findOne({
+      relations: ['owners', 'members'],
+      where: { id: roomId },
+    });
+
+    const ownerIds = roomToLeave.owners.map((owner) => owner.id);
+    const isOwner = ownerIds.some((ownerId) => ownerId === userId);
+
+    if (isOwner) {
+      throw new ForbiddenException(
+        `You can not leaeve the room because you are the admin of this room.`,
+      );
+    }
+
+    const memberIds = roomToLeave.members.map((member) => member.id);
+    const isMember = memberIds.some((memberId) => memberId === userId);
+
+    if (!isMember) {
+      throw new ForbiddenException(`You are not a member of this room.`);
     }
 
     await this.usersRepository.removeMemberFromRoom(userId, roomId);
