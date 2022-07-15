@@ -134,6 +134,12 @@ export class RoomsService {
   }
 
   async getRoomMembersById(id: number): Promise<User[]> {
+    // check if the room id is valid: the room exists or not
+    const room = await this.roomsRepository.getRoomById(id);
+    if (!room) {
+      throw new NotFoundException(`Room not found matched id: ${id}`);
+    }
+
     return this.roomsRepository.getRoomMembersById(id);
   }
 

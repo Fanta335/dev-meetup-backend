@@ -14,7 +14,6 @@ import {
 import { CreateUserDTO } from './dto/createUser.dto';
 import { UsersService } from './users.service';
 import { User } from './entity/user.entity';
-import { UpdateUserDTO } from './dto/updateUser.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { PermissionsGuard } from 'src/authz/permissions.guard';
 import { Permissions } from 'src/authz/permissions.decorator';
