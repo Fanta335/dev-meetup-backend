@@ -14,14 +14,14 @@ export class RoomsRepository extends Repository<Room> {
   async createRoom(
     user: User,
     { name, description }: CreateRoomDTO,
-    avatar: PublicFile,
+    avatar?: PublicFile,
   ): Promise<Room> {
     const room = new Room();
     room.name = name;
     room.description = description;
     room.owners = [user];
     room.members = [user];
-    room.avatar = avatar;
+    room.avatar = avatar === undefined ? null : avatar;
 
     return this.save(room);
   }

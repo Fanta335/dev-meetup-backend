@@ -31,10 +31,11 @@ export class RoomsController {
   @UseInterceptors(FileInterceptor('file'))
   createRoom(
     @GetAccessToken() token: UserAccessToken,
-    @UploadedFile() file: Express.Multer.File,
     @Body() createRoomDTO: CreateRoomDTO,
+    @UploadedFile() file: Express.Multer.File | undefined,
   ): Promise<Room> {
-    return this.roomsService.createRoom(token, file, createRoomDTO);
+    if (!file) return this.roomsService.createRoom(token, createRoomDTO);
+    return this.roomsService.createRoom(token, createRoomDTO, file);
   }
 
   @Get()

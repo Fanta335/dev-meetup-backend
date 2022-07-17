@@ -34,17 +34,23 @@ export class RoomsService {
 
   async createRoom(
     token: UserAccessToken,
-    file: Express.Multer.File,
     createRoomDTO: CreateRoomDTO,
+    file?: Express.Multer.File,
   ): Promise<Room> {
+    const userId: number = token[this.claimMysqlUser].id;
+    const user = await this.usersRepository.findByUserId(userId);
+
+    if (!file) {
+      return this.roomsRepository.createRoom(user, createRoomDTO);
+    }
+
     const { buffer, originalname, mimetype } = file;
     const avatar = await this.filesService.uploadPublicFile(
       buffer,
       originalname,
       mimetype,
     );
-    const userId: number = token[this.claimMysqlUser].id;
-    const user = await this.usersRepository.findByUserId(userId);
+
     return this.roomsRepository.createRoom(user, createRoomDTO, avatar);
   }
 
