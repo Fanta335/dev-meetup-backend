@@ -211,6 +211,14 @@ export class RoomsService {
     return this.usersRepository.save({ ...user, avatar });
   }
 
+  async addMember(token: UserAccessToken, roomId: number): Promise<void> {
+    const userId: number = token[this.claimMysqlUser].id;
+
+    await this.getByRoomId(roomId);
+
+    await this.roomsRepository.addMember(roomId, userId);
+  }
+
   async softDeleteRoom(roomId: number, token: UserAccessToken): Promise<Room> {
     const roomToSoftDelete = await this.roomsRepository.findOne({
       relations: ['owners'],

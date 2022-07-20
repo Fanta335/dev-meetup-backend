@@ -96,6 +96,14 @@ export class RoomsController {
     return this.roomsService.updateRoom(Number(id), token, file, updateRoomDTO);
   }
 
+  // @Put(':id/members/add')
+  // addMember(
+  //   @GetAccessToken() token: UserAccessToken,
+  //   @Param('id') roomId: string,
+  // ) {
+  //   this.roomsService.addMember(token, Number(roomId));
+  // }
+
   @Delete(':id')
   deleteRoom(
     @Param('id') id: string,

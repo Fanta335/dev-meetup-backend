@@ -94,4 +94,11 @@ export class RoomsRepository extends Repository<Room> {
 
     return room.members;
   }
+
+  async addMember(roomId: number, userId: number): Promise<void> {
+    await this.createQueryBuilder()
+      .relation(Room, 'members')
+      .of(roomId)
+      .add(userId);
+  }
 }
