@@ -20,11 +20,11 @@ export class InvitationsController {
     return this.invitationsService.createInvitation(token, createInvitationDTO);
   }
 
-  // @Get(':uuid')
-  // accessByInvitation(
-  //   @GetAccessToken() token: UserAccessToken,
-  //   @Param('uuid') uuid: string,
-  // ): Promise<Room> {
-  //   return this.invitationsService.accessByInvitation(token, uuid);
-  // }
+  @Get(':uuid')
+  accessByInvitation(
+    @GetAccessToken() token: UserAccessToken,
+    @Param('uuid') uuid: string,
+  ): Promise<Room> {
+    return this.invitationsService.accessByInvitation(token, uuid);
+  }
 }
