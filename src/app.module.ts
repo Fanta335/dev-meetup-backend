@@ -8,6 +8,7 @@ import { MessagesModule } from './messages/messages.module';
 import { RoomsModule } from './rooms/rooms.module';
 import { AuthzModule } from './authz/authz.module';
 import { FilesModule } from './files/files.module';
+import { InvitationsModule } from './invitations/invitations.module';
 import configuration from './config/configurations';
 
 @Module({
@@ -28,6 +29,7 @@ import configuration from './config/configurations';
     RoomsModule,
     AuthzModule,
     FilesModule,
+    InvitationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
