@@ -50,10 +50,7 @@ export class Message {
   @JoinColumn({ name: 'authorId' })
   author: User;
 
-  @ManyToOne(() => Room, (room) => room.messages, {
-    cascade: true,
-    onDelete: 'CASCADE', // roomが削除されたらmessageも削除される
-  })
+  @ManyToOne(() => Room, (room) => room.messages)
   @JoinColumn({
     name: 'roomId',
   })

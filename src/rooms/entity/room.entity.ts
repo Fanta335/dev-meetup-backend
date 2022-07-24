@@ -35,18 +35,18 @@ export class Room {
   deletedAt: Date;
 
   @ManyToMany(() => User, (user) => user.ownRooms, {
-    onDelete: 'CASCADE',
+    cascade: true,
     nullable: false,
   })
   owners: User[];
 
   @ManyToMany(() => User, (user) => user.belongingRooms, {
-    onDelete: 'CASCADE',
+    cascade: true,
     nullable: false,
   })
   members: User[];
 
-  @OneToMany(() => Message, (message) => message.room)
+  @OneToMany(() => Message, (message) => message.room, { cascade: true })
   messages: Message[];
 
   @JoinColumn()
