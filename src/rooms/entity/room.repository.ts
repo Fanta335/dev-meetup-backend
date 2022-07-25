@@ -65,6 +65,7 @@ export class RoomsRepository extends Repository<Room> {
       .leftJoinAndSelect('room.avatar', 'public_file')
       .loadRelationCountAndMap('room.numOfMembers', 'room.members', 'user')
       .where('room.name LIKE :name', { name: `%${query}%` })
+      .andWhere('room.private = false')
       .orderBy(`room.${parsedSort}`, parsedOrder)
       .limit(limit)
       .offset(offset)
