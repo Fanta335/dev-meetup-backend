@@ -13,12 +13,13 @@ import { Room } from './room.entity';
 export class RoomsRepository extends Repository<Room> {
   async createRoom(
     user: User,
-    { name, description }: CreateRoomDTO,
+    { name, description, isPrivate }: CreateRoomDTO,
     avatar?: PublicFile,
   ): Promise<Room> {
     const room = new Room();
     room.name = name;
     room.description = description;
+    room.isPrivate = isPrivate;
     room.owners = [user];
     room.members = [user];
     room.avatar = avatar === undefined ? null : avatar;
