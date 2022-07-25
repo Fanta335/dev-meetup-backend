@@ -26,7 +26,7 @@ export class Room {
   description: string;
 
   @Column()
-  private: boolean;
+  isPrivate: boolean;
 
   @CreateDateColumn()
   createdAt: Date;
