@@ -19,7 +19,7 @@ export class RoomsRepository extends Repository<Room> {
     const room = new Room();
     room.name = name;
     room.description = description;
-    room.isPrivate = isPrivate;
+    room.isPrivate = Boolean(isPrivate);
     room.owners = [user];
     room.members = [user];
     room.avatar = avatar === undefined ? null : avatar;

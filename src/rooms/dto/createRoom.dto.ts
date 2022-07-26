@@ -1,7 +1,7 @@
-import { IsBoolean, IsString } from 'class-validator';
+import { IsString } from 'class-validator';
 
 export class CreateRoomDTO {
   @IsString() name: string;
   @IsString() description: string;
-  @IsBoolean() isPrivate: boolean;
+  @IsString() isPrivate: string;
 }

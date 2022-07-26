@@ -40,6 +40,11 @@ export class RoomsService {
     const userId: number = token[this.claimMysqlUser].id;
     const user = await this.usersRepository.findByUserId(userId);
 
+    // parse stringified JSON values. isPrivate is originally boolean data.
+    for (const key in createRoomDTO) {
+      createRoomDTO[key] = JSON.parse(createRoomDTO[key]);
+    }
+
     if (!file) {
       return this.roomsRepository.createRoom(user, createRoomDTO);
     }
