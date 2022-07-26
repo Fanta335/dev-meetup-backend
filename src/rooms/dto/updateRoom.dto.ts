@@ -1,7 +1,13 @@
-import { IsBoolean, IsString } from 'class-validator';
+import { IsString } from 'class-validator';
 
 export class UpdateRoomDTO {
   @IsString() name: string;
   @IsString() description: string;
-  @IsBoolean() isPrivate: boolean;
+  @IsString() isPrivate: string;
+}
+
+export class ParsedUpdateRoomDTO {
+  name: string;
+  description: string;
+  isPrivate: boolean;
 }

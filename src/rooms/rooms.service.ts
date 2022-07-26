@@ -12,7 +12,7 @@ import { UsersRepository } from 'src/users/entity/user.repository';
 import { UserAccessToken } from 'src/users/types';
 import { CreateRoomDTO } from './dto/createRoom.dto';
 import { SearchRoomDTO } from './dto/searchRoom.dto';
-import { UpdateRoomDTO } from './dto/updateRoom.dto';
+import { ParsedUpdateRoomDTO, UpdateRoomDTO } from './dto/updateRoom.dto';
 import { Room } from './entity/room.entity';
 import { RoomsRepository } from './entity/room.repository';
 import { orderParser } from './utils/orderParser';
@@ -175,6 +175,8 @@ export class RoomsService {
     // owners property is no longer needed to update rooms table.
     delete roomToBeUpdated.owners;
 
+    const ParsedUpdateRoomDTO = this.parseUpdateRoomDTO(updateRoomDTO);
+
     if (file) {
       const { buffer, originalname, mimetype } = file;
       const avatar = await this.filesService.uploadPublicFile(
@@ -184,7 +186,7 @@ export class RoomsService {
       );
       const newRoom: Room = {
         ...roomToBeUpdated,
-        ...updateRoomDTO,
+        ...ParsedUpdateRoomDTO,
         avatar,
       };
 
@@ -193,7 +195,7 @@ export class RoomsService {
 
     const newRoom: Room = {
       ...roomToBeUpdated,
-      ...updateRoomDTO,
+      ...ParsedUpdateRoomDTO,
     };
 
     return this.roomsRepository.save(newRoom);
@@ -242,5 +244,13 @@ export class RoomsService {
     const result = await this.roomsRepository.softDelete(roomId);
     console.log('delete result: ', result);
     return roomToSoftDelete;
+  }
+
+  parseUpdateRoomDTO(dto: UpdateRoomDTO): ParsedUpdateRoomDTO {
+    const parsed = new ParsedUpdateRoomDTO();
+    for (const key in dto) {
+      parsed[key] = JSON.parse(dto[key]);
+    }
+    return parsed;
   }
 }
