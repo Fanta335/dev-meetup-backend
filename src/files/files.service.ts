@@ -1,10 +1,12 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { PublicFile } from './entity/publicFile.entity';
 import { S3 } from 'aws-sdk';
 import { v4 as uuid } from 'uuid';
+import sharp from 'sharp';
+import { imageMimetypeSet } from './imageMimetypeSet';
 
 @Injectable()
 export class FilesService {
@@ -19,11 +21,16 @@ export class FilesService {
     filename: string,
     mimetype: string,
   ): Promise<PublicFile> {
+    this.validateMimetype(mimetype);
+    const resizedDataBuffer = await sharp(dataBuffer)
+      .rotate()
+      .resize(300)
+      .toBuffer();
     const s3 = new S3();
     const uploadResult = await s3
       .upload({
         Bucket: this.configService.get('AWS_PUBLIC_BUCKET_NAME'),
-        Body: dataBuffer,
+        Body: resizedDataBuffer,
         Key: `${uuid()}-${filename}`,
         ContentType: `${mimetype}`,
       })
@@ -48,5 +55,11 @@ export class FilesService {
       .promise();
 
     await this.publicFilesRepository.delete(fileId);
+  }
+
+  validateMimetype(mimetype: string) {
+    if (!imageMimetypeSet.has(mimetype)) {
+      throw new ForbiddenException(`The file mimetype is not valid.`);
+    }
   }
 }
