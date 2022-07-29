@@ -21,6 +21,7 @@ import { GetAccessToken } from './get-access-token.decorator';
 import { UserAccessToken } from './types';
 import { Room } from 'src/rooms/entity/room.entity';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { UpdateUserDTO } from './dto/updateUser.dto';
 
 @Controller('users')
 @UseGuards(AuthGuard('jwt'))
@@ -77,15 +78,13 @@ export class UsersController {
     return this.usersService.getBelongingRooms(token, Number(id));
   }
 
-  // ユーザー名、emailなどの更新機能は保留
-  // @Put(':id')
-  // updateUser(
-  //   @GetAccessToken() token: UserAccessToken,
-  //   @Param('id') id: string,
-  //   @Body() updateUserDTO: UpdateUserDTO,
-  // ): Promise<User> {
-  //   return this.usersService.updateUser(token, Number(id), updateUserDTO);
-  // }
+  @Put(':id')
+  updateUser(
+    @Body() updateUserDTO: UpdateUserDTO,
+    @GetAccessToken() token: UserAccessToken,
+  ) {
+    return this.usersService.updateUser(token, updateUserDTO);
+  }
 
   @Put(':id')
   @UseInterceptors(FileInterceptor('file'))

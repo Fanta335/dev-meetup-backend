@@ -7,6 +7,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { FilesService } from 'src/files/files.service';
 import { Room } from 'src/rooms/entity/room.entity';
 import { RoomsRepository } from 'src/rooms/entity/room.repository';
+import { fetchAuth0ManegementAPIToken } from './auth0/fetchAuth0ManagementAPIToken';
+import { updateUserInAuth0 } from './auth0/updateUserInAuth0';
 import { CreateUserDTO } from './dto/createUser.dto';
 import { UpdateUserDTO } from './dto/updateUser.dto';
 import { User } from './entity/user.entity';
@@ -69,23 +71,35 @@ export class UsersService {
 
   async updateUser(
     token: UserAccessToken,
-    id: number,
     updateUserDTO: UpdateUserDTO,
   ): Promise<User> {
     const userIdFromToken: number = token[this.claimMysqlUser].id;
+    const userSubId: string = token.sub;
+    const userToBeUpdated = await this.usersRepository.findByUserId(
+      userIdFromToken,
+    );
+    const newUser = userToBeUpdated;
 
-    // Check if the updating user is the person themselves.
-    if (userIdFromToken !== id) {
-      throw new ForbiddenException(
-        `You do not have the permission to access this resource. Only the person themselves can update.`,
-      );
+    // update user in auth0
+    const tokenForManagementAPI = await fetchAuth0ManegementAPIToken();
+    if (updateUserDTO.name !== undefined) {
+      updateUserInAuth0(tokenForManagementAPI, userSubId, {
+        username: updateUserDTO.name,
+      });
+      newUser.name = updateUserDTO.name;
     }
-
-    const user = await this.usersRepository.findByUserId(id);
-    const newUser = {
-      ...user,
-      ...updateUserDTO,
-    };
+    if (updateUserDTO.email !== undefined) {
+      updateUserInAuth0(tokenForManagementAPI, userSubId, {
+        email: updateUserDTO.email,
+      });
+      newUser.email = updateUserDTO.email;
+    }
+    // password data is only in auth0.
+    if (updateUserDTO.password !== undefined) {
+      updateUserInAuth0(tokenForManagementAPI, userSubId, {
+        password: updateUserDTO.password,
+      });
+    }
 
     return this.usersRepository.save(newUser);
   }
