@@ -1,9 +1,10 @@
 import axios from 'axios';
+import { DataToUpdate } from '../types';
 
 export const updateUserInAuth0 = async (
   token: string,
   userSubId: string,
-  dataToUpdate: { [key: string]: string },
+  dataToUpdate: DataToUpdate,
 ) => {
   const res = await axios.patch(
     `${process.env.AUTH0_DOMAIN_URL}api/v2/users/${userSubId}`,

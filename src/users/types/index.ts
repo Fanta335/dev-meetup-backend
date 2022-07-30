@@ -4,12 +4,9 @@ const mysqlUser = Symbol(namespace + '/mysqlUser');
 
 export type MysqlUser = {
   id: number;
-  subId: string;
-  name: string;
-  email: string;
-  createdAt: string;
-  updatedAt: string;
-  deletedAt: string;
+  username_updated_at: string;
+  email_updated_at: string;
+  password_updated_at: string;
 };
 
 export type UserAccessToken = {
@@ -23,4 +20,15 @@ export type UserAccessToken = {
   azp: string;
   scope: string;
   permissions: string[];
+};
+
+export type DataToUpdate = {
+  username?: string;
+  email?: string;
+  password?: string;
+  user_metadata: {
+    username_updated_at?: string;
+    email_updated_at?: string;
+    password_updated_at?: string;
+  };
 };

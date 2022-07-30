@@ -4,9 +4,11 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import dayjs from 'dayjs';
 import { FilesService } from 'src/files/files.service';
 import { Room } from 'src/rooms/entity/room.entity';
 import { RoomsRepository } from 'src/rooms/entity/room.repository';
+import { isValidUpdateFrequency } from './auth0/checkUpdateFrequency';
 import { fetchAuth0ManegementAPIToken } from './auth0/fetchAuth0ManagementAPIToken';
 import { updateUserInAuth0 } from './auth0/updateUserInAuth0';
 import { CreateUserDTO } from './dto/createUser.dto';
@@ -73,6 +75,23 @@ export class UsersService {
     token: UserAccessToken,
     updateUserDTO: UpdateUserDTO,
   ): Promise<User> {
+    // check if the updateUserDTO is valid.
+    if (Object.keys(updateUserDTO).length === 0) {
+      throw new ForbiddenException('Requested data is empty.');
+    }
+
+    // check if the value of updated_at in user_metadata in the access token.
+    const currentDatetime = dayjs();
+    if (
+      !isValidUpdateFrequency(
+        token[this.claimMysqlUser],
+        currentDatetime,
+        updateUserDTO,
+      )
+    ) {
+      throw new ForbiddenException('Too frequent udpates.');
+    }
+
     const userIdFromToken: number = token[this.claimMysqlUser].id;
     const userSubId: string = token.sub;
     const userToBeUpdated = await this.usersRepository.findByUserId(
@@ -82,15 +101,25 @@ export class UsersService {
 
     // update user in auth0
     const tokenForManagementAPI = await fetchAuth0ManegementAPIToken();
+    const currentDatetimeString = currentDatetime.format(
+      'YYYY-MM-DDTHH:mm:ss.sss[Z]',
+    );
+
     if (updateUserDTO.name !== undefined) {
       updateUserInAuth0(tokenForManagementAPI, userSubId, {
         username: updateUserDTO.name,
+        user_metadata: {
+          username_updated_at: currentDatetimeString,
+        },
       });
       newUser.name = updateUserDTO.name;
     }
     if (updateUserDTO.email !== undefined) {
       updateUserInAuth0(tokenForManagementAPI, userSubId, {
         email: updateUserDTO.email,
+        user_metadata: {
+          email_updated_at: currentDatetimeString,
+        },
       });
       newUser.email = updateUserDTO.email;
     }
@@ -98,6 +127,9 @@ export class UsersService {
     if (updateUserDTO.password !== undefined) {
       updateUserInAuth0(tokenForManagementAPI, userSubId, {
         password: updateUserDTO.password,
+        user_metadata: {
+          password_updated_at: currentDatetimeString,
+        },
       });
     }
 
