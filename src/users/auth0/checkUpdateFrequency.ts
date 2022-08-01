@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import { UpdateUserDTO } from '../dto/updateUser.dto';
+import { UpdateRootUserDTO } from '../dto/updateRootUser.dto';
 import { MysqlUser } from '../types';
 
 const UPDATE_LIMITS = 7; // 7 days
@@ -7,7 +7,7 @@ const UPDATE_LIMITS = 7; // 7 days
 export const isValidUpdateFrequency = (
   metadata: MysqlUser,
   currentDatetime: dayjs.Dayjs,
-  updateUserDTO: UpdateUserDTO,
+  updateUserDTO: UpdateRootUserDTO,
 ) => {
   for (const prop in updateUserDTO) {
     if (

@@ -29,6 +29,9 @@ export class User {
   @Column({ unique: true, select: false })
   email: string;
 
+  @Column({ length: 150 })
+  description: string;
+
   @CreateDateColumn()
   createdAt: Date;
 

@@ -18,11 +18,13 @@ export class UsersRepository extends Repository<User> {
   }
 
   async findByUserId(id: number): Promise<User> {
-    return this.findOne(id);
+    return this.findOne(id, {
+      select: ['id', 'subId', 'name', 'email', 'description'],
+    });
   }
 
   async getUserProfile(id: number): Promise<User> {
-    return this.findOne(id, { select: ['id', 'name', 'email'] });
+    return this.findOne(id, { select: ['id', 'name', 'email', 'description'] });
   }
 
   async findByUserSubId(subId: string): Promise<User> {

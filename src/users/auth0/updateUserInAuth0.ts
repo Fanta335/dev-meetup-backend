@@ -6,7 +6,7 @@ export const updateUserInAuth0 = async (
   userSubId: string,
   dataToUpdate: DataToUpdate,
 ) => {
-  const res = await axios.patch(
+  await axios.patch(
     `${process.env.AUTH0_DOMAIN_URL}api/v2/users/${userSubId}`,
     dataToUpdate,
     {
@@ -17,5 +17,4 @@ export const updateUserInAuth0 = async (
       },
     },
   );
-  console.log('management api res: ', res.data);
 };

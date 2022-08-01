@@ -9,9 +9,11 @@ import { FilesService } from 'src/files/files.service';
 import { Room } from 'src/rooms/entity/room.entity';
 import { RoomsRepository } from 'src/rooms/entity/room.repository';
 import { isValidUpdateFrequency } from './auth0/checkUpdateFrequency';
+import { deleteUserInAuth0 } from './auth0/deleteUserInAuth0';
 import { fetchAuth0ManegementAPIToken } from './auth0/fetchAuth0ManagementAPIToken';
 import { updateUserInAuth0 } from './auth0/updateUserInAuth0';
 import { CreateUserDTO } from './dto/createUser.dto';
+import { UpdateRootUserDTO } from './dto/updateRootUser.dto';
 import { UpdateUserDTO } from './dto/updateUser.dto';
 import { User } from './entity/user.entity';
 import { UsersRepository } from './entity/user.repository';
@@ -37,7 +39,15 @@ export class UsersService {
     return this.usersRepository.findAllUsers();
   }
 
-  async findByUserId(id: number): Promise<User> {
+  async findByUserId(id: number, token: UserAccessToken): Promise<User> {
+    const userIdFromToken: number = token[this.claimMysqlUser].id;
+
+    if (id !== userIdFromToken) {
+      throw new ForbiddenException(
+        `You do not have the permission to access this resource. Only the person themselves have permission.`,
+      );
+    }
+
     const user = await this.usersRepository.findByUserId(id);
     if (!user) {
       throw new NotFoundException(`User not found matched id: '${id}'.`);
@@ -71,9 +81,9 @@ export class UsersService {
     return this.roomsRepository.getBelongingRooms(id);
   }
 
-  async updateUser(
+  async updateRootUser(
     token: UserAccessToken,
-    updateUserDTO: UpdateUserDTO,
+    updateUserDTO: UpdateRootUserDTO,
   ): Promise<User> {
     // check if the updateUserDTO is valid.
     if (Object.keys(updateUserDTO).length === 0) {
@@ -136,31 +146,33 @@ export class UsersService {
     return this.usersRepository.save(newUser);
   }
 
-  async updateUserAvatar(
-    id: number,
+  async updateUser(
     token: UserAccessToken,
+    updateUserDTO: UpdateUserDTO,
     file: Express.Multer.File,
   ): Promise<User> {
-    const userId: number = token[this.claimMysqlUser].id;
-
-    if (id !== userId) {
-      throw new ForbiddenException(
-        `You do not have the permission to access this resource. Only the person themselves can update.`,
-      );
+    if (Object.keys(updateUserDTO).length === 0 && file === undefined) {
+      return;
     }
 
-    const userToBeUpdated = await this.usersRepository.findByUserId(id);
+    const userId: number = token[this.claimMysqlUser].id;
 
-    const { buffer, originalname, mimetype } = file;
-    const avatar = await this.filesService.uploadPublicFile(
-      buffer,
-      originalname,
-      mimetype,
-    );
-    const newUser: User = {
-      ...userToBeUpdated,
-      avatar,
-    };
+    const userToBeUpdated = await this.usersRepository.findByUserId(userId);
+    const newUser = userToBeUpdated;
+
+    if (updateUserDTO.description) {
+      newUser.description = updateUserDTO.description;
+    }
+
+    if (file) {
+      const { buffer, originalname, mimetype } = file;
+      const avatar = await this.filesService.uploadPublicFile(
+        buffer,
+        originalname,
+        mimetype,
+      );
+      newUser.avatar = avatar;
+    }
 
     return this.usersRepository.save(newUser);
   }
@@ -260,9 +272,18 @@ export class UsersService {
     }
   }
 
-  async deleteUser(id: number): Promise<User> {
-    const user = await this.findByUserId(id);
+  async softDeleteUser(token: UserAccessToken): Promise<User> {
+    const userId: number = token[this.claimMysqlUser].id;
+    const userToDelete = await this.findByUserId(userId, token);
 
-    return this.usersRepository.remove(user);
+    // soft delete user in mysql.
+    await this.usersRepository.softDelete(userId);
+
+    // hard delete user in auth0.
+    const tokenForManagementAPI = await fetchAuth0ManegementAPIToken();
+    const userSubId: string = token.sub;
+    deleteUserInAuth0(tokenForManagementAPI, userSubId);
+
+    return userToDelete;
   }
 }

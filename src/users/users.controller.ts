@@ -21,6 +21,7 @@ import { GetAccessToken } from './get-access-token.decorator';
 import { UserAccessToken } from './types';
 import { Room } from 'src/rooms/entity/room.entity';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { UpdateRootUserDTO } from './dto/updateRootUser.dto';
 import { UpdateUserDTO } from './dto/updateUser.dto';
 
 @Controller('users')
@@ -66,8 +67,11 @@ export class UsersController {
   }
 
   @Get(':id')
-  findByUserId(@Param('id') id: number): Promise<User> {
-    return this.usersService.findByUserId(id);
+  findByUserId(
+    @Param('id') id: number,
+    @GetAccessToken() token: UserAccessToken,
+  ): Promise<User> {
+    return this.usersService.findByUserId(id, token);
   }
 
   @Get(':id/belonging-rooms')
@@ -78,22 +82,24 @@ export class UsersController {
     return this.usersService.getBelongingRooms(token, Number(id));
   }
 
-  @Put(':id')
-  updateUser(
-    @Body() updateUserDTO: UpdateUserDTO,
-    @GetAccessToken() token: UserAccessToken,
-  ) {
-    return this.usersService.updateUser(token, updateUserDTO);
-  }
-
+  // updates a user profile ONLY in mysql.
   @Put(':id')
   @UseInterceptors(FileInterceptor('file'))
-  updateUserAvatar(
-    @Param('id') id: string,
+  updateUser(
     @GetAccessToken() token: UserAccessToken,
+    @Body() updateUserDTO: UpdateUserDTO,
     @UploadedFile() file: Express.Multer.File,
   ): Promise<User> {
-    return this.usersService.updateUserAvatar(Number(id), token, file);
+    return this.usersService.updateUser(token, updateUserDTO, file);
+  }
+
+  // updates a user profile in BOTH auth0 and mysql.
+  @Put(':id/root')
+  updateRootUser(
+    @Body() updateUserDTO: UpdateRootUserDTO,
+    @GetAccessToken() token: UserAccessToken,
+  ): Promise<User> {
+    return this.usersService.updateRootUser(token, updateUserDTO);
   }
 
   @Put(':userId/belonging-rooms/add/:roomId')
@@ -128,7 +134,7 @@ export class UsersController {
   }
 
   @Delete(':id')
-  deleteUser(@Param('id') id: string): Promise<User> {
-    return this.usersService.deleteUser(Number(id));
+  deleteUser(@GetAccessToken() token: UserAccessToken): Promise<User> {
+    return this.usersService.softDeleteUser(token);
   }
 }
