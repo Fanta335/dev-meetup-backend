@@ -276,6 +276,15 @@ export class UsersService {
     const userId: number = token[this.claimMysqlUser].id;
     const userToDelete = await this.findByUserId(userId, token);
 
+    // check if the user does not own rooms.
+    const ownRooms = await this.roomsRepository.getOwnRooms(userId);
+    console.log('own rooms ', ownRooms);
+    if (ownRooms.length > 0) {
+      throw new ForbiddenException(
+        'This user owns rooms. Transfer ownership authority to anyone or delete all own rooms.',
+      );
+    }
+
     // soft delete user in mysql.
     await this.usersRepository.softDelete(userId);
 

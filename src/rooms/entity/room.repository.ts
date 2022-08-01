@@ -54,6 +54,13 @@ export class RoomsRepository extends Repository<Room> {
       .getMany();
   }
 
+  getOwnRooms(ownerId: number): Promise<Room[]> {
+    return this.createQueryBuilder('room')
+      .leftJoin('room.owners', 'user')
+      .where('user.id = :id', { id: ownerId })
+      .getMany();
+  }
+
   searchRooms(
     searchRoomDTO: SearchRoomDTO,
     parsedSort: KeyOfSortOptions,
