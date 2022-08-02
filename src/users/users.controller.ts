@@ -82,6 +82,11 @@ export class UsersController {
     return this.usersService.getBelongingRooms(token, Number(id));
   }
 
+  @Get(':id/own-rooms')
+  getOwnRooms(@GetAccessToken() token: UserAccessToken): Promise<Room[]> {
+    return this.usersService.getOwnRooms(token);
+  }
+
   // updates a user profile ONLY in mysql.
   @Put(':id')
   @UseInterceptors(FileInterceptor('file'))

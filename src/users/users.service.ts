@@ -81,6 +81,12 @@ export class UsersService {
     return this.roomsRepository.getBelongingRooms(id);
   }
 
+  async getOwnRooms(token: UserAccessToken): Promise<Room[]> {
+    const userIdFromToken: number = token[this.claimMysqlUser].id;
+
+    return this.roomsRepository.getOwnRooms(userIdFromToken);
+  }
+
   async updateRootUser(
     token: UserAccessToken,
     updateUserDTO: UpdateRootUserDTO,
