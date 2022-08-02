@@ -31,8 +31,8 @@ export class MessageGateway implements OnGatewayInit, OnGatewayConnection {
   }
 
   async handleConnection(client: Socket) {
-    const user = await this.messageService.getUserFromSocket(client);
-    if (user !== undefined) console.log('user: ', user);
+    // const user = await this.messageService.getUserFromSocket(client);
+    // if (user !== undefined) console.log('user: ', user);
   }
 
   @SubscribeMessage('send_message')
