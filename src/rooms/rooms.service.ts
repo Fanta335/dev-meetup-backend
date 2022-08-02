@@ -10,7 +10,9 @@ import { MessagesRepository } from 'src/messages/entity/message.repsitory';
 import { User } from 'src/users/entity/user.entity';
 import { UsersRepository } from 'src/users/entity/user.repository';
 import { UserAccessToken } from 'src/users/types';
+import { AddOwnerDTO } from './dto/addOwner.dto';
 import { CreateRoomDTO } from './dto/createRoom.dto';
+import { RemoveOwnerDTO } from './dto/removeOwner.dto';
 import { SearchRoomDTO } from './dto/searchRoom.dto';
 import { ParsedUpdateRoomDTO, UpdateRoomDTO } from './dto/updateRoom.dto';
 import { Room } from './entity/room.entity';
@@ -224,6 +226,50 @@ export class RoomsService {
     await this.getByRoomId(roomId);
 
     await this.roomsRepository.addMember(roomId, userId);
+  }
+
+  async addOwner(
+    token: UserAccessToken,
+    roomId: number,
+    addOwnerDTO: AddOwnerDTO,
+  ): Promise<void> {
+    const currentOwnerId: number = token[this.claimMysqlUser].id;
+
+    const roomToAdd = await this.getRoomDetailById(token, roomId);
+    const isOwner = roomToAdd.owners.some(
+      (owner) => owner.id === currentOwnerId,
+    );
+    if (!isOwner) {
+      throw new ForbiddenException(
+        "You don't have permission to manage ownership in this room. Only owners are allowed.",
+      );
+    }
+
+    const { userIdToAdd } = addOwnerDTO;
+
+    await this.roomsRepository.addOwner(roomId, userIdToAdd);
+  }
+
+  async removeOwner(
+    token: UserAccessToken,
+    roomId: number,
+    removeOwnerDTO: RemoveOwnerDTO,
+  ): Promise<void> {
+    const currentOwnerId: number = token[this.claimMysqlUser].id;
+
+    const roomToAdd = await this.getRoomDetailById(token, roomId);
+    const isOwner = roomToAdd.owners.some(
+      (owner) => owner.id === currentOwnerId,
+    );
+    if (!isOwner) {
+      throw new ForbiddenException(
+        "You don't have permission to manage ownership in this room. Only owners are allowed.",
+      );
+    }
+
+    const { userIdToRemove } = removeOwnerDTO;
+
+    await this.roomsRepository.removeOwner(roomId, userIdToRemove);
   }
 
   async softDeleteRoom(roomId: number, token: UserAccessToken): Promise<Room> {

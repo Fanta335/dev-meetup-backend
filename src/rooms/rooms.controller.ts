@@ -16,7 +16,9 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { Message } from 'src/messages/entity/message.entity';
 import { GetAccessToken } from 'src/users/get-access-token.decorator';
 import { UserAccessToken } from 'src/users/types';
+import { AddOwnerDTO } from './dto/addOwner.dto';
 import { CreateRoomDTO } from './dto/createRoom.dto';
+import { RemoveOwnerDTO } from './dto/removeOwner.dto';
 import { SortOptionsType, OrderOptionsType } from './dto/searchRoom.dto';
 import { UpdateRoomDTO } from './dto/updateRoom.dto';
 import { Room } from './entity/room.entity';
@@ -103,6 +105,23 @@ export class RoomsController {
   // ) {
   //   this.roomsService.addMember(token, Number(roomId));
   // }
+  @Put(':id/owners/add')
+  addOwner(
+    @GetAccessToken() token: UserAccessToken,
+    @Param('id') roomId: string,
+    @Body() addOwnerDTO: AddOwnerDTO,
+  ) {
+    this.roomsService.addOwner(token, Number(roomId), addOwnerDTO);
+  }
+
+  @Put(':id/owners/remove')
+  removeOwner(
+    @GetAccessToken() token: UserAccessToken,
+    @Param('id') roomId: string,
+    @Body() removeOwnerDTO: RemoveOwnerDTO,
+  ) {
+    this.roomsService.removeOwner(token, Number(roomId), removeOwnerDTO);
+  }
 
   @Delete(':id')
   deleteRoom(

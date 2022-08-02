@@ -110,4 +110,18 @@ export class RoomsRepository extends Repository<Room> {
       .of(roomId)
       .add(userId);
   }
+
+  async addOwner(roomId: number, userId: number): Promise<void> {
+    await this.createQueryBuilder()
+      .relation(Room, 'owners')
+      .of(roomId)
+      .add(userId);
+  }
+
+  async removeOwner(roomId: number, userId: number): Promise<void> {
+    await this.createQueryBuilder()
+      .relation(Room, 'owners')
+      .of(roomId)
+      .remove(userId);
+  }
 }
