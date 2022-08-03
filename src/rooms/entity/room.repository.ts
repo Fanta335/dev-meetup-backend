@@ -7,6 +7,7 @@ import {
   KeyOfSortOptions,
   SearchRoomDTO,
 } from '../dto/searchRoom.dto';
+import { RoomRelation } from '../types';
 import { Room } from './room.entity';
 
 @EntityRepository(Room)
@@ -37,13 +38,6 @@ export class RoomsRepository extends Repository<Room> {
 
   getRoomByName(name: string): Promise<Room> {
     return this.findOne({ name: name });
-  }
-
-  getRoomWithOwners(id: number): Promise<Room> {
-    return this.findOne({
-      where: { id: id },
-      relations: ['owners'],
-    });
   }
 
   getBelongingRooms(memberId: number): Promise<Room[]> {
@@ -80,10 +74,10 @@ export class RoomsRepository extends Repository<Room> {
       .getMany();
   }
 
-  getRoomDetail(id: number): Promise<Room> {
+  getRoomWithRelations(id: number, relations: RoomRelation[]): Promise<Room> {
     return this.findOne({
       where: { id: id },
-      relations: ['owners', 'members', 'messages', 'avatar'],
+      relations: relations,
     });
   }
 
