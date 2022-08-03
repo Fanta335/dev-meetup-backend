@@ -1,14 +1,20 @@
+import { PublicFile } from 'src/files/entity/publicFile.entity';
 import { EntityRepository, Repository } from 'typeorm';
 import { CreateUserDTO } from '../dto/createUser.dto';
 import { User } from './user.entity';
 
 @EntityRepository(User)
 export class UsersRepository extends Repository<User> {
-  createUser({ name, email, subId }: CreateUserDTO): Promise<User> {
+  createUser(
+    { name, email, subId }: CreateUserDTO,
+    avatar: PublicFile,
+  ): Promise<User> {
     const newUser = new User();
     newUser.subId = subId;
     newUser.name = name;
     newUser.email = email;
+    newUser.description = '';
+    newUser.avatar = avatar;
 
     return this.save(newUser);
   }

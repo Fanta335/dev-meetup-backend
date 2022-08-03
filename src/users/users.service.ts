@@ -31,8 +31,10 @@ export class UsersService {
   namespace = process.env.AUTH0_NAMESPACE;
   claimMysqlUser = this.namespace + '/mysqlUser';
 
-  createUser(createUserDTO: CreateUserDTO): Promise<User> {
-    return this.usersRepository.createUser(createUserDTO);
+  async createUser(createUserDTO: CreateUserDTO): Promise<User> {
+    const { name, avatarUrl } = createUserDTO;
+    const avatar = await this.filesService.addDefaultAvatar(avatarUrl, name);
+    return this.usersRepository.createUser(createUserDTO, avatar);
   }
 
   findAllUsers(): Promise<User[]> {

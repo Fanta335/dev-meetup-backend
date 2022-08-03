@@ -44,6 +44,18 @@ export class FilesService {
     return this.publicFilesRepository.save(newFile);
   }
 
+  async addDefaultAvatar(
+    avatarUrl: string,
+    username: string,
+  ): Promise<PublicFile> {
+    const newFile = this.publicFilesRepository.create({
+      key: `${uuid()}-${username}`,
+      url: avatarUrl,
+    });
+
+    return this.publicFilesRepository.save(newFile);
+  }
+
   async deletePublicFile(fileId: number) {
     const file = await this.publicFilesRepository.findOne({ id: fileId });
     const s3 = new S3();
