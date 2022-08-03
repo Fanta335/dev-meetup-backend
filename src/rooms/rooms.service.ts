@@ -122,7 +122,12 @@ export class RoomsService {
 
   async getRoomDetailById(token: UserAccessToken, id: number): Promise<Room> {
     const userId: number = token[this.claimMysqlUser].id;
-    const room = await this.roomsRepository.getRoomDetail(id);
+    const room = await this.roomsRepository.getRoomWithRelations(id, [
+      'owners',
+      'members',
+      'messages',
+      'avatar',
+    ]);
 
     // Check if the room exists.
     if (!room) {
@@ -163,7 +168,10 @@ export class RoomsService {
     updateRoomDTO: UpdateRoomDTO,
   ): Promise<Room> {
     const userId: number = token[this.claimMysqlUser].id;
-    const roomToBeUpdated = await this.roomsRepository.getRoomWithOwners(id);
+    const roomToBeUpdated = await this.roomsRepository.getRoomWithRelations(
+      id,
+      ['owners'],
+    );
     const isOwnerOfRoom = roomToBeUpdated.owners.some(
       (user) => user.id === userId,
     );
@@ -232,7 +240,7 @@ export class RoomsService {
     token: UserAccessToken,
     roomId: number,
     addOwnerDTO: AddOwnerDTO,
-  ): Promise<void> {
+  ): Promise<Room> {
     const currentOwnerId: number = token[this.claimMysqlUser].id;
 
     const roomToAdd = await this.getRoomDetailById(token, roomId);
@@ -246,15 +254,16 @@ export class RoomsService {
     }
 
     const { userIdToAdd } = addOwnerDTO;
-
     await this.roomsRepository.addOwner(roomId, userIdToAdd);
+
+    return this.roomsRepository.getRoomWithRelations(roomId, ['owners']);
   }
 
   async removeOwner(
     token: UserAccessToken,
     roomId: number,
     removeOwnerDTO: RemoveOwnerDTO,
-  ): Promise<void> {
+  ): Promise<Room> {
     const currentOwnerId: number = token[this.claimMysqlUser].id;
 
     const roomToAdd = await this.getRoomDetailById(token, roomId);
@@ -268,8 +277,9 @@ export class RoomsService {
     }
 
     const { userIdToRemove } = removeOwnerDTO;
-
     await this.roomsRepository.removeOwner(roomId, userIdToRemove);
+
+    return this.roomsRepository.getRoomWithRelations(roomId, ['owners']);
   }
 
   async softDeleteRoom(roomId: number, token: UserAccessToken): Promise<Room> {

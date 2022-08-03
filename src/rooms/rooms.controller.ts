@@ -98,20 +98,13 @@ export class RoomsController {
     return this.roomsService.updateRoom(Number(id), token, file, updateRoomDTO);
   }
 
-  // @Put(':id/members/add')
-  // addMember(
-  //   @GetAccessToken() token: UserAccessToken,
-  //   @Param('id') roomId: string,
-  // ) {
-  //   this.roomsService.addMember(token, Number(roomId));
-  // }
   @Put(':id/owners/add')
   addOwner(
     @GetAccessToken() token: UserAccessToken,
     @Param('id') roomId: string,
     @Body() addOwnerDTO: AddOwnerDTO,
-  ) {
-    this.roomsService.addOwner(token, Number(roomId), addOwnerDTO);
+  ): Promise<Room> {
+    return this.roomsService.addOwner(token, Number(roomId), addOwnerDTO);
   }
 
   @Put(':id/owners/remove')
@@ -119,8 +112,8 @@ export class RoomsController {
     @GetAccessToken() token: UserAccessToken,
     @Param('id') roomId: string,
     @Body() removeOwnerDTO: RemoveOwnerDTO,
-  ) {
-    this.roomsService.removeOwner(token, Number(roomId), removeOwnerDTO);
+  ): Promise<Room> {
+    return this.roomsService.removeOwner(token, Number(roomId), removeOwnerDTO);
   }
 
   @Delete(':id')
