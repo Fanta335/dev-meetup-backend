@@ -266,13 +266,19 @@ export class RoomsService {
   ): Promise<Room> {
     const currentOwnerId: number = token[this.claimMysqlUser].id;
 
-    const roomToAdd = await this.getRoomDetailById(token, roomId);
-    const isOwner = roomToAdd.owners.some(
+    const roomToRemove = await this.getRoomDetailById(token, roomId);
+    const isOwner = roomToRemove.owners.some(
       (owner) => owner.id === currentOwnerId,
     );
     if (!isOwner) {
       throw new ForbiddenException(
         "You don't have permission to manage ownership in this room. Only owners are allowed.",
+      );
+    }
+
+    if (roomToRemove.owners.length === 1) {
+      throw new ForbiddenException(
+        'This owner cannot be removed since rooms must have at least one owner.',
       );
     }
 
