@@ -33,11 +33,11 @@ export class RoomsRepository extends Repository<Room> {
   }
 
   getRoomById(id: number): Promise<Room> {
-    return this.findOne(id);
+    return this.findOne({ where: { id: id } });
   }
 
   getRoomByName(name: string): Promise<Room> {
-    return this.findOne({ name: name });
+    return this.findOne({ where: { name: name } });
   }
 
   getBelongingRooms(memberId: number): Promise<Room[]> {

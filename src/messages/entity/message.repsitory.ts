@@ -24,7 +24,7 @@ export class MessagesRepository extends Repository<Message> {
   }
 
   getById(id: number): Promise<Message> {
-    return this.findOne(id);
+    return this.findOne({ where: { id } });
   }
 
   getByRoomId(): Promise<Message[]> {

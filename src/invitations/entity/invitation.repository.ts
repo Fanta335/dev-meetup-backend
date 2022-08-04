@@ -15,6 +15,6 @@ export class InvitationRepository extends Repository<Invitation> {
   }
 
   async findByUuid(uuid: string): Promise<Invitation> {
-    return this.findOne(uuid);
+    return this.findOne({ where: { id: uuid } });
   }
 }
