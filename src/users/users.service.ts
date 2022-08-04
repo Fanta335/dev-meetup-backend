@@ -8,7 +8,7 @@ import dayjs from 'dayjs';
 import { FilesService } from 'src/files/files.service';
 import { Room } from 'src/rooms/entity/room.entity';
 import { RoomsRepository } from 'src/rooms/entity/room.repository';
-import { isValidUpdateFrequency } from './auth0/checkUpdateFrequency';
+import { isValidUpdateFrequency } from './utils/checkUpdateFrequency';
 import { deleteUserInAuth0 } from './auth0/deleteUserInAuth0';
 import { fetchAuth0ManegementAPIToken } from './auth0/fetchAuth0ManagementAPIToken';
 import { updateUserInAuth0 } from './auth0/updateUserInAuth0';
@@ -18,6 +18,7 @@ import { UpdateUserDTO } from './dto/updateUser.dto';
 import { User } from './entity/user.entity';
 import { UsersRepository } from './entity/user.repository';
 import { UserAccessToken } from './types';
+import { isValidPassword } from './utils/isValidPassword';
 
 @Injectable()
 export class UsersService {
@@ -93,9 +94,14 @@ export class UsersService {
     token: UserAccessToken,
     updateUserDTO: UpdateRootUserDTO,
   ): Promise<User> {
+    const { name, email, password } = updateUserDTO;
     // check if the updateUserDTO is valid.
     if (Object.keys(updateUserDTO).length === 0) {
       throw new ForbiddenException('Requested data is empty.');
+    }
+
+    if (password && !isValidPassword(password)) {
+      throw new ForbiddenException('Invalid password.');
     }
 
     // check if the value of updated_at in user_metadata in the access token.
@@ -123,28 +129,28 @@ export class UsersService {
       'YYYY-MM-DDTHH:mm:ss.sss[Z]',
     );
 
-    if (updateUserDTO.name !== undefined) {
+    if (name !== undefined) {
       updateUserInAuth0(tokenForManagementAPI, userSubId, {
-        username: updateUserDTO.name,
+        username: name,
         user_metadata: {
           username_updated_at: currentDatetimeString,
         },
       });
-      newUser.name = updateUserDTO.name;
+      newUser.name = name;
     }
-    if (updateUserDTO.email !== undefined) {
+    if (email !== undefined) {
       updateUserInAuth0(tokenForManagementAPI, userSubId, {
-        email: updateUserDTO.email,
+        email: email,
         user_metadata: {
           email_updated_at: currentDatetimeString,
         },
       });
-      newUser.email = updateUserDTO.email;
+      newUser.email = email;
     }
     // password data is only in auth0.
-    if (updateUserDTO.password !== undefined) {
+    if (password !== undefined) {
       updateUserInAuth0(tokenForManagementAPI, userSubId, {
-        password: updateUserDTO.password,
+        password: password,
         user_metadata: {
           password_updated_at: currentDatetimeString,
         },

@@ -2,7 +2,7 @@ import dayjs from 'dayjs';
 import { UpdateRootUserDTO } from '../dto/updateRootUser.dto';
 import { MysqlUser } from '../types';
 
-const UPDATE_LIMITS = 7; // 7 days
+const UPDATE_LIMITS = 1; // 1 days
 
 export const isValidUpdateFrequency = (
   metadata: MysqlUser,
