@@ -1,5 +1,8 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { IsNumber } from 'class-validator';
 
 export class AddOwnerDTO {
-  @IsNumber() userIdToAdd: number;
+  @ApiProperty()
+  @IsNumber()
+  userIdToAdd: number;
 }
