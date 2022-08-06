@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
 import { ValidationPipe } from '@nestjs/common';
 import { config } from 'aws-sdk';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -17,6 +18,14 @@ async function bootstrap() {
     },
     region: configService.get('AWS_REGION'),
   });
+
+  const documentConfig = new DocumentBuilder()
+    .setTitle('Dev Meetup API')
+    .setDescription('This document descripbes the Dev Meetup API.')
+    .setVersion('1.0')
+    .build();
+  const document = SwaggerModule.createDocument(app, documentConfig);
+  SwaggerModule.setup('api', app, document);
 
   await app.listen(configService.get('PORT') || 3000);
 }
