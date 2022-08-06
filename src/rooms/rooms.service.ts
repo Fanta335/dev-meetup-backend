@@ -3,7 +3,6 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
 import { FilesService } from 'src/files/files.service';
 import { Message } from 'src/messages/entity/message.entity';
 import { MessagesRepository } from 'src/messages/entity/message.repsitory';
@@ -23,7 +22,6 @@ import { sortParser } from './utils/sortParser';
 @Injectable()
 export class RoomsService {
   constructor(
-    @InjectRepository(RoomsRepository)
     private roomsRepository: RoomsRepository,
     private usersRepository: UsersRepository,
     private messageRepository: MessagesRepository,

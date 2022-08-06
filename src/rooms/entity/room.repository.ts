@@ -1,6 +1,7 @@
+import { CustomRepository } from 'src/database/typeorm-ex.decorator';
 import { PublicFile } from 'src/files/entity/publicFile.entity';
 import { User } from 'src/users/entity/user.entity';
-import { EntityRepository, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { CreateRoomDTO } from '../dto/createRoom.dto';
 import {
   KeyOfOrderOptions,
@@ -10,7 +11,7 @@ import {
 import { RoomRelation } from '../types';
 import { Room } from './room.entity';
 
-@EntityRepository(Room)
+@CustomRepository(Room)
 export class RoomsRepository extends Repository<Room> {
   async createRoom(
     user: User,

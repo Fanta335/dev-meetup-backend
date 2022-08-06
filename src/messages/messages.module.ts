@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { TypeOrmExModule } from 'src/database/typeorm-ex.module';
 import { RoomsModule } from 'src/rooms/rooms.module';
 import { UsersRepository } from 'src/users/entity/user.repository';
 import { MessagesRepository } from './entity/message.repsitory';
@@ -9,7 +9,7 @@ import { MessagesService } from './messages.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([MessagesRepository, UsersRepository]),
+    TypeOrmExModule.forCustomRepository([MessagesRepository, UsersRepository]),
     RoomsModule,
   ],
   controllers: [MessagesController],

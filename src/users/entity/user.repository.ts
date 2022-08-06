@@ -1,9 +1,10 @@
+import { CustomRepository } from 'src/database/typeorm-ex.decorator';
 import { PublicFile } from 'src/files/entity/publicFile.entity';
-import { EntityRepository, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { CreateUserDTO } from '../dto/createUser.dto';
 import { User } from './user.entity';
 
-@EntityRepository(User)
+@CustomRepository(User)
 export class UsersRepository extends Repository<User> {
   createUser(
     { name, email, subId }: CreateUserDTO,

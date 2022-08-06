@@ -1,8 +1,9 @@
+import { CustomRepository } from 'src/database/typeorm-ex.decorator';
 import { Message } from 'src/messages/entity/message.entity';
-import { EntityRepository, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { CreateMessageDTO } from '../dto/createMessage.dto';
 
-@EntityRepository(Message)
+@CustomRepository(Message)
 export class MessagesRepository extends Repository<Message> {
   createMessage({
     authorId,

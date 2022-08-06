@@ -3,7 +3,6 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
 import { WsException } from '@nestjs/websockets';
 import { Socket } from 'socket.io';
 import { Message } from 'src/messages/entity/message.entity';
@@ -18,7 +17,6 @@ import { SoftRemoveMessageDTO } from './dto/softRemoveMessage.dto';
 @Injectable()
 export class MessagesService {
   constructor(
-    @InjectRepository(MessagesRepository)
     private messagesRepository: MessagesRepository,
     private usersRepository: UsersRepository,
   ) {}

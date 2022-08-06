@@ -3,7 +3,6 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
 import dayjs from 'dayjs';
 import { Room } from 'src/rooms/entity/room.entity';
 import { RoomsRepository } from 'src/rooms/entity/room.repository';
@@ -15,7 +14,6 @@ import { InvitationRepository } from './entity/invitation.repository';
 @Injectable()
 export class InvitationsService {
   constructor(
-    @InjectRepository(InvitationRepository)
     private invitationsRepository: InvitationRepository,
     private roomsRepository: RoomsRepository,
   ) {}

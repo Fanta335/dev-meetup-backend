@@ -3,7 +3,6 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
 import dayjs from 'dayjs';
 import { FilesService } from 'src/files/files.service';
 import { Room } from 'src/rooms/entity/room.entity';
@@ -23,7 +22,6 @@ import { isValidPassword } from './utils/isValidPassword';
 @Injectable()
 export class UsersService {
   constructor(
-    @InjectRepository(UsersRepository)
     private usersRepository: UsersRepository,
     private roomsRepository: RoomsRepository,
     private filesService: FilesService,

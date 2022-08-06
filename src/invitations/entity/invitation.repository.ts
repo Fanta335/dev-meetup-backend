@@ -1,7 +1,8 @@
-import { EntityRepository, Repository } from 'typeorm';
+import { CustomRepository } from 'src/database/typeorm-ex.decorator';
+import { Repository } from 'typeorm';
 import { Invitation } from './invitation.entity';
 
-@EntityRepository(Invitation)
+@CustomRepository(Invitation)
 export class InvitationRepository extends Repository<Invitation> {
   async createInvitation(
     roomId: number,
