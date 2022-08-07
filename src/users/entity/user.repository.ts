@@ -38,14 +38,6 @@ export class UsersRepository extends Repository<User> {
     });
   }
 
-  async findByUserSubId(subId: string): Promise<User> {
-    return this.findOne({
-      where: {
-        subId: subId,
-      },
-    });
-  }
-
   async addMemberToRoom(userId: number, roomId: number) {
     await this.createQueryBuilder()
       .relation(User, 'belongingRooms')

@@ -40,26 +40,10 @@ export class UsersService {
     return this.usersRepository.findAllUsers();
   }
 
-  async findByUserId(id: number, token: UserAccessToken): Promise<User> {
-    const userIdFromToken: number = token[this.claimMysqlUser].id;
-
-    if (id !== userIdFromToken) {
-      throw new ForbiddenException(
-        `You do not have the permission to access this resource. Only the person themselves have permission.`,
-      );
-    }
-
+  async findByUserId(id: number): Promise<User> {
     const user = await this.usersRepository.findByUserId(id);
     if (!user) {
       throw new NotFoundException(`User not found matched id: '${id}'.`);
-    }
-    return user;
-  }
-
-  async findByUserSubId(subId: string): Promise<User> {
-    const user = await this.usersRepository.findByUserSubId(subId);
-    if (!user) {
-      throw new NotFoundException(`User not found matched subId: '${subId}'.`);
     }
     return user;
   }
@@ -69,22 +53,27 @@ export class UsersService {
     return this.usersRepository.getUserProfile(userIdFromToken);
   }
 
-  async getBelongingRooms(token: UserAccessToken, id: number): Promise<Room[]> {
-    const userIdFromToken: number = token[this.claimMysqlUser].id;
-
-    // Check if the updating user is the person themselves.
-    if (userIdFromToken !== id) {
-      throw new ForbiddenException(
-        `You do not have the permission to access this resource. Only the person themselves have permission.`,
-      );
+  async getBelongingRooms(token: UserAccessToken): Promise<Room[]>;
+  async getBelongingRooms(id: number): Promise<Room[]>;
+  async getBelongingRooms(
+    tokenOrId: UserAccessToken | number,
+  ): Promise<Room[]> {
+    if (typeof tokenOrId === 'number') {
+      return this.roomsRepository.getBelongingRooms(tokenOrId);
     }
 
-    return this.roomsRepository.getBelongingRooms(id);
+    const userIdFromToken: number = tokenOrId[this.claimMysqlUser].id;
+    return this.roomsRepository.getBelongingRooms(userIdFromToken);
   }
 
-  async getOwnRooms(token: UserAccessToken): Promise<Room[]> {
-    const userIdFromToken: number = token[this.claimMysqlUser].id;
+  async getOwnRooms(token: UserAccessToken): Promise<Room[]>;
+  async getOwnRooms(id: number): Promise<Room[]>;
+  async getOwnRooms(tokenOrId: UserAccessToken | number): Promise<Room[]> {
+    if (typeof tokenOrId === 'number') {
+      return this.roomsRepository.getOwnRooms(tokenOrId);
+    }
 
+    const userIdFromToken: number = tokenOrId[this.claimMysqlUser].id;
     return this.roomsRepository.getOwnRooms(userIdFromToken);
   }
 
@@ -162,12 +151,25 @@ export class UsersService {
     token: UserAccessToken,
     updateUserDTO: UpdateUserDTO,
     file: Express.Multer.File,
+  ): Promise<User>;
+  async updateUser(
+    id: number,
+    updateUserDTO: UpdateUserDTO,
+    file: Express.Multer.File,
+  ): Promise<User>;
+  async updateUser(
+    tokenOrId: UserAccessToken | number,
+    updateUserDTO: UpdateUserDTO,
+    file: Express.Multer.File,
   ): Promise<User> {
     if (Object.keys(updateUserDTO).length === 0 && file === undefined) {
       return;
     }
 
-    const userId: number = token[this.claimMysqlUser].id;
+    const userId: number =
+      typeof tokenOrId === 'number'
+        ? tokenOrId
+        : tokenOrId[this.claimMysqlUser].id;
 
     const userToBeUpdated = await this.usersRepository.findByUserId(userId);
     const newUser = userToBeUpdated;
@@ -284,9 +286,17 @@ export class UsersService {
     }
   }
 
-  async softDeleteUser(token: UserAccessToken): Promise<User> {
-    const userId: number = token[this.claimMysqlUser].id;
-    const userToDelete = await this.findByUserId(userId, token);
+  async softDeleteUser(token: UserAccessToken): Promise<User>;
+  async softDeleteUser(id: number, subId: string): Promise<User>;
+  async softDeleteUser(
+    tokenOrId: UserAccessToken | number,
+    subId?: string,
+  ): Promise<User> {
+    const userId: number =
+      typeof tokenOrId === 'number'
+        ? tokenOrId
+        : tokenOrId[this.claimMysqlUser].id;
+    const userToDelete = await this.findByUserId(userId);
 
     // check if the user does not own rooms.
     const ownRooms = await this.roomsRepository.getOwnRooms(userId);
@@ -302,7 +312,8 @@ export class UsersService {
 
     // hard delete user in auth0.
     const tokenForManagementAPI = await fetchAuth0ManegementAPIToken();
-    const userSubId: string = token.sub;
+    const userSubId: string =
+      typeof tokenOrId === 'number' ? subId : tokenOrId.sub;
     deleteUserInAuth0(tokenForManagementAPI, userSubId);
 
     return userToDelete;
