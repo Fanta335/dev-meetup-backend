@@ -23,6 +23,7 @@ async function bootstrap() {
     .setTitle('Dev Meetup API')
     .setDescription('This document descripbes the Dev Meetup API.')
     .setVersion('1.0')
+    .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, documentConfig);
   SwaggerModule.setup('api', app, document);
