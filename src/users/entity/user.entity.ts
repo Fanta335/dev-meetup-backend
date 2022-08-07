@@ -54,7 +54,7 @@ export class User {
   @OneToMany(() => Message, (message) => message.author)
   messages: Message[];
 
-  @ApiProperty()
+  @ApiProperty({ type: () => [Room] })
   @ManyToMany(() => Room, (room) => room.owners, {})
   @JoinTable({
     // Name of the junction table will be as follows.
@@ -70,7 +70,7 @@ export class User {
   })
   ownRooms: Room[];
 
-  @ApiProperty()
+  @ApiProperty({ type: () => [Room] })
   @ManyToMany(() => Room, (room) => room.members, {})
   @JoinTable({
     name: 'belonging',
