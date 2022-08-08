@@ -27,10 +27,12 @@ import {
   ApiOperation,
   ApiParam,
   ApiResponse,
+  ApiTags,
 } from '@nestjs/swagger';
 import { DeleteUserDTO } from './dto/deleteUser.dto';
 
 @ApiBearerAuth()
+@ApiTags('users')
 @Controller('users')
 @UseGuards(AuthGuard('jwt'), PermissionsGuard)
 export class UsersController {

@@ -72,27 +72,6 @@ export class RoomsService {
     return room;
   }
 
-  async getByRoomName(name: string): Promise<Room> {
-    const room = await this.roomsRepository.getRoomByName(name);
-    if (!room) {
-      throw new NotFoundException(`Room not found matched name: ${name}`);
-    }
-
-    return room;
-  }
-
-  async getBelongingRooms(token: UserAccessToken): Promise<Room[]> {
-    const memberId: number = token[this.claimMysqlUser].id;
-    const rooms = await this.roomsRepository.getBelongingRooms(memberId);
-    if (!rooms) {
-      throw new NotFoundException(
-        `Room not found that belongs to the user of id: ${memberId}`,
-      );
-    }
-
-    return rooms;
-  }
-
   async getRoomById(id: number): Promise<Room> {
     const room = await this.roomsRepository.getRoomById(id);
 
@@ -113,7 +92,6 @@ export class RoomsService {
       parsedSort,
       parsedOrder,
     );
-    // console.log('rooms: ', rooms);
 
     return rooms;
   }

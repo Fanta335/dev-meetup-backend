@@ -1,5 +1,6 @@
 import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Room } from 'src/rooms/entity/room.entity';
 import { GetAccessToken } from 'src/users/get-access-token.decorator';
 import { UserAccessToken } from 'src/users/types';
@@ -7,6 +8,8 @@ import { CreateInvitationDTO } from './dto/createInvitation.dto';
 import { Invitation } from './entity/invitation.entity';
 import { InvitationsService } from './invitations.service';
 
+@ApiBearerAuth()
+@ApiTags('invite')
 @Controller('invite')
 @UseGuards(AuthGuard('jwt'))
 export class InvitationsController {
