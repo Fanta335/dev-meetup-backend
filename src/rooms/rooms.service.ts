@@ -202,12 +202,16 @@ export class RoomsService {
     return this.roomsRepository.save(roomToBeUpdated);
   }
 
-  async addMember(token: UserAccessToken, roomId: number): Promise<void> {
-    const userId: number = token[this.claimMysqlUser].id;
+  async addMember(token: UserAccessToken, roomId: number): Promise<Room> {
+    const userIdToAdd: number = token[this.claimMysqlUser].id;
+    await this.roomsRepository.addMember(roomId, userIdToAdd);
+    return this.roomsRepository.getRoomWithRelations(roomId, ['members']);
+  }
 
-    await this.getByRoomId(roomId);
-
-    await this.roomsRepository.addMember(roomId, userId);
+  async removeMember(token: UserAccessToken, roomId: number): Promise<Room> {
+    const userIdToRemove: number = token[this.claimMysqlUser].id;
+    await this.roomsRepository.removeMember(roomId, userIdToRemove);
+    return this.roomsRepository.getRoomWithRelations(roomId, ['members']);
   }
 
   async addOwner(
@@ -228,6 +232,15 @@ export class RoomsService {
     }
 
     const { userIdToAdd } = addOwnerDTO;
+    const isMember = roomToAdd.members.some(
+      (member) => member.id === userIdToAdd,
+    );
+    if (!isMember) {
+      throw new ForbiddenException(
+        'This user cannot be added to owner. Only members can be added.',
+      );
+    }
+
     await this.roomsRepository.addOwner(roomId, userIdToAdd);
 
     return this.roomsRepository.getRoomWithRelations(roomId, ['owners']);

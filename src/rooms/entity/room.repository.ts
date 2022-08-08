@@ -113,6 +113,13 @@ export class RoomsRepository extends Repository<Room> {
       .add(userId);
   }
 
+  async removeMember(roomId: number, userId: number): Promise<void> {
+    await this.createQueryBuilder()
+      .relation(Room, 'members')
+      .of(roomId)
+      .remove(userId);
+  }
+
   async removeOwner(roomId: number, userId: number): Promise<void> {
     await this.createQueryBuilder()
       .relation(Room, 'owners')

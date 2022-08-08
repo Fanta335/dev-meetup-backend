@@ -139,6 +139,26 @@ export class RoomsController {
     return this.roomsService.addAvatar(Number(id), token, file);
   }
 
+  @ApiOperation({ description: 'Add an member to the room' })
+  @ApiResponse({ status: 200, description: 'Room member successully added.' })
+  @Patch(':id/members/add')
+  addMember(
+    @GetAccessToken() token: UserAccessToken,
+    @Param('id') roomId: string,
+  ): Promise<Room> {
+    return this.roomsService.addMember(token, Number(roomId));
+  }
+
+  @ApiOperation({ description: 'Remove an member from the room' })
+  @ApiResponse({ status: 200, description: 'Room member successully removed.' })
+  @Patch(':id/members/remove')
+  removeMember(
+    @GetAccessToken() token: UserAccessToken,
+    @Param('id') roomId: string,
+  ): Promise<Room> {
+    return this.roomsService.removeMember(token, Number(roomId));
+  }
+
   @ApiOperation({ description: 'Add an owner to the room' })
   @ApiResponse({ status: 200, description: 'Room owner successully added.' })
   @Patch(':id/owners/add')
