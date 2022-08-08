@@ -189,32 +189,6 @@ export class UsersController {
     return this.usersService.updateUser(Number(id), updateUserDTO);
   }
 
-  @Patch(':userId/belonging-rooms/add/:roomId')
-  addMemberToRoom(
-    @GetAccessToken() token: UserAccessToken,
-    @Param('userId') userId: string,
-    @Param('roomId') roomId: string,
-  ): Promise<Room[]> {
-    return this.usersService.addMemberToRoom(
-      token,
-      Number(userId),
-      Number(roomId),
-    );
-  }
-
-  @Patch(':userId/belonging-rooms/remove/:roomId')
-  removeMemberFromRoom(
-    @GetAccessToken() token: UserAccessToken,
-    @Param('userId') userId: string,
-    @Param('roomId') roomId: string,
-  ): Promise<Room[]> {
-    return this.usersService.removeMemberFromRoom(
-      token,
-      Number(userId),
-      Number(roomId),
-    );
-  }
-
   @ApiOperation({ description: 'Delete a user.' })
   @ApiResponse({ status: 204, description: 'User successfully deleted.' })
   @Delete('me')
