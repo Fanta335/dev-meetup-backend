@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString } from 'class-validator';
+import { IsBoolean, IsString } from 'class-validator';
 
 export class UpdateRoomDTO {
   @ApiProperty()
@@ -11,12 +11,6 @@ export class UpdateRoomDTO {
   description: string;
 
   @ApiProperty()
-  @IsString()
-  isPrivate: string;
-}
-
-export class ParsedUpdateRoomDTO {
-  name: string;
-  description: string;
+  @IsBoolean()
   isPrivate: boolean;
 }

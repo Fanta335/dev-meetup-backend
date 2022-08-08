@@ -13,7 +13,7 @@ import { AddOwnerDTO } from './dto/addOwner.dto';
 import { CreateRoomDTO } from './dto/createRoom.dto';
 import { RemoveOwnerDTO } from './dto/removeOwner.dto';
 import { SearchRoomDTO } from './dto/searchRoom.dto';
-import { ParsedUpdateRoomDTO, UpdateRoomDTO } from './dto/updateRoom.dto';
+import { UpdateRoomDTO } from './dto/updateRoom.dto';
 import { Room } from './entity/room.entity';
 import { RoomsRepository } from './entity/room.repository';
 import { orderParser } from './utils/orderParser';
@@ -140,7 +140,6 @@ export class RoomsService {
   async updateRoom(
     id: number,
     token: UserAccessToken,
-    file: Express.Multer.File,
     updateRoomDTO: UpdateRoomDTO,
   ): Promise<Room> {
     const userId: number = token[this.claimMysqlUser].id;
@@ -161,47 +160,46 @@ export class RoomsService {
     // owners property is no longer needed to update rooms table.
     delete roomToBeUpdated.owners;
 
-    const ParsedUpdateRoomDTO = this.parseUpdateRoomDTO(updateRoomDTO);
-
-    if (file) {
-      const { buffer, originalname, mimetype } = file;
-      const avatar = await this.filesService.uploadPublicFile(
-        buffer,
-        originalname,
-        mimetype,
-      );
-      const newRoom: Room = {
-        ...roomToBeUpdated,
-        ...ParsedUpdateRoomDTO,
-        avatar,
-      };
-
-      return this.roomsRepository.save(newRoom);
-    }
-
-    const newRoom: Room = {
+    const newRoom = {
       ...roomToBeUpdated,
-      ...ParsedUpdateRoomDTO,
+      ...updateRoomDTO,
     };
 
     return this.roomsRepository.save(newRoom);
   }
 
   async addAvatar(
+    id: number,
     token: UserAccessToken,
-    imageBuffer: Buffer,
-    filename: string,
-    mimetype: string,
-  ): Promise<User> {
+    file: Express.Multer.File,
+  ): Promise<Room> {
+    const userId: number = token[this.claimMysqlUser].id;
+    const roomToBeUpdated = await this.roomsRepository.getRoomWithRelations(
+      id,
+      ['owners'],
+    );
+    const isOwnerOfRoom = roomToBeUpdated.owners.some(
+      (user) => user.id === userId,
+    );
+
+    if (!isOwnerOfRoom) {
+      throw new ForbiddenException(
+        `You do not have the permission to update this resource. Only owners of the room have the permission.`,
+      );
+    }
+
+    // owners property is no longer needed to update rooms table.
+    delete roomToBeUpdated.owners;
+
+    const { buffer, originalname, mimetype } = file;
     const avatar = await this.filesService.uploadPublicFile(
-      imageBuffer,
-      filename,
+      buffer,
+      originalname,
       mimetype,
     );
-    const userIdFromToken: number = token[this.claimMysqlUser].id;
-    const user = await this.usersRepository.findByUserId(userIdFromToken);
+    roomToBeUpdated.avatar = avatar;
 
-    return this.usersRepository.save({ ...user, avatar });
+    return this.roomsRepository.save(roomToBeUpdated);
   }
 
   async addMember(token: UserAccessToken, roomId: number): Promise<void> {
@@ -282,13 +280,5 @@ export class RoomsService {
     const result = await this.roomsRepository.softDelete(roomId);
     console.log('delete result: ', result);
     return roomToSoftDelete;
-  }
-
-  parseUpdateRoomDTO(dto: UpdateRoomDTO): ParsedUpdateRoomDTO {
-    const parsed = new ParsedUpdateRoomDTO();
-    for (const key in dto) {
-      parsed[key] = JSON.parse(dto[key]);
-    }
-    return parsed;
   }
 }

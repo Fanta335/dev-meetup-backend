@@ -6,7 +6,6 @@ import {
   Param,
   Patch,
   Post,
-  Put,
   Query,
   UploadedFile,
   UseGuards,
@@ -114,17 +113,30 @@ export class RoomsController {
 
   @ApiOperation({ description: 'Update a room' })
   @ApiResponse({ status: 201, description: 'Rooms successully updated.' })
-  @Put(':id')
-  @UseInterceptors(FileInterceptor('file'))
-  @ApiConsumes('multipart/form-data')
-  @ApiBody({ description: 'Room avatar.', type: FileUploadDTO })
+  @Patch(':id')
   updateRoom(
     @Param('id') id: string,
     @GetAccessToken() token: UserAccessToken,
-    @UploadedFile() file: Express.Multer.File,
     @Body() updateRoomDTO: UpdateRoomDTO,
   ): Promise<Room> {
-    return this.roomsService.updateRoom(Number(id), token, file, updateRoomDTO);
+    return this.roomsService.updateRoom(Number(id), token, updateRoomDTO);
+  }
+
+  @ApiOperation({ description: 'Update a room avatar' })
+  @ApiResponse({
+    status: 201,
+    description: 'Room avatar successfully updated.',
+  })
+  @Post(':id/avatar')
+  @UseInterceptors(FileInterceptor('file'))
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({ description: 'Room avatar.', type: FileUploadDTO })
+  postRoomAvatar(
+    @Param('id') id: string,
+    @GetAccessToken() token: UserAccessToken,
+    @UploadedFile() file: Express.Multer.File,
+  ): Promise<Room> {
+    return this.roomsService.addAvatar(Number(id), token, file);
   }
 
   @ApiOperation({ description: 'Add an owner to the room' })
