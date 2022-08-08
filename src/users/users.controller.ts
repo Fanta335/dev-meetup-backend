@@ -4,8 +4,8 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Post,
-  Put,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -47,21 +47,6 @@ export class UsersController {
     return this.usersService.createUser(createUserDTO);
   }
 
-  @Post('avatar')
-  @UseInterceptors(FileInterceptor('file'))
-  addAvatar(
-    @GetAccessToken() token: UserAccessToken,
-    @UploadedFile() file: Express.Multer.File,
-  ): Promise<User> {
-    console.log('file: ', file);
-    return this.usersService.addAvatar(
-      token,
-      file.buffer,
-      file.originalname,
-      file.mimetype,
-    );
-  }
-
   @Permissions('read:users')
   @ApiOperation({ description: 'Retrieve all users.' })
   @ApiResponse({ status: 200, description: 'Users successfully retrieved.' })
@@ -78,50 +63,10 @@ export class UsersController {
     return this.usersService.getUserProfile(token);
   }
 
-  @Permissions('read:users')
-  @ApiOperation({ description: 'Retrieve user details.' })
-  @ApiResponse({ status: 200, description: 'User successfully retrieved.' })
-  @Get(':id')
-  findByUserId(@Param('id') id: number): Promise<User> {
-    return this.usersService.findByUserId(id);
-  }
-
-  @Permissions('read:myself')
-  @ApiOperation({ description: 'Retrieve user belonging rooms.' })
-  @ApiResponse({ status: 200, description: 'Rooms successfully retrieved.' })
-  @Get('me/belonging-rooms')
-  getMyBelongingRooms(
-    @GetAccessToken() token: UserAccessToken,
-  ): Promise<Room[]> {
-    return this.usersService.getBelongingRooms(token);
-  }
-
-  @Permissions('read:users')
-  @ApiOperation({ description: 'Retrieve user belonging rooms.' })
-  @ApiResponse({ status: 200, description: 'Rooms successfully retrieved.' })
-  @Get(':id/belonging-rooms')
-  getBelongingRooms(@Param('id') id: string): Promise<Room[]> {
-    return this.usersService.getBelongingRooms(Number(id));
-  }
-
-  @ApiOperation({ description: 'Retrieve user own rooms.' })
-  @ApiResponse({ status: 200, description: 'Rooms successfully retrieved.' })
-  @Get('me/own-rooms')
-  getMyOwnRooms(@GetAccessToken() token: UserAccessToken): Promise<Room[]> {
-    return this.usersService.getOwnRooms(token);
-  }
-
-  @ApiOperation({ description: 'Retrieve user own rooms.' })
-  @ApiResponse({ status: 200, description: 'Rooms successfully retrieved.' })
-  @Get(':id/own-rooms')
-  getOwnRooms(@Param('id') id: string): Promise<Room[]> {
-    return this.usersService.getOwnRooms(Number(id));
-  }
-
   // updates a user profile ONLY in mysql.
   @ApiOperation({ description: 'Update a user.' })
   @ApiResponse({ status: 201, description: 'User successfully updated.' })
-  @Put('me')
+  @Patch('me')
   @UseInterceptors(FileInterceptor('file'))
   updateMyUser(
     @GetAccessToken() token: UserAccessToken,
@@ -131,17 +76,19 @@ export class UsersController {
     return this.usersService.updateUser(token, updateUserDTO, file);
   }
 
-  // updates a user profile ONLY in mysql.
-  @ApiOperation({ description: 'Update a user.' })
-  @ApiResponse({ status: 201, description: 'User successfully updated.' })
-  @Put(':id')
+  @Post('me/avatar')
   @UseInterceptors(FileInterceptor('file'))
-  updateUser(
-    @Param('id') id: string,
-    @Body() updateUserDTO: UpdateUserDTO,
+  addMyAvatar(
+    @GetAccessToken() token: UserAccessToken,
     @UploadedFile() file: Express.Multer.File,
   ): Promise<User> {
-    return this.usersService.updateUser(Number(id), updateUserDTO, file);
+    console.log('file: ', file);
+    return this.usersService.addAvatar(
+      token,
+      file.buffer,
+      file.originalname,
+      file.mimetype,
+    );
   }
 
   // updates a user profile in BOTH auth0 and mysql.
@@ -154,7 +101,7 @@ export class UsersController {
     required: true,
     description: 'ID of the user to update.',
   })
-  @Put('me/root')
+  @Patch('me/root')
   updateMyRootUser(
     @GetAccessToken() token: UserAccessToken,
     @Body() updateUserDTO: UpdateRootUserDTO,
@@ -162,7 +109,75 @@ export class UsersController {
     return this.usersService.updateRootUser(token, updateUserDTO);
   }
 
-  @Put(':userId/belonging-rooms/add/:roomId')
+  @Permissions('read:myself')
+  @ApiOperation({ description: 'Retrieve user belonging rooms.' })
+  @ApiResponse({ status: 200, description: 'Rooms successfully retrieved.' })
+  @Get('me/belonging-rooms')
+  getMyBelongingRooms(
+    @GetAccessToken() token: UserAccessToken,
+  ): Promise<Room[]> {
+    return this.usersService.getBelongingRooms(token);
+  }
+
+  @ApiOperation({ description: 'Retrieve user own rooms.' })
+  @ApiResponse({ status: 200, description: 'Rooms successfully retrieved.' })
+  @Get('me/own-rooms')
+  getMyOwnRooms(@GetAccessToken() token: UserAccessToken): Promise<Room[]> {
+    return this.usersService.getOwnRooms(token);
+  }
+
+  @Permissions('read:users')
+  @ApiOperation({ description: 'Retrieve user details.' })
+  @ApiResponse({ status: 200, description: 'User successfully retrieved.' })
+  @Get(':id')
+  findByUserId(@Param('id') id: number): Promise<User> {
+    return this.usersService.findByUserId(id);
+  }
+
+  @Post(':id/avatar')
+  @UseInterceptors(FileInterceptor('file'))
+  addAvatar(
+    @GetAccessToken() token: UserAccessToken,
+    @UploadedFile() file: Express.Multer.File,
+  ): Promise<User> {
+    console.log('file: ', file);
+    return this.usersService.addAvatar(
+      token,
+      file.buffer,
+      file.originalname,
+      file.mimetype,
+    );
+  }
+
+  @Permissions('read:users')
+  @ApiOperation({ description: 'Retrieve user belonging rooms.' })
+  @ApiResponse({ status: 200, description: 'Rooms successfully retrieved.' })
+  @Get(':id/belonging-rooms')
+  getBelongingRooms(@Param('id') id: string): Promise<Room[]> {
+    return this.usersService.getBelongingRooms(Number(id));
+  }
+
+  @ApiOperation({ description: 'Retrieve user own rooms.' })
+  @ApiResponse({ status: 200, description: 'Rooms successfully retrieved.' })
+  @Get(':id/own-rooms')
+  getOwnRooms(@Param('id') id: string): Promise<Room[]> {
+    return this.usersService.getOwnRooms(Number(id));
+  }
+
+  // updates a user profile ONLY in mysql.
+  @ApiOperation({ description: 'Update a user.' })
+  @ApiResponse({ status: 201, description: 'User successfully updated.' })
+  @Patch(':id')
+  @UseInterceptors(FileInterceptor('file'))
+  updateUser(
+    @Param('id') id: string,
+    @Body() updateUserDTO: UpdateUserDTO,
+    @UploadedFile() file: Express.Multer.File,
+  ): Promise<User> {
+    return this.usersService.updateUser(Number(id), updateUserDTO, file);
+  }
+
+  @Patch(':userId/belonging-rooms/add/:roomId')
   addMemberToRoom(
     @GetAccessToken() token: UserAccessToken,
     @Param('userId') userId: string,
@@ -175,7 +190,7 @@ export class UsersController {
     );
   }
 
-  @Put(':userId/belonging-rooms/remove/:roomId')
+  @Patch(':userId/belonging-rooms/remove/:roomId')
   removeMemberFromRoom(
     @GetAccessToken() token: UserAccessToken,
     @Param('userId') userId: string,
