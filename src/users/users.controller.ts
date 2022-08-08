@@ -24,12 +24,15 @@ import { UpdateRootUserDTO } from './dto/updateRootUser.dto';
 import { UpdateUserDTO } from './dto/updateUser.dto';
 import {
   ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
   ApiOperation,
   ApiParam,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
 import { DeleteUserDTO } from './dto/deleteUser.dto';
+import { FileUploadDTO } from 'src/files/dto/fileUpload.dto';
 
 @ApiBearerAuth()
 @ApiTags('users')
@@ -40,7 +43,6 @@ export class UsersController {
 
   @ApiOperation({ description: 'Create a new user.' })
   @ApiResponse({ status: 201, description: 'User successfully created.' })
-  @UseGuards(AuthGuard('jwt'), PermissionsGuard)
   @Post()
   @Permissions('create:users')
   createUser(@Body() createUserDTO: CreateUserDTO): Promise<User> {
@@ -64,25 +66,30 @@ export class UsersController {
   }
 
   // updates a user profile ONLY in mysql.
+  @Permissions('update:myself')
   @ApiOperation({ description: 'Update a user.' })
-  @ApiResponse({ status: 201, description: 'User successfully updated.' })
+  @ApiResponse({ status: 200, description: 'User successfully updated.' })
   @Patch('me')
   @UseInterceptors(FileInterceptor('file'))
   updateMyUser(
     @GetAccessToken() token: UserAccessToken,
     @Body() updateUserDTO: UpdateUserDTO,
-    @UploadedFile() file: Express.Multer.File,
   ): Promise<User> {
-    return this.usersService.updateUser(token, updateUserDTO, file);
+    return this.usersService.updateUser(token, updateUserDTO);
   }
 
+  @Permissions('update:myself')
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    description: 'Image file for user avatar.',
+    type: FileUploadDTO,
+  })
   @Post('me/avatar')
   @UseInterceptors(FileInterceptor('file'))
   addMyAvatar(
     @GetAccessToken() token: UserAccessToken,
     @UploadedFile() file: Express.Multer.File,
   ): Promise<User> {
-    console.log('file: ', file);
     return this.usersService.addAvatar(
       token,
       file.buffer,
@@ -119,6 +126,7 @@ export class UsersController {
     return this.usersService.getBelongingRooms(token);
   }
 
+  @Permissions('read:myself')
   @ApiOperation({ description: 'Retrieve user own rooms.' })
   @ApiResponse({ status: 200, description: 'Rooms successfully retrieved.' })
   @Get('me/own-rooms')
@@ -134,15 +142,20 @@ export class UsersController {
     return this.usersService.findByUserId(id);
   }
 
+  @Permissions('update:users')
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    description: 'Image file for user avatar.',
+    type: FileUploadDTO,
+  })
   @Post(':id/avatar')
   @UseInterceptors(FileInterceptor('file'))
   addAvatar(
-    @GetAccessToken() token: UserAccessToken,
+    @Param('id') id: string,
     @UploadedFile() file: Express.Multer.File,
   ): Promise<User> {
-    console.log('file: ', file);
     return this.usersService.addAvatar(
-      token,
+      Number(id),
       file.buffer,
       file.originalname,
       file.mimetype,
@@ -166,15 +179,14 @@ export class UsersController {
 
   // updates a user profile ONLY in mysql.
   @ApiOperation({ description: 'Update a user.' })
-  @ApiResponse({ status: 201, description: 'User successfully updated.' })
+  @ApiResponse({ status: 200, description: 'User successfully updated.' })
   @Patch(':id')
   @UseInterceptors(FileInterceptor('file'))
   updateUser(
     @Param('id') id: string,
     @Body() updateUserDTO: UpdateUserDTO,
-    @UploadedFile() file: Express.Multer.File,
   ): Promise<User> {
-    return this.usersService.updateUser(Number(id), updateUserDTO, file);
+    return this.usersService.updateUser(Number(id), updateUserDTO);
   }
 
   @Patch(':userId/belonging-rooms/add/:roomId')
@@ -201,11 +213,6 @@ export class UsersController {
       Number(userId),
       Number(roomId),
     );
-  }
-
-  @Delete('avatar')
-  deleteAvatar(@GetAccessToken() token: UserAccessToken) {
-    return this.usersService.deleteAvatar(token);
   }
 
   @ApiOperation({ description: 'Delete a user.' })

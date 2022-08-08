@@ -150,19 +150,13 @@ export class UsersService {
   async updateUser(
     token: UserAccessToken,
     updateUserDTO: UpdateUserDTO,
-    file: Express.Multer.File,
   ): Promise<User>;
-  async updateUser(
-    id: number,
-    updateUserDTO: UpdateUserDTO,
-    file: Express.Multer.File,
-  ): Promise<User>;
+  async updateUser(id: number, updateUserDTO: UpdateUserDTO): Promise<User>;
   async updateUser(
     tokenOrId: UserAccessToken | number,
     updateUserDTO: UpdateUserDTO,
-    file: Express.Multer.File,
   ): Promise<User> {
-    if (Object.keys(updateUserDTO).length === 0 && file === undefined) {
+    if (Object.keys(updateUserDTO).length === 0) {
       return;
     }
 
@@ -176,16 +170,6 @@ export class UsersService {
 
     if (updateUserDTO.description) {
       newUser.description = updateUserDTO.description;
-    }
-
-    if (file) {
-      const { buffer, originalname, mimetype } = file;
-      const avatar = await this.filesService.uploadPublicFile(
-        buffer,
-        originalname,
-        mimetype,
-      );
-      newUser.avatar = avatar;
     }
 
     return this.usersRepository.save(newUser);
@@ -261,16 +245,32 @@ export class UsersService {
     imageBuffer: Buffer,
     filename: string,
     mimetype: string,
+  ): Promise<User>;
+  async addAvatar(
+    id: number,
+    imageBuffer: Buffer,
+    filename: string,
+    mimetype: string,
+  ): Promise<User>;
+  async addAvatar(
+    tokenOrId: UserAccessToken | number,
+    imageBuffer: Buffer,
+    filename: string,
+    mimetype: string,
   ): Promise<User> {
     const avatar = await this.filesService.uploadPublicFile(
       imageBuffer,
       filename,
       mimetype,
     );
-    const userIdFromToken: number = token[this.claimMysqlUser].id;
-    const user = await this.usersRepository.findByUserId(userIdFromToken);
+    const userId: number =
+      typeof tokenOrId === 'number'
+        ? tokenOrId
+        : tokenOrId[this.claimMysqlUser].id;
+    const user = await this.usersRepository.findByUserId(userId);
+    user.avatar = avatar;
 
-    return this.usersRepository.save({ ...user, avatar });
+    return this.usersRepository.save(user);
   }
 
   async deleteAvatar(token: UserAccessToken) {
