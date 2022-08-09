@@ -26,8 +26,10 @@ import { FileUploadDTO } from 'src/files/dto/fileUpload.dto';
 import { GetAccessToken } from 'src/users/get-access-token.decorator';
 import { UserAccessToken } from 'src/users/types';
 import { AddOwnerDTO } from './dto/addOwner.dto';
+import { AddTagDTO } from './dto/addTag.dto';
 import { CreateRoomDTO } from './dto/createRoom.dto';
 import { RemoveOwnerDTO } from './dto/removeOwner.dto';
+import { RemoveTagDTO } from './dto/removeTag.dto';
 import { SortOptionsType, OrderOptionsType } from './dto/searchRoom.dto';
 import { UpdateRoomDTO } from './dto/updateRoom.dto';
 import { Room } from './entity/room.entity';
@@ -86,7 +88,7 @@ export class RoomsController {
     @Query('limit') limit: number,
     @Query('sort') sort: SortOptionsType,
     @Query('order') order: OrderOptionsType,
-    // @Query('categoryId') categoryId: number,
+    @Query('tagId') tagIds: number | number[],
   ): Promise<{ data: Room[]; count: number }> {
     return this.roomsService.searchRooms({
       query,
@@ -94,6 +96,7 @@ export class RoomsController {
       limit,
       sort,
       order,
+      tagIds,
     });
   }
 
@@ -185,6 +188,28 @@ export class RoomsController {
     @Body() removeOwnerDTO: RemoveOwnerDTO,
   ): Promise<Room> {
     return this.roomsService.removeOwner(token, Number(roomId), removeOwnerDTO);
+  }
+
+  @ApiOperation({ description: 'Add an tag to the room' })
+  @ApiResponse({ status: 200, description: 'Tag successfully added.' })
+  @Patch(':id/tags/add')
+  addTag(
+    @GetAccessToken() token: UserAccessToken,
+    @Param('id') roomId: string,
+    @Body() addTagDTO: AddTagDTO,
+  ): Promise<Room> {
+    return this.roomsService.addTag(token, Number(roomId), addTagDTO);
+  }
+
+  @ApiOperation({ description: 'Remove an tag from the room' })
+  @ApiResponse({ status: 200, description: 'Tag successfully removed.' })
+  @Patch(':id/tags/remove')
+  removeTag(
+    @GetAccessToken() token: UserAccessToken,
+    @Param('id') roomId: string,
+    @Body() removeTagDTO: RemoveTagDTO,
+  ): Promise<Room> {
+    return this.roomsService.removeTag(token, Number(roomId), removeTagDTO);
   }
 
   @ApiOperation({ description: 'Delete a room.' })

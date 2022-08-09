@@ -61,17 +61,29 @@ export class RoomsRepository extends Repository<Room> {
     parsedSort: KeyOfSortOptions,
     parsedOrder: KeyOfOrderOptions,
   ): Promise<{ data: Room[]; count: number }> {
-    const { query, offset, limit } = searchRoomDTO;
+    const { query, offset, limit, tagIds } = searchRoomDTO;
 
-    const [data, count] = await this.createQueryBuilder('room')
+    let searchQuery = this.createQueryBuilder('room')
       .leftJoinAndSelect('room.avatar', 'public_file')
+      .leftJoinAndSelect('room.tags', 'tags')
       .loadRelationCountAndMap('room.numOfMembers', 'room.members', 'user')
       .where('room.name LIKE :name', { name: `%${query}%` })
-      .andWhere('room.isPrivate = false')
+      .andWhere('room.isPrivate = false');
+
+    if (Array.isArray(tagIds)) {
+      tagIds.forEach((tagId) => {
+        searchQuery = searchQuery.andWhere('tags.id = :tagId', { tagId });
+      });
+    } else if (tagIds !== undefined) {
+      searchQuery = searchQuery.andWhere('tags.id = :tagId', { tagId: tagIds });
+    }
+
+    searchQuery = searchQuery
       .orderBy(`room.${parsedSort}`, parsedOrder)
       .limit(limit)
-      .offset(offset)
-      .getManyAndCount();
+      .offset(offset);
+
+    const [data, count] = await searchQuery.getManyAndCount();
 
     return {
       data,
@@ -115,6 +127,20 @@ export class RoomsRepository extends Repository<Room> {
       .relation(Room, 'owners')
       .of(roomId)
       .add(userId);
+  }
+
+  async addTag(roomId: number, tagId: number): Promise<void> {
+    await this.createQueryBuilder()
+      .relation(Room, 'tags')
+      .of(roomId)
+      .add(tagId);
+  }
+
+  async removeTag(roomId: number, tagId: number): Promise<void> {
+    await this.createQueryBuilder()
+      .relation(Room, 'tags')
+      .of(roomId)
+      .remove(tagId);
   }
 
   async removeMember(roomId: number, userId: number): Promise<void> {

@@ -23,6 +23,9 @@ export class SearchRoomDTO {
   order: OrderOptionsType;
 
   // categoryId: number;
+  @ApiProperty()
+  @IsNumber()
+  tagIds: number | number[];
 }
 
 export const SortOptions = {

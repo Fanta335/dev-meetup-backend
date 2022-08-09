@@ -10,8 +10,10 @@ import { User } from 'src/users/entity/user.entity';
 import { UsersRepository } from 'src/users/entity/user.repository';
 import { UserAccessToken } from 'src/users/types';
 import { AddOwnerDTO } from './dto/addOwner.dto';
+import { AddTagDTO } from './dto/addTag.dto';
 import { CreateRoomDTO } from './dto/createRoom.dto';
 import { RemoveOwnerDTO } from './dto/removeOwner.dto';
+import { RemoveTagDTO } from './dto/removeTag.dto';
 import { SearchRoomDTO } from './dto/searchRoom.dto';
 import { UpdateRoomDTO } from './dto/updateRoom.dto';
 import { Room } from './entity/room.entity';
@@ -273,6 +275,46 @@ export class RoomsService {
     await this.roomsRepository.removeOwner(roomId, userIdToRemove);
 
     return this.roomsRepository.getRoomWithRelations(roomId, ['owners']);
+  }
+
+  async addTag(
+    token: UserAccessToken,
+    roomId: number,
+    addTagDTO: AddTagDTO,
+  ): Promise<Room> {
+    const userId: number = token[this.claimMysqlUser].id;
+    const roomToRemove = await this.getRoomDetailById(token, roomId);
+    const isOwner = roomToRemove.owners.some((owner) => owner.id === userId);
+    if (!isOwner) {
+      throw new ForbiddenException(
+        "You don't have permission to manage ownership in this room. Only owners are allowed.",
+      );
+    }
+
+    const { tagIdToAdd } = addTagDTO;
+    await this.roomsRepository.addTag(roomId, tagIdToAdd);
+
+    return this.roomsRepository.getRoomWithRelations(roomId, ['tags']);
+  }
+
+  async removeTag(
+    token: UserAccessToken,
+    roomId: number,
+    removeTagDTO: RemoveTagDTO,
+  ): Promise<Room> {
+    const userId: number = token[this.claimMysqlUser].id;
+    const roomToRemove = await this.getRoomDetailById(token, roomId);
+    const isOwner = roomToRemove.owners.some((owner) => owner.id === userId);
+    if (!isOwner) {
+      throw new ForbiddenException(
+        "You don't have permission to manage ownership in this room. Only owners are allowed.",
+      );
+    }
+
+    const { tagIdToRemove } = removeTagDTO;
+    await this.roomsRepository.removeTag(roomId, tagIdToRemove);
+
+    return this.roomsRepository.getRoomWithRelations(roomId, ['tags']);
   }
 
   async softDeleteRoom(roomId: number, token: UserAccessToken): Promise<Room> {
