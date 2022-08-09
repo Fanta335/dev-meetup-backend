@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CreateTagDTO } from './dto/createTag.dto';
@@ -20,5 +20,10 @@ export class TagsController {
   @Get()
   getAllTags(): Promise<Tag[]> {
     return this.tagsService.getAllTags();
+  }
+
+  @Get(':id')
+  getById(@Param('id') id: string): Promise<Tag> {
+    return this.tagsService.getById(Number(id));
   }
 }
