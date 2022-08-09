@@ -82,18 +82,18 @@ export class RoomsService {
     return room;
   }
 
-  async searchRooms(searchRoomDTO: SearchRoomDTO): Promise<Room[]> {
+  async searchRooms(
+    searchRoomDTO: SearchRoomDTO,
+  ): Promise<{ data: Room[]; count: number }> {
     const { sort, order } = searchRoomDTO;
     const parsedSort = sortParser(sort);
     const parsedOrder = orderParser(order);
 
-    const rooms = await this.roomsRepository.searchRooms(
+    return this.roomsRepository.searchRooms(
       searchRoomDTO,
       parsedSort,
       parsedOrder,
     );
-
-    return rooms;
   }
 
   async getRoomDetailById(token: UserAccessToken, id: number): Promise<Room> {

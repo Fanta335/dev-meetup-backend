@@ -80,15 +80,21 @@ export class RoomsController {
       'Option for order of the results. Available options are `a` (ascending) and `d` (descending).',
   })
   @Get('search')
-  searchRooms(
+  searchRoomsFixed(
     @Query('query') query: string,
     @Query('offset') offset: number,
     @Query('limit') limit: number,
     @Query('sort') sort: SortOptionsType,
     @Query('order') order: OrderOptionsType,
     // @Query('categoryId') categoryId: number,
-  ): Promise<Room[]> {
-    return this.roomsService.searchRooms({ query, offset, limit, sort, order });
+  ): Promise<{ data: Room[]; count: number }> {
+    return this.roomsService.searchRooms({
+      query,
+      offset,
+      limit,
+      sort,
+      order,
+    });
   }
 
   @ApiOperation({ description: 'Retrieve room details.' })

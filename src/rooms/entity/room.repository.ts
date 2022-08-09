@@ -56,15 +56,14 @@ export class RoomsRepository extends Repository<Room> {
       .getMany();
   }
 
-  searchRooms(
+  async searchRooms(
     searchRoomDTO: SearchRoomDTO,
     parsedSort: KeyOfSortOptions,
     parsedOrder: KeyOfOrderOptions,
-  ): Promise<Room[]> {
+  ): Promise<{ data: Room[]; count: number }> {
     const { query, offset, limit } = searchRoomDTO;
 
-    // Add number of members property to room entity.
-    return this.createQueryBuilder('room')
+    const [data, count] = await this.createQueryBuilder('room')
       .leftJoinAndSelect('room.avatar', 'public_file')
       .loadRelationCountAndMap('room.numOfMembers', 'room.members', 'user')
       .where('room.name LIKE :name', { name: `%${query}%` })
@@ -72,7 +71,12 @@ export class RoomsRepository extends Repository<Room> {
       .orderBy(`room.${parsedSort}`, parsedOrder)
       .limit(limit)
       .offset(offset)
-      .getMany();
+      .getManyAndCount();
+
+    return {
+      data,
+      count,
+    };
   }
 
   getRoomWithRelations(id: number, relations: RoomRelation[]): Promise<Room> {
