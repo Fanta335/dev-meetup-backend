@@ -9,6 +9,7 @@ import { RoomsModule } from './rooms/rooms.module';
 import { AuthzModule } from './authz/authz.module';
 import { FilesModule } from './files/files.module';
 import { InvitationsModule } from './invitations/invitations.module';
+import { TagsModule } from './tags/tags.module';
 import configuration from './config/configurations';
 
 @Module({
@@ -30,6 +31,7 @@ import configuration from './config/configurations';
     AuthzModule,
     FilesModule,
     InvitationsModule,
+    TagsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { PublicFile } from 'src/files/entity/publicFile.entity';
 import { Message } from 'src/messages/entity/message.entity';
+import { Tag } from 'src/tags/entity/tag.entity';
 import { User } from 'src/users/entity/user.entity';
 import {
   Column,
@@ -58,6 +59,10 @@ export class Room {
     nullable: false,
   })
   members: User[];
+
+  @ApiProperty()
+  @ManyToMany(() => Tag, (tag) => tag.rooms)
+  tags: Tag[];
 
   @ApiProperty()
   @OneToMany(() => Message, (message) => message.room, { cascade: true })
