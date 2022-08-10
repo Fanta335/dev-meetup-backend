@@ -1,7 +1,7 @@
 import { BadRequestException } from '@nestjs/common';
-import { KeyOfOrderOptions, OrderOptionsType } from '../dto/searchRoom.dto';
+import { KeyOfOrderOptions } from '../types';
 
-export const orderParser = (order: OrderOptionsType): KeyOfOrderOptions => {
+export const orderParser = (order: string | string[]): KeyOfOrderOptions => {
   if (order === 'a') {
     return 'ASC';
   } else if (order === 'd') {

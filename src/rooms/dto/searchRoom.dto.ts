@@ -1,42 +1,21 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNumber, IsString } from 'class-validator';
 
 export class SearchRoomDTO {
   @ApiProperty()
-  @IsString()
-  query: string;
+  query: string | string[];
 
   @ApiProperty()
-  @IsNumber()
-  offset: number;
+  offset: string | string[];
 
   @ApiProperty()
-  @IsNumber()
-  limit: number;
+  limit: string | string[];
 
   @ApiProperty()
-  @IsString()
-  sort: SortOptionsType;
+  sort: string | string[];
 
   @ApiProperty()
-  @IsString()
-  order: OrderOptionsType;
+  order: string | string[];
 
-  // categoryId: number;
   @ApiProperty()
-  @IsNumber()
-  tagIds: number | number[];
+  tagId: string | string[];
 }
-
-export const SortOptions = {
-  CreatedAt: 'date',
-} as const;
-export type KeyOfSortOptions = keyof typeof SortOptions;
-export type SortOptionsType = typeof SortOptions[KeyOfSortOptions];
-
-export const OrderOptions = {
-  ASC: 'a',
-  DESC: 'd',
-} as const;
-export type KeyOfOrderOptions = keyof typeof OrderOptions;
-export type OrderOptionsType = typeof OrderOptions[KeyOfOrderOptions];

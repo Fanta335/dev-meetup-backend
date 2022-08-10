@@ -18,8 +18,7 @@ import { SearchRoomDTO } from './dto/searchRoom.dto';
 import { UpdateRoomDTO } from './dto/updateRoom.dto';
 import { Room } from './entity/room.entity';
 import { RoomsRepository } from './entity/room.repository';
-import { orderParser } from './utils/orderParser';
-import { sortParser } from './utils/sortParser';
+import { parseSearchQuery } from './utils/parseSearchQuery';
 
 @Injectable()
 export class RoomsService {
@@ -87,15 +86,7 @@ export class RoomsService {
   async searchRooms(
     searchRoomDTO: SearchRoomDTO,
   ): Promise<{ data: Room[]; count: number }> {
-    const { sort, order } = searchRoomDTO;
-    const parsedSort = sortParser(sort);
-    const parsedOrder = orderParser(order);
-
-    return this.roomsRepository.searchRooms(
-      searchRoomDTO,
-      parsedSort,
-      parsedOrder,
-    );
+    return this.roomsRepository.searchRooms(parseSearchQuery(searchRoomDTO));
   }
 
   async getRoomDetailById(token: UserAccessToken, id: number): Promise<Room> {

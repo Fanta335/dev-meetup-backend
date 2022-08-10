@@ -30,7 +30,6 @@ import { AddTagDTO } from './dto/addTag.dto';
 import { CreateRoomDTO } from './dto/createRoom.dto';
 import { RemoveOwnerDTO } from './dto/removeOwner.dto';
 import { RemoveTagDTO } from './dto/removeTag.dto';
-import { SortOptionsType, OrderOptionsType } from './dto/searchRoom.dto';
 import { UpdateRoomDTO } from './dto/updateRoom.dto';
 import { Room } from './entity/room.entity';
 import { RoomsService } from './rooms.service';
@@ -83,20 +82,21 @@ export class RoomsController {
   })
   @Get('search')
   searchRoomsFixed(
-    @Query('query') query: string,
-    @Query('offset') offset: number,
-    @Query('limit') limit: number,
-    @Query('sort') sort: SortOptionsType,
-    @Query('order') order: OrderOptionsType,
-    @Query('tagId') tagIds: number | number[],
+    @Query('query') query: string | string[],
+    @Query('offset') offset: string | string[],
+    @Query('limit') limit: string | string[],
+    @Query('sort') sort: string | string[],
+    @Query('order') order: string | string[],
+    @Query('tagId') tagId: string | string[],
   ): Promise<{ data: Room[]; count: number }> {
+    console.log(tagId);
     return this.roomsService.searchRooms({
       query,
       offset,
       limit,
       sort,
       order,
-      tagIds,
+      tagId,
     });
   }
 

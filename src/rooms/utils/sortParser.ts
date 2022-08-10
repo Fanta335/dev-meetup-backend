@@ -1,11 +1,7 @@
 import { BadRequestException } from '@nestjs/common';
-import {
-  KeyOfSortOptions,
-  SortOptions,
-  SortOptionsType,
-} from '../dto/searchRoom.dto';
+import { KeyOfSortOptions, SortOptions } from '../types';
 
-export const sortParser = (sort: SortOptionsType): KeyOfSortOptions => {
+export const sortParser = (sort: string | string[]): KeyOfSortOptions => {
   if (sort === SortOptions.CreatedAt) {
     return 'CreatedAt';
   } else {

@@ -3,12 +3,7 @@ import { PublicFile } from 'src/files/entity/publicFile.entity';
 import { User } from 'src/users/entity/user.entity';
 import { Repository } from 'typeorm';
 import { CreateRoomDTO } from '../dto/createRoom.dto';
-import {
-  KeyOfOrderOptions,
-  KeyOfSortOptions,
-  SearchRoomDTO,
-} from '../dto/searchRoom.dto';
-import { RoomRelation } from '../types';
+import { ParsedSearchQuery, RoomRelation } from '../types';
 import { Room } from './room.entity';
 
 @CustomRepository(Room)
@@ -57,11 +52,9 @@ export class RoomsRepository extends Repository<Room> {
   }
 
   async searchRooms(
-    searchRoomDTO: SearchRoomDTO,
-    parsedSort: KeyOfSortOptions,
-    parsedOrder: KeyOfOrderOptions,
+    parsedSearchQuery: ParsedSearchQuery,
   ): Promise<{ data: Room[]; count: number }> {
-    const { query, offset, limit, tagIds } = searchRoomDTO;
+    const { query, offset, limit, sort, order, tagId } = parsedSearchQuery;
 
     let searchQuery = this.createQueryBuilder('room')
       .leftJoinAndSelect('room.avatar', 'public_file')
@@ -70,16 +63,12 @@ export class RoomsRepository extends Repository<Room> {
       .where('room.name LIKE :name', { name: `%${query}%` })
       .andWhere('room.isPrivate = false');
 
-    if (Array.isArray(tagIds)) {
-      tagIds.forEach((tagId) => {
-        searchQuery = searchQuery.andWhere('tags.id = :tagId', { tagId });
-      });
-    } else if (tagIds !== undefined) {
-      searchQuery = searchQuery.andWhere('tags.id = :tagId', { tagId: tagIds });
+    if (tagId) {
+      searchQuery = searchQuery.andWhere('tags.id = :tagId', { tagId });
     }
 
     searchQuery = searchQuery
-      .orderBy(`room.${parsedSort}`, parsedOrder)
+      .orderBy(`room.${sort}`, order)
       .limit(limit)
       .offset(offset);
 
