@@ -89,7 +89,6 @@ export class RoomsController {
     @Query('order') order: string | string[],
     @Query('tagId') tagId: string | string[],
   ): Promise<{ data: Room[]; count: number }> {
-    console.log(tagId);
     return this.roomsService.searchRooms({
       query,
       offset,
