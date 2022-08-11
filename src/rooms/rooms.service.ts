@@ -197,13 +197,25 @@ export class RoomsService {
 
   async addMember(token: UserAccessToken, roomId: number): Promise<Room> {
     const userIdToAdd: number = token[this.claimMysqlUser].id;
-    await this.roomsRepository.addMember(roomId, userIdToAdd);
+    const belongingRooms = await this.roomsRepository.getBelongingRooms(
+      userIdToAdd,
+    );
+    const isMember = belongingRooms.some((room) => room.id === roomId);
+    if (!isMember) {
+      await this.roomsRepository.addMember(roomId, userIdToAdd);
+    }
     return this.roomsRepository.getRoomWithRelations(roomId, ['members']);
   }
 
   async removeMember(token: UserAccessToken, roomId: number): Promise<Room> {
     const userIdToRemove: number = token[this.claimMysqlUser].id;
-    await this.roomsRepository.removeMember(roomId, userIdToRemove);
+    const belongingRooms = await this.roomsRepository.getBelongingRooms(
+      userIdToRemove,
+    );
+    const isMember = belongingRooms.some((room) => room.id === roomId);
+    if (isMember) {
+      await this.roomsRepository.removeMember(roomId, userIdToRemove);
+    }
     return this.roomsRepository.getRoomWithRelations(roomId, ['members']);
   }
 
