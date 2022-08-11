@@ -31,7 +31,7 @@ services:
     image: mysql:5.7.37
     restart: always
     ports:
-      - '3306:3306'
+      - '3307:3306'
     volumes:
       - 'db-data:/var/lib/mysql'
     env_file:
