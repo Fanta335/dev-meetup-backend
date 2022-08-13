@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString } from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
 
 export class CreateRoomDTO {
   @ApiProperty()
@@ -11,6 +11,21 @@ export class CreateRoomDTO {
   description: string;
 
   @ApiProperty()
+  @IsOptional()
+  @IsString()
+  tagIds?: string;
+
+  @ApiProperty()
   @IsString()
   isPrivate: string;
+}
+
+export class ParsedCreateRoomDTO {
+  name: string;
+
+  description: string;
+
+  isPrivate: boolean;
+
+  tagIds?: number[];
 }
