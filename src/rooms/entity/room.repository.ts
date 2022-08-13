@@ -1,8 +1,9 @@
 import { CustomRepository } from 'src/database/typeorm-ex.decorator';
 import { PublicFile } from 'src/files/entity/publicFile.entity';
+import { Tag } from 'src/tags/entity/tag.entity';
 import { User } from 'src/users/entity/user.entity';
 import { Repository } from 'typeorm';
-import { CreateRoomDTO } from '../dto/createRoom.dto';
+import { ParsedCreateRoomDTO } from '../dto/createRoom.dto';
 import { ParsedSearchQuery, RoomRelation } from '../types';
 import { Room } from './room.entity';
 
@@ -10,15 +11,17 @@ import { Room } from './room.entity';
 export class RoomsRepository extends Repository<Room> {
   async createRoom(
     user: User,
-    { name, description, isPrivate }: CreateRoomDTO,
+    { name, description, isPrivate }: ParsedCreateRoomDTO,
+    tags: Tag[],
     avatar?: PublicFile,
   ): Promise<Room> {
     const room = new Room();
     room.name = name;
     room.description = description;
-    room.isPrivate = Boolean(isPrivate);
+    room.isPrivate = isPrivate;
     room.owners = [user];
     room.members = [user];
+    room.tags = tags;
     room.avatar = avatar === undefined ? null : avatar;
 
     return this.save(room);

@@ -6,6 +6,7 @@ import {
 import { FilesService } from 'src/files/files.service';
 import { Message } from 'src/messages/entity/message.entity';
 import { MessagesRepository } from 'src/messages/entity/message.repsitory';
+import { TagsRepository } from 'src/tags/entity/tag.repository';
 import { User } from 'src/users/entity/user.entity';
 import { UsersRepository } from 'src/users/entity/user.repository';
 import { UserAccessToken } from 'src/users/types';
@@ -18,6 +19,7 @@ import { SearchRoomDTO } from './dto/searchRoom.dto';
 import { UpdateRoomDTO } from './dto/updateRoom.dto';
 import { Room } from './entity/room.entity';
 import { RoomsRepository } from './entity/room.repository';
+import { parseCreateRoomDTO } from './utils/parseCreateRoomDTO';
 import { parseSearchQuery } from './utils/parseSearchQuery';
 
 @Injectable()
@@ -26,6 +28,7 @@ export class RoomsService {
     private roomsRepository: RoomsRepository,
     private usersRepository: UsersRepository,
     private messageRepository: MessagesRepository,
+    private tagsRepository: TagsRepository,
     private filesService: FilesService,
   ) {}
 
@@ -41,13 +44,21 @@ export class RoomsService {
     const userId: number = token[this.claimMysqlUser].id;
     const user = await this.usersRepository.findByUserId(userId);
 
-    // parse stringified JSON values. isPrivate is originally boolean data.
-    for (const key in createRoomDTO) {
-      createRoomDTO[key] = JSON.parse(createRoomDTO[key]);
-    }
+    const parsedCreateRoomDTO = parseCreateRoomDTO(createRoomDTO);
+
+    // Find tags by tagIds.
+    const tags = parsedCreateRoomDTO.tagIds
+      ? await Promise.all(
+          parsedCreateRoomDTO.tagIds.map((id) =>
+            this.tagsRepository.findOne({
+              where: { id: id },
+            }),
+          ),
+        )
+      : null;
 
     if (!file) {
-      return this.roomsRepository.createRoom(user, createRoomDTO);
+      return this.roomsRepository.createRoom(user, parsedCreateRoomDTO, tags);
     }
 
     const { buffer, originalname, mimetype } = file;
@@ -57,7 +68,12 @@ export class RoomsService {
       mimetype,
     );
 
-    return this.roomsRepository.createRoom(user, createRoomDTO, avatar);
+    return this.roomsRepository.createRoom(
+      user,
+      parsedCreateRoomDTO,
+      tags,
+      avatar,
+    );
   }
 
   getAllRooms(): Promise<Room[]> {
