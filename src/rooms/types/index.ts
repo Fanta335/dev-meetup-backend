@@ -15,7 +15,7 @@ export type ParsedSearchQuery = {
 };
 
 export const SortOptions = {
-  CreatedAt: 'date',
+  createdAt: 'date',
 } as const;
 export type KeyOfSortOptions = keyof typeof SortOptions;
 export type SortOptionsType = typeof SortOptions[KeyOfSortOptions];
