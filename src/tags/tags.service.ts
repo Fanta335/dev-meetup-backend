@@ -15,7 +15,11 @@ export class TagsService {
     return this.tagsRepository.find();
   }
 
-  async getById(id: number): Promise<Tag> {
-    return this.tagsRepository.findOne({ where: { id: id } });
+  async getOneById(id: number): Promise<Tag> {
+    return this.tagsRepository.getOneById(id);
+  }
+
+  async getManyByIds(ids: number[]): Promise<Tag[]> {
+    return this.tagsRepository.getManyByIds(ids);
   }
 }

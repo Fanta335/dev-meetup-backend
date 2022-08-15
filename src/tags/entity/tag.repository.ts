@@ -13,4 +13,14 @@ export class TagsRepository extends Repository<Tag> {
 
     return this.save(tag);
   }
+
+  async getOneById(id: number): Promise<Tag> {
+    return this.findOne({ where: { id: id } });
+  }
+
+  async getManyByIds(ids: number[]): Promise<Tag[]> {
+    return this.createQueryBuilder('tag')
+      .where('tag.id IN (:...tagIds)', { tagIds: ids })
+      .getMany();
+  }
 }

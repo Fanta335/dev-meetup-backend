@@ -24,6 +24,6 @@ export class TagsController {
 
   @Get(':id')
   getById(@Param('id') id: string): Promise<Tag> {
-    return this.tagsService.getById(Number(id));
+    return this.tagsService.getOneById(Number(id));
   }
 }
