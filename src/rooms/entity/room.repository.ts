@@ -62,12 +62,13 @@ export class RoomsRepository extends Repository<Room> {
     let searchQuery = this.createQueryBuilder('room')
       .where('room.name LIKE :name', { name: `%${query}%` })
       .andWhere('room.isPrivate = false')
+      .leftJoin('room.tags', 'tag')
+      .leftJoinAndSelect('room.tags', 'tagSelect')
       .leftJoinAndSelect('room.avatar', 'public_file')
-      .leftJoinAndSelect('room.tags', 'tags')
       .loadRelationCountAndMap('room.numOfMembers', 'room.members', 'user');
 
     if (tagId) {
-      searchQuery = searchQuery.andWhere('tags.id = :tagId', { tagId });
+      searchQuery = searchQuery.andWhere('tag.id = :tagId', { tagId });
     }
 
     searchQuery = searchQuery
