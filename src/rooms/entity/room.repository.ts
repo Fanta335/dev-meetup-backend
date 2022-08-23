@@ -91,14 +91,6 @@ export class RoomsRepository extends Repository<Room> {
     });
   }
 
-  getLimitedMessage(id: number): Promise<Room> {
-    return this.createQueryBuilder('room')
-      .leftJoinAndSelect('room.messages', 'message')
-      .where('room.id = :id', { id })
-      .take(5)
-      .getOne();
-  }
-
   async getRoomMembersById(id: number): Promise<User[]> {
     const room = await this.findOne({
       where: { id: id },
