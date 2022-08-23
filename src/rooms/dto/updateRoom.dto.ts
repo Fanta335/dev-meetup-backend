@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsString } from 'class-validator';
+import { IsBoolean, IsString, ValidateNested } from 'class-validator';
 
 export class UpdateRoomDTO {
   @ApiProperty()
@@ -13,4 +13,8 @@ export class UpdateRoomDTO {
   @ApiProperty()
   @IsBoolean()
   isPrivate: boolean;
+
+  @ApiProperty()
+  @ValidateNested({ each: true })
+  tagIds?: { id: string }[];
 }

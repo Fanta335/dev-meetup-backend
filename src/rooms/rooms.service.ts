@@ -6,6 +6,7 @@ import {
 import { FilesService } from 'src/files/files.service';
 import { Message } from 'src/messages/entity/message.entity';
 import { MessagesRepository } from 'src/messages/entity/message.repsitory';
+import { Tag } from 'src/tags/entity/tag.entity';
 import { TagsRepository } from 'src/tags/entity/tag.repository';
 import { User } from 'src/users/entity/user.entity';
 import { UsersRepository } from 'src/users/entity/user.repository';
@@ -111,6 +112,7 @@ export class RoomsService {
       'owners',
       'members',
       'messages',
+      'tags',
       'avatar',
     ]);
 
@@ -169,9 +171,18 @@ export class RoomsService {
     // owners property is no longer needed to update rooms table.
     delete roomToBeUpdated.owners;
 
+    let newTags: Tag[];
+    // update tags.
+    if (updateRoomDTO.tagIds) {
+      const ids = updateRoomDTO.tagIds.map((obj) => Number(obj.id));
+      newTags = await this.tagsRepository.getManyByIds(ids);
+      delete updateRoomDTO.tagIds;
+    }
+
     const newRoom = {
       ...roomToBeUpdated,
       ...updateRoomDTO,
+      tags: newTags,
     };
 
     return this.roomsRepository.save(newRoom);
