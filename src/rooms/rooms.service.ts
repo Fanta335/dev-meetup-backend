@@ -131,7 +131,7 @@ export class RoomsService {
     }
 
     // Retrieve some lastest messages for initial data.
-    const messages = await this.getLimitedMessages(id, 0, 10);
+    const messages = await this.getLimitedMessages(token, id, 10);
     room.messages = messages;
 
     return room;
@@ -148,17 +148,41 @@ export class RoomsService {
   }
 
   async getLimitedMessages(
+    token: UserAccessToken,
     roomId: number,
-    skip: number,
-    take: number,
+    limit: number,
+    sinceId?: number,
   ): Promise<Message[]> {
-    const messages = await this.messageRepository.getLimitedMessages(
-      roomId,
-      skip,
-      take,
-    );
-    // reverse messages order from `new -> old` to `old -> new`.
-    return messages.reverse();
+    const userId: number = token[this.claimMysqlUser].id;
+    const room = await this.roomsRepository.getRoomWithRelations(roomId, [
+      'members',
+    ]);
+
+    // Check if the room exists.
+    if (!room) {
+      throw new NotFoundException(`Room not found matched id: ${roomId}`);
+    }
+
+    // Check if the user is a member of the room.
+    const isMember =
+      room.members.find((member) => member.id === userId) !== undefined;
+
+    if (!isMember) {
+      throw new ForbiddenException(
+        `You do not have the permission to access this resource. Only members of the room have the permission.`,
+      );
+    }
+
+    // reverse messages array order to `old -> new`.
+    if (sinceId) {
+      return this.messageRepository
+        .getLimitedMessagesBySinceId(roomId, sinceId, limit)
+        .then((messages) => messages.reverse());
+    } else {
+      return this.messageRepository
+        .getLimitedMessages(roomId, limit)
+        .then((messages) => messages.reverse());
+    }
   }
 
   async updateRoom(

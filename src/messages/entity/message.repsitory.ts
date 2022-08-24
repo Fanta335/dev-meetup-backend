@@ -36,16 +36,24 @@ export class MessagesRepository extends Repository<Message> {
     return this.find({ relations: ['user'] });
   }
 
-  getLimitedMessages(
-    roomId: number,
-    skip: number,
-    take: number,
-  ): Promise<Message[]> {
+  getLimitedMessages(roomId: number, limit: number): Promise<Message[]> {
     return this.createQueryBuilder('message')
       .where('message.roomId = :roomId', { roomId })
       .orderBy('message.id', 'DESC')
-      .skip(skip)
-      .take(take)
+      .take(limit)
+      .getMany();
+  }
+
+  getLimitedMessagesBySinceId(
+    roomId: number,
+    sinceId: number,
+    limit: number,
+  ): Promise<Message[]> {
+    return this.createQueryBuilder('message')
+      .where('message.id < :sinceId', { sinceId })
+      .andWhere('message.roomId = :roomId', { roomId })
+      .orderBy('message.id', 'DESC')
+      .take(limit)
       .getMany();
   }
 }

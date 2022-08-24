@@ -124,13 +124,14 @@ export class RoomsController {
   getRoomMessages(
     @GetAccessToken() token: UserAccessToken,
     @Param('id') id: string,
-    @Query('offset') offset: string,
+    @Query('since-id') sinceId: string,
     @Query('limit') limit: string,
   ): Promise<Message[]> {
     return this.roomsService.getLimitedMessages(
+      token,
       Number(id),
-      Number(offset),
       Number(limit),
+      Number(sinceId),
     );
   }
 
