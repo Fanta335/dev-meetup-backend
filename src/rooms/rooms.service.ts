@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { FilesService } from 'src/files/files.service';
+import { Message } from 'src/messages/entity/message.entity';
 import { MessagesRepository } from 'src/messages/entity/message.repsitory';
 import { Tag } from 'src/tags/entity/tag.entity';
 import { TagsRepository } from 'src/tags/entity/tag.repository';
@@ -130,10 +131,8 @@ export class RoomsService {
     }
 
     // Retrieve some lastest messages for initial data.
-    const messages = await this.messageRepository.getLimitedMessages(id, 0, 10);
-
-    // reverse messages order from `new -> old` to `old -> new`.
-    room.messages = messages.reverse();
+    const messages = await this.getLimitedMessages(id, 0, 10);
+    room.messages = messages;
 
     return room;
   }
@@ -146,6 +145,20 @@ export class RoomsService {
     }
 
     return this.roomsRepository.getRoomMembersById(id);
+  }
+
+  async getLimitedMessages(
+    roomId: number,
+    skip: number,
+    take: number,
+  ): Promise<Message[]> {
+    const messages = await this.messageRepository.getLimitedMessages(
+      roomId,
+      skip,
+      take,
+    );
+    // reverse messages order from `new -> old` to `old -> new`.
+    return messages.reverse();
   }
 
   async updateRoom(
