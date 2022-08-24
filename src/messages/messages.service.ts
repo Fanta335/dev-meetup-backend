@@ -77,10 +77,6 @@ export class MessagesService {
     // }
   }
 
-  async getLimitedMessages(roomId: number): Promise<Message[]> {
-    return this.messagesRepository.getLimitedMessages(roomId);
-  }
-
   async updateMessage({
     messageId,
     authorId,
