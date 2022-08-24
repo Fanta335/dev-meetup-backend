@@ -23,6 +23,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { FileUploadDTO } from 'src/files/dto/fileUpload.dto';
+import { Message } from 'src/messages/entity/message.entity';
 import { GetAccessToken } from 'src/users/get-access-token.decorator';
 import { UserAccessToken } from 'src/users/types';
 import { AddOwnerDTO } from './dto/addOwner.dto';
@@ -117,6 +118,20 @@ export class RoomsController {
     @Param('id') id: string,
   ): Promise<Room> {
     return this.roomsService.getRoomDetailById(token, Number(id));
+  }
+
+  @Get(':id/messages')
+  getRoomMessages(
+    @GetAccessToken() token: UserAccessToken,
+    @Param('id') id: string,
+    @Query('offset') offset: string,
+    @Query('limit') limit: string,
+  ): Promise<Message[]> {
+    return this.roomsService.getLimitedMessages(
+      Number(id),
+      Number(offset),
+      Number(limit),
+    );
   }
 
   @ApiOperation({ description: 'Update a room' })
