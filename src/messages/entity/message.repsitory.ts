@@ -40,7 +40,7 @@ export class MessagesRepository extends Repository<Message> {
     return this.createQueryBuilder('message')
       .where('message.roomId = :roomId', { roomId })
       .orderBy('message.id', 'DESC')
-      .take(limit)
+      .take(limit + 1)
       .getMany();
   }
 
@@ -53,7 +53,7 @@ export class MessagesRepository extends Repository<Message> {
       .where('message.id < :sinceId', { sinceId })
       .andWhere('message.roomId = :roomId', { roomId })
       .orderBy('message.id', 'DESC')
-      .take(limit)
+      .take(limit + 1)
       .getMany();
   }
 }

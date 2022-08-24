@@ -126,7 +126,7 @@ export class RoomsController {
     @Param('id') id: string,
     @Query('since-id') sinceId: string,
     @Query('limit') limit: string,
-  ): Promise<Message[]> {
+  ): Promise<{ messages: Message[]; hasNext: boolean }> {
     return this.roomsService.getLimitedMessages(
       token,
       Number(id),
