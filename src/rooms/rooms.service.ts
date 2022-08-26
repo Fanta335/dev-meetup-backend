@@ -131,7 +131,7 @@ export class RoomsService {
     }
 
     // Retrieve some lastest messages for initial data.
-    const { messages } = await this.getLimitedMessages(token, id, 10);
+    const { messages } = await this.getLimitedMessages(token, id, 30);
     room.messages = messages;
 
     return room;
@@ -152,7 +152,7 @@ export class RoomsService {
     roomId: number,
     limit: number,
     sinceId?: number,
-  ): Promise<{ messages: Message[]; hasNext: boolean }> {
+  ): Promise<{ messages: Message[]; hasPrev: boolean }> {
     const userId: number = token[this.claimMysqlUser].id;
     const room = await this.roomsRepository.getRoomWithRelations(roomId, [
       'members',
@@ -184,10 +184,10 @@ export class RoomsService {
       messages = await this.messageRepository.getLimitedMessages(roomId, limit);
     }
 
-    const hasNext = messages.length > limit ? true : false;
+    const hasPrev = messages.length > limit ? true : false;
 
     // Remove `+1` message from messages.
-    if (hasNext) {
+    if (hasPrev) {
       messages.pop();
     }
 
@@ -196,7 +196,7 @@ export class RoomsService {
 
     return {
       messages,
-      hasNext,
+      hasPrev,
     };
   }
 
