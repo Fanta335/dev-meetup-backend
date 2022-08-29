@@ -36,24 +36,41 @@ export class MessagesRepository extends Repository<Message> {
     return this.find({ relations: ['user'] });
   }
 
-  getLimitedMessages(roomId: number, limit: number): Promise<Message[]> {
+  getRoomMessageIds(id: number): Promise<Message[]> {
     return this.createQueryBuilder('message')
-      .where('message.roomId = :roomId', { roomId })
-      .orderBy('message.id', 'DESC')
-      .take(limit + 1)
+      .select(['message.id'])
+      .where('message.roomId = :id', { id })
       .getMany();
   }
 
   getLimitedMessagesBySinceId(
     roomId: number,
     sinceId: number,
+    date: number,
     limit: number,
   ): Promise<Message[]> {
+    const qb = this.createQueryBuilder('message').where(
+      'message.roomId = :roomId',
+      { roomId },
+    );
+
+    if (date === 1) {
+      qb.andWhere('message.id >= :sinceId', { sinceId });
+    } else if (date === -1) {
+      qb.andWhere('message.id <= :sinceId', { sinceId }).orderBy(
+        'message.id',
+        'DESC',
+      );
+    }
+
+    return qb.take(limit).getMany();
+  }
+
+  getLatestMessages(roomId: number, limit: number): Promise<Message[]> {
     return this.createQueryBuilder('message')
-      .where('message.id < :sinceId', { sinceId })
-      .andWhere('message.roomId = :roomId', { roomId })
+      .where('message.roomId = :roomId', { roomId })
       .orderBy('message.id', 'DESC')
-      .take(limit + 1)
+      .take(limit)
       .getMany();
   }
 }
