@@ -125,14 +125,24 @@ export class RoomsController {
     @GetAccessToken() token: UserAccessToken,
     @Param('id') id: string,
     @Query('since-id') sinceId: string,
+    @Query('date') date: string,
     @Query('limit') limit: string,
-  ): Promise<{ messages: Message[]; hasPrev: boolean }> {
-    return this.roomsService.getLimitedMessages(
+  ): Promise<Message[]> {
+    return this.roomsService.getMessages(
       token,
       Number(id),
       Number(limit),
       Number(sinceId),
+      Number(date),
     );
+  }
+
+  @Get(':id/messages/ids')
+  getRoomMessageIds(
+    @GetAccessToken() token: UserAccessToken,
+    @Param('id') id: string,
+  ): Promise<Message[]> {
+    return this.roomsService.getRoomMessageIds(token, Number(id));
   }
 
   @ApiOperation({ description: 'Update a room' })
