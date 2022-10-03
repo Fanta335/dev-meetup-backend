@@ -132,6 +132,11 @@ export class CdkStack extends Stack {
     });
     bastionHost.instance.addUserData("yum -y update", "yum install -y mysql jq");
 
+    // Auth0 Credentials
+    const auth0CredentialSecret = secretsmanager.Secret.fromSecretAttributes(this, "Auth0CredentialSecret", {
+      secretCompleteArn: `arn:aws:secretsmanager:${REGION}:${ACCOUNT}:secret:dev-meetup-auth0-secrets-1Rzptr`,
+    });
+
     // RDS Credentials
     const databaseCredentialSecret = new secretsmanager.Secret(this, "DatabaseCredentialSecret", {
       secretName: `${PROJECT_NAME}-rds-secrets`,
@@ -254,6 +259,12 @@ export class CdkStack extends Stack {
         DB_DBNAME: ecs.Secret.fromSecretsManager(databaseCredentialSecret, "dbname"),
         S3_IAM_ACCESS_KEY_ID: ecs.Secret.fromSecretsManager(iamUserForS3CredentialsSecret, "accessKeyId"),
         S3_IAM_SECRET_ACCESS_KEY: ecs.Secret.fromSecretsManager(iamUserForS3CredentialsSecret, "secretAccessKey"),
+        AUTH0_DOMAIN_URL: ecs.Secret.fromSecretsManager(auth0CredentialSecret, "auth0DomainUrl"),
+        AUTH0_AUDIENCE: ecs.Secret.fromSecretsManager(auth0CredentialSecret, "auth0Audience"),
+        CLIENT_ORIGIN_URL: ecs.Secret.fromSecretsManager(auth0CredentialSecret, "clientOriginUrl"),
+        AUTH0_NAMESPACE: ecs.Secret.fromSecretsManager(auth0CredentialSecret, "auth0Namespace"),
+        AUTH0_MANAGEMENT_API_CLIENT_ID: ecs.Secret.fromSecretsManager(auth0CredentialSecret, "auth0ManagementApiClientId"),
+        AUTH0_MANAGEMENT_API_CLIENT_SECRET: ecs.Secret.fromSecretsManager(auth0CredentialSecret, "auth0ManagementApiClientSecret"),
       },
       environment: {
         AWS_REGION: REGION || "ap-northeast-1",
