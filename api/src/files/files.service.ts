@@ -29,7 +29,7 @@ export class FilesService {
     const s3 = new S3();
     const uploadResult = await s3
       .upload({
-        Bucket: this.configService.get('AWS_PUBLIC_BUCKET_NAME'),
+        Bucket: this.configService.get('S3_PUBLIC_BUCKET_NAME'),
         Body: resizedDataBuffer,
         Key: `${uuid()}-${filename}`,
         ContentType: `${mimetype}`,
@@ -63,7 +63,7 @@ export class FilesService {
     const s3 = new S3();
     await s3
       .deleteObject({
-        Bucket: this.configService.get('AWS_PUBLIC_BUCKET_NAME'),
+        Bucket: this.configService.get('S3_PUBLIC_BUCKET_NAME'),
         Key: file.key,
       })
       .promise();
