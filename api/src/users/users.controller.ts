@@ -57,7 +57,7 @@ export class UsersController {
     return this.usersService.findAllUsers();
   }
 
-  @Permissions('read:myself')
+  // @Permissions('read:myself')
   @ApiOperation({ description: 'Retrieve own user details.' })
   @ApiResponse({ status: 200, description: 'Users successfully retrieved.' })
   @Get('me')
@@ -66,7 +66,7 @@ export class UsersController {
   }
 
   // updates a user profile ONLY in mysql.
-  @Permissions('update:myself')
+  // @Permissions('update:myself')
   @ApiOperation({ description: 'Update a user.' })
   @ApiResponse({ status: 200, description: 'User successfully updated.' })
   @Patch('me')
@@ -78,7 +78,7 @@ export class UsersController {
     return this.usersService.updateUser(token, updateUserDTO);
   }
 
-  @Permissions('update:myself')
+  // @Permissions('update:myself')
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     description: 'Image file for user avatar.',
@@ -116,7 +116,7 @@ export class UsersController {
     return this.usersService.updateRootUser(token, updateUserDTO);
   }
 
-  @Permissions('read:myself')
+  // @Permissions('read:myself')
   @ApiOperation({ description: 'Retrieve user belonging rooms.' })
   @ApiResponse({ status: 200, description: 'Rooms successfully retrieved.' })
   @Get('me/belonging-rooms')
@@ -126,7 +126,7 @@ export class UsersController {
     return this.usersService.getBelongingRooms(token);
   }
 
-  @Permissions('read:myself')
+  // @Permissions('read:myself')
   @ApiOperation({ description: 'Retrieve user own rooms.' })
   @ApiResponse({ status: 200, description: 'Rooms successfully retrieved.' })
   @Get('me/own-rooms')
