@@ -59,6 +59,7 @@ export class CdkStack extends Stack {
       securityGroupName: `${PROJECT_NAME}-sg-elb`,
     });
     securityGroupELB.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(80), "Allow all HTTP connection");
+    securityGroupELB.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(443), "Allow all HTTPS connection");
 
     // SG for application on ECS
     const securityGroupApp = new ec2.SecurityGroup(this, "SecurityGroupApp", {
@@ -207,8 +208,9 @@ export class CdkStack extends Stack {
       loadBalancerName: `${PROJECT_NAME}-alb`,
     });
 
-    const listener = alb.addListener("Listener", {
-      port: 80,
+    const listener443 = alb.addListener("Listener443", {
+      port: 443,
+      certificates: [elbv2.ListenerCertificate.fromArn(`arn:aws:acm:${REGION}:${ACCOUNT}:certificate/de65c8fe-2bd8-44fd-aa4b-9aa3c32f8b07`)],
     });
 
     // create ECR repository
@@ -237,7 +239,7 @@ export class CdkStack extends Stack {
     fargateTaskDefinition.addToExecutionRolePolicy(
       new iam.PolicyStatement({
         actions: ["ssm:GetParameters", "secretsmanager:GetSecretValue", "kms:Decrypt"],
-        resources: [databaseCredentialSecret.secretArn],
+        resources: [databaseCredentialSecret.secretArn, auth0CredentialSecret.secretArn],
       })
     );
 
@@ -297,7 +299,7 @@ export class CdkStack extends Stack {
       { capacityProvider: "FARGATE", weight: 1 },
     ];
 
-    listener.addTargets("ECS", {
+    listener443.addTargets("ECS", {
       port: 80,
       targetGroupName: `${PROJECT_NAME}-tg`,
       targets: [
