@@ -48,6 +48,11 @@ export class CdkStack extends Stack {
           name: `${PROJECT_NAME}-private`,
           subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
         },
+        {
+          cidrMask: 24,
+          name: `${PROJECT_NAME}-private-with-nat`,
+          subnetType: ec2.SubnetType.PRIVATE_WITH_NAT,
+        },
       ],
     });
 
@@ -287,7 +292,7 @@ export class CdkStack extends Stack {
       taskDefinition: fargateTaskDefinition,
       securityGroups: [securityGroupApp],
       vpcSubnets: {
-        subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
+        subnetType: ec2.SubnetType.PRIVATE_WITH_NAT,
       },
     });
 
