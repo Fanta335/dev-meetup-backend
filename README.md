@@ -1,14 +1,3 @@
-# Welcome to your CDK TypeScript project
+## インフラ構成図
+![dev-meetup-infra drawio](https://user-images.githubusercontent.com/64186927/194826712-6b8c478a-e183-4b54-88b7-84adb42ba580.svg)
 
-This is a blank project for CDK development with TypeScript.
-
-The `cdk.json` file tells the CDK Toolkit how to execute your app.
-
-## Useful commands
-
-* `npm run build`   compile typescript to js
-* `npm run watch`   watch for changes and compile
-* `npm run test`    perform the jest unit tests
-* `cdk deploy`      deploy this stack to your default AWS account/region
-* `cdk diff`        compare deployed stack with current state
-* `cdk synth`       emits the synthesized CloudFormation template
