@@ -31,8 +31,8 @@ export class UsersService {
   claimMysqlUser = this.namespace + '/mysqlUser';
 
   async createUser(createUserDTO: CreateUserDTO): Promise<User> {
-    const { name, avatarUrl } = createUserDTO;
-    const avatar = await this.filesService.addDefaultAvatar(avatarUrl, name);
+    const { avatarUrl } = createUserDTO;
+    const avatar = await this.filesService.addDefaultAvatar(avatarUrl);
     return this.usersRepository.createUser(createUserDTO, avatar);
   }
 
@@ -243,24 +243,20 @@ export class UsersService {
   async addAvatar(
     token: UserAccessToken,
     imageBuffer: Buffer,
-    filename: string,
     mimetype: string,
   ): Promise<User>;
   async addAvatar(
     id: number,
     imageBuffer: Buffer,
-    filename: string,
     mimetype: string,
   ): Promise<User>;
   async addAvatar(
     tokenOrId: UserAccessToken | number,
     imageBuffer: Buffer,
-    filename: string,
     mimetype: string,
   ): Promise<User> {
     const avatar = await this.filesService.uploadPublicFile(
       imageBuffer,
-      filename,
       mimetype,
     );
     const userId: number =

@@ -62,12 +62,8 @@ export class RoomsService {
       return this.roomsRepository.createRoom(user, parsedCreateRoomDTO, tags);
     }
 
-    const { buffer, originalname, mimetype } = file;
-    const avatar = await this.filesService.uploadPublicFile(
-      buffer,
-      originalname,
-      mimetype,
-    );
+    const { buffer, mimetype } = file;
+    const avatar = await this.filesService.uploadPublicFile(buffer, mimetype);
 
     return this.roomsRepository.createRoom(
       user,
@@ -264,12 +260,8 @@ export class RoomsService {
     // owners property is no longer needed to update rooms table.
     delete roomToBeUpdated.owners;
 
-    const { buffer, originalname, mimetype } = file;
-    const avatar = await this.filesService.uploadPublicFile(
-      buffer,
-      originalname,
-      mimetype,
-    );
+    const { buffer, mimetype } = file;
+    const avatar = await this.filesService.uploadPublicFile(buffer, mimetype);
     roomToBeUpdated.avatar = avatar;
 
     return this.roomsRepository.save(roomToBeUpdated);

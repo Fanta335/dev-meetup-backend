@@ -90,12 +90,7 @@ export class UsersController {
     @GetAccessToken() token: UserAccessToken,
     @UploadedFile() file: Express.Multer.File,
   ): Promise<User> {
-    return this.usersService.addAvatar(
-      token,
-      file.buffer,
-      file.originalname,
-      file.mimetype,
-    );
+    return this.usersService.addAvatar(token, file.buffer, file.mimetype);
   }
 
   // updates a user profile in BOTH auth0 and mysql.
@@ -154,12 +149,7 @@ export class UsersController {
     @Param('id') id: string,
     @UploadedFile() file: Express.Multer.File,
   ): Promise<User> {
-    return this.usersService.addAvatar(
-      Number(id),
-      file.buffer,
-      file.originalname,
-      file.mimetype,
-    );
+    return this.usersService.addAvatar(Number(id), file.buffer, file.mimetype);
   }
 
   @Permissions('read:users')

@@ -18,38 +18,34 @@ export class FilesService {
 
   async uploadPublicFile(
     dataBuffer: Buffer,
-    filename: string,
     mimetype: string,
   ): Promise<PublicFile> {
     this.validateMimetype(mimetype);
     const resizedDataBuffer = await sharp(dataBuffer)
       .rotate()
-      .resize(300)
+      .resize(200)
       .toBuffer();
     const s3 = new S3();
     const uploadResult = await s3
       .upload({
         Bucket: this.configService.get('S3_PUBLIC_BUCKET_NAME'),
         Body: resizedDataBuffer,
-        Key: `${uuid()}-${filename}`,
+        Key: `images/${uuid()}`,
         ContentType: `${mimetype}`,
       })
       .promise();
 
     const newFile = this.publicFilesRepository.create({
       key: uploadResult.Key,
-      url: uploadResult.Location,
+      url: `${this.configService.get('S3_FILE_ENDPOINT')}/${uploadResult.Key}`,
     });
 
     return this.publicFilesRepository.save(newFile);
   }
 
-  async addDefaultAvatar(
-    avatarUrl: string,
-    username: string,
-  ): Promise<PublicFile> {
+  async addDefaultAvatar(avatarUrl: string): Promise<PublicFile> {
     const newFile = this.publicFilesRepository.create({
-      key: `${uuid()}-${username}`,
+      key: `${uuid()}`,
       url: avatarUrl,
     });
 
