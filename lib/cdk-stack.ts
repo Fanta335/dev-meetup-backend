@@ -276,6 +276,7 @@ export class CdkStack extends Stack {
       environment: {
         AWS_REGION: REGION || "ap-northeast-1",
         S3_PUBLIC_BUCKET_NAME: s3PublicBucket.bucketName,
+        S3_FILE_ENDPOINT: "https://cdn.devsmeetup.com",
         NODE_ENV: "production",
       },
     });
