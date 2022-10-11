@@ -93,7 +93,7 @@ export class CdkStack extends Stack {
     const securityGroupRDS = new ec2.SecurityGroup(this, "SecurityGroupRDS", {
       vpc,
       description: "Security group for RDS",
-      securityGroupName: "SGRDS",
+      securityGroupName: `${PROJECT_NAME}-sg-rds`,
     });
     securityGroupRDS.addIngressRule(securityGroupApp, ec2.Port.tcp(3306), "Allow MySQL connection from App");
     securityGroupRDS.addIngressRule(securityGroupBastion, ec2.Port.tcp(3306), "Allow MySQL connection from Bastion");
@@ -137,6 +137,7 @@ export class CdkStack extends Stack {
       },
     });
     bastionHost.instance.addUserData("yum -y update", "yum install -y mysql jq");
+    bastionHost.instance.instance.addPropertyOverride("KeyName", "dev-meetup-bastion-key-pair");
 
     // Auth0 Credentials
     const auth0CredentialSecret = secretsmanager.Secret.fromSecretAttributes(this, "Auth0CredentialSecret", {
@@ -158,7 +159,7 @@ export class CdkStack extends Stack {
     });
 
     // RDS
-    const rdsInstance = new rds.DatabaseInstance(this, "RDSInstance", {
+    new rds.DatabaseInstance(this, "RDSInstance", {
       engine: rds.DatabaseInstanceEngine.MYSQL,
       vpc,
       vpcSubnets: {
