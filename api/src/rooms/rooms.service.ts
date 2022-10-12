@@ -77,7 +77,7 @@ export class RoomsService {
     return this.roomsRepository.getAllRooms();
   }
 
-  async getByRoomId(id: number): Promise<Room> {
+  async getByRoomId(id: string): Promise<Room> {
     const room = await this.roomsRepository.getRoomById(id);
     if (!room) {
       throw new NotFoundException(`Room not found matched id: ${id}`);
@@ -86,7 +86,7 @@ export class RoomsService {
     return room;
   }
 
-  async getRoomById(id: number): Promise<Room> {
+  async getRoomById(id: string): Promise<Room> {
     const room = await this.roomsRepository.getRoomById(id);
 
     if (!room) {
@@ -102,7 +102,7 @@ export class RoomsService {
     return this.roomsRepository.searchRooms(parseSearchQuery(searchRoomDTO));
   }
 
-  async getRoomDetailById(token: UserAccessToken, id: number): Promise<Room> {
+  async getRoomDetailById(token: UserAccessToken, id: string): Promise<Room> {
     const userId: number = token[this.claimMysqlUser].id;
     const room = await this.roomsRepository.getRoomWithRelations(id, [
       'owners',
@@ -133,7 +133,7 @@ export class RoomsService {
     return room;
   }
 
-  async getRoomMembersById(id: number): Promise<User[]> {
+  async getRoomMembersById(id: string): Promise<User[]> {
     // check if the room id is valid: the room exists or not
     const room = await this.roomsRepository.getRoomById(id);
     if (!room) {
@@ -145,7 +145,7 @@ export class RoomsService {
 
   async getMessages(
     token: UserAccessToken,
-    roomId: number,
+    roomId: string,
     limit: number,
     sinceId?: number,
     date?: number,
@@ -192,13 +192,13 @@ export class RoomsService {
 
   async getRoomMessageIds(
     token: UserAccessToken,
-    id: number,
+    id: string,
   ): Promise<Message[]> {
     return this.messageRepository.getRoomMessageIds(id);
   }
 
   async updateRoom(
-    id: number,
+    id: string,
     token: UserAccessToken,
     updateRoomDTO: UpdateRoomDTO,
   ): Promise<Room> {
@@ -238,7 +238,7 @@ export class RoomsService {
   }
 
   async addAvatar(
-    id: number,
+    id: string,
     token: UserAccessToken,
     file: Express.Multer.File,
   ): Promise<Room> {
@@ -267,7 +267,7 @@ export class RoomsService {
     return this.roomsRepository.save(roomToBeUpdated);
   }
 
-  async addMember(token: UserAccessToken, roomId: number): Promise<Room> {
+  async addMember(token: UserAccessToken, roomId: string): Promise<Room> {
     const userIdToAdd: number = token[this.claimMysqlUser].id;
     const belongingRooms = await this.roomsRepository.getBelongingRooms(
       userIdToAdd,
@@ -279,7 +279,7 @@ export class RoomsService {
     return this.roomsRepository.getRoomWithRelations(roomId, ['members']);
   }
 
-  async removeMember(token: UserAccessToken, roomId: number): Promise<Room> {
+  async removeMember(token: UserAccessToken, roomId: string): Promise<Room> {
     const userIdToRemove: number = token[this.claimMysqlUser].id;
     const belongingRooms = await this.roomsRepository.getBelongingRooms(
       userIdToRemove,
@@ -293,7 +293,7 @@ export class RoomsService {
 
   async addOwner(
     token: UserAccessToken,
-    roomId: number,
+    roomId: string,
     addOwnerDTO: AddOwnerDTO,
   ): Promise<Room> {
     const currentOwnerId: number = token[this.claimMysqlUser].id;
@@ -325,7 +325,7 @@ export class RoomsService {
 
   async removeOwner(
     token: UserAccessToken,
-    roomId: number,
+    roomId: string,
     removeOwnerDTO: RemoveOwnerDTO,
   ): Promise<Room> {
     const currentOwnerId: number = token[this.claimMysqlUser].id;
@@ -354,7 +354,7 @@ export class RoomsService {
 
   async addTag(
     token: UserAccessToken,
-    roomId: number,
+    roomId: string,
     addTagDTO: AddTagDTO,
   ): Promise<Room> {
     const userId: number = token[this.claimMysqlUser].id;
@@ -374,7 +374,7 @@ export class RoomsService {
 
   async removeTag(
     token: UserAccessToken,
-    roomId: number,
+    roomId: string,
     removeTagDTO: RemoveTagDTO,
   ): Promise<Room> {
     const userId: number = token[this.claimMysqlUser].id;
@@ -392,7 +392,7 @@ export class RoomsService {
     return this.roomsRepository.getRoomWithRelations(roomId, ['tags']);
   }
 
-  async softDeleteRoom(roomId: number, token: UserAccessToken): Promise<Room> {
+  async softDeleteRoom(roomId: string, token: UserAccessToken): Promise<Room> {
     const roomToSoftDelete = await this.roomsRepository.findOne({
       relations: ['owners'],
       where: { id: roomId },

@@ -36,7 +36,7 @@ export class MessagesRepository extends Repository<Message> {
     return this.find({ relations: ['user'] });
   }
 
-  getRoomMessageIds(id: number): Promise<Message[]> {
+  getRoomMessageIds(id: string): Promise<Message[]> {
     return this.createQueryBuilder('message')
       .select(['message.id'])
       .where('message.roomId = :id', { id })
@@ -44,7 +44,7 @@ export class MessagesRepository extends Repository<Message> {
   }
 
   getLimitedMessagesBySinceId(
-    roomId: number,
+    roomId: string,
     sinceId: number,
     date: number,
     limit: number,
@@ -66,7 +66,7 @@ export class MessagesRepository extends Repository<Message> {
     return qb.take(limit).getMany();
   }
 
-  getLatestMessages(roomId: number, limit: number): Promise<Message[]> {
+  getLatestMessages(roomId: string, limit: number): Promise<Message[]> {
     return this.createQueryBuilder('message')
       .where('message.roomId = :roomId', { roomId })
       .orderBy('message.id', 'DESC')

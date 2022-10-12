@@ -5,7 +5,7 @@ import { Invitation } from './invitation.entity';
 @CustomRepository(Invitation)
 export class InvitationRepository extends Repository<Invitation> {
   async createInvitation(
-    roomId: number,
+    roomId: string,
     expirationDate: Date,
   ): Promise<Invitation> {
     const newInvitation = new Invitation();

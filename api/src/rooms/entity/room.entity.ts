@@ -12,15 +12,16 @@ import {
   ManyToMany,
   OneToMany,
   OneToOne,
-  PrimaryGeneratedColumn,
   UpdateDateColumn,
+  PrimaryColumn,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
 
 @Entity()
 export class Room {
   @ApiProperty()
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @ApiProperty()
   @Column({ length: 50 })

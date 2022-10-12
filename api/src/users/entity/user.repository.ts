@@ -38,14 +38,14 @@ export class UsersRepository extends Repository<User> {
     });
   }
 
-  async addMemberToRoom(userId: number, roomId: number) {
+  async addMemberToRoom(userId: number, roomId: string) {
     await this.createQueryBuilder()
       .relation(User, 'belongingRooms')
       .of(userId)
       .add(roomId);
   }
 
-  async removeMemberFromRoom(userId: number, roomId: number) {
+  async removeMemberFromRoom(userId: number, roomId: string) {
     await this.createQueryBuilder()
       .relation(User, 'belongingRooms')
       .of(userId)

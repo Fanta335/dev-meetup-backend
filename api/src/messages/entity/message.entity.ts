@@ -25,7 +25,7 @@ export class Message {
 
   @ApiProperty()
   @Column()
-  roomId: number;
+  roomId: string;
 
   @ApiProperty()
   @Column()

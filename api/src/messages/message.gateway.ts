@@ -46,7 +46,7 @@ export class MessageGateway implements OnGatewayInit, OnGatewayConnection {
     // console.log('author ', author);
     const message = await this.messageService.createMessage({
       authorId: author.id,
-      roomId: Number(roomId),
+      roomId: roomId,
       content: content,
       parentId: parentId,
     });
@@ -96,7 +96,7 @@ export class MessageGateway implements OnGatewayInit, OnGatewayConnection {
     const { roomId } = body;
     client.join(roomId);
     // console.log('rooms: ', client.rooms);
-    const members = await this.roomsService.getRoomMembersById(Number(roomId));
+    const members = await this.roomsService.getRoomMembersById(roomId);
     // console.log('room: ', room);
     this.server.to(roomId).emit('joined_room', members);
     // console.log('join!');
@@ -109,7 +109,7 @@ export class MessageGateway implements OnGatewayInit, OnGatewayConnection {
   ) {
     const { roomId } = body;
     client.leave(roomId);
-    const members = await this.roomsService.getRoomMembersById(Number(roomId));
+    const members = await this.roomsService.getRoomMembersById(roomId);
     this.server.to(roomId).emit('left_room', members);
     // console.log('left room from: ', roomId);
   }

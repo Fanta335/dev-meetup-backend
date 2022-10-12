@@ -1,10 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNumber } from 'class-validator';
+import { IsNumber, IsUUID } from 'class-validator';
 
 export class CreateInvitationDTO {
   @ApiProperty()
-  @IsNumber()
-  roomId: number;
+  @IsUUID('4')
+  roomId: string;
 
   @ApiProperty()
   @IsNumber()

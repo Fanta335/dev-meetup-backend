@@ -16,7 +16,7 @@ export class Invitation {
 
   @ApiProperty()
   @Column()
-  roomId: number;
+  roomId: string;
 
   @ApiProperty()
   @Column()

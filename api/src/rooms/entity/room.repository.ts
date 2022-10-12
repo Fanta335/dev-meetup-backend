@@ -31,7 +31,7 @@ export class RoomsRepository extends Repository<Room> {
     return this.find();
   }
 
-  getRoomById(id: number): Promise<Room> {
+  getRoomById(id: string): Promise<Room> {
     return this.findOne({ where: { id: id } });
   }
 
@@ -84,14 +84,14 @@ export class RoomsRepository extends Repository<Room> {
     };
   }
 
-  getRoomWithRelations(id: number, relations: RoomRelation[]): Promise<Room> {
+  getRoomWithRelations(id: string, relations: RoomRelation[]): Promise<Room> {
     return this.findOne({
       where: { id: id },
       relations: relations,
     });
   }
 
-  async getRoomMembersById(id: number): Promise<User[]> {
+  async getRoomMembersById(id: string): Promise<User[]> {
     const room = await this.findOne({
       where: { id: id },
       relations: ['members'],
@@ -100,42 +100,42 @@ export class RoomsRepository extends Repository<Room> {
     return room.members;
   }
 
-  async addMember(roomId: number, userId: number): Promise<void> {
+  async addMember(roomId: string, userId: number): Promise<void> {
     await this.createQueryBuilder()
       .relation(Room, 'members')
       .of(roomId)
       .add(userId);
   }
 
-  async addOwner(roomId: number, userId: number): Promise<void> {
+  async addOwner(roomId: string, userId: number): Promise<void> {
     await this.createQueryBuilder()
       .relation(Room, 'owners')
       .of(roomId)
       .add(userId);
   }
 
-  async addTag(roomId: number, tagId: number): Promise<void> {
+  async addTag(roomId: string, tagId: number): Promise<void> {
     await this.createQueryBuilder()
       .relation(Room, 'tags')
       .of(roomId)
       .add(tagId);
   }
 
-  async removeTag(roomId: number, tagId: number): Promise<void> {
+  async removeTag(roomId: string, tagId: number): Promise<void> {
     await this.createQueryBuilder()
       .relation(Room, 'tags')
       .of(roomId)
       .remove(tagId);
   }
 
-  async removeMember(roomId: number, userId: number): Promise<void> {
+  async removeMember(roomId: string, userId: number): Promise<void> {
     await this.createQueryBuilder()
       .relation(Room, 'members')
       .of(roomId)
       .remove(userId);
   }
 
-  async removeOwner(roomId: number, userId: number): Promise<void> {
+  async removeOwner(roomId: string, userId: number): Promise<void> {
     await this.createQueryBuilder()
       .relation(Room, 'owners')
       .of(roomId)

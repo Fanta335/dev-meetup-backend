@@ -104,7 +104,7 @@ export class RoomsController {
   @ApiResponse({ status: 200, description: 'Rooms successully retrieved.' })
   @Get(':id')
   getRoomById(@Param('id') id: string): Promise<Room> {
-    return this.roomsService.getRoomById(Number(id));
+    return this.roomsService.getRoomById(id);
   }
 
   @ApiOperation({
@@ -117,7 +117,7 @@ export class RoomsController {
     @GetAccessToken() token: UserAccessToken,
     @Param('id') id: string,
   ): Promise<Room> {
-    return this.roomsService.getRoomDetailById(token, Number(id));
+    return this.roomsService.getRoomDetailById(token, id);
   }
 
   @Get(':id/messages')
@@ -130,7 +130,7 @@ export class RoomsController {
   ): Promise<Message[]> {
     return this.roomsService.getMessages(
       token,
-      Number(id),
+      id,
       Number(limit),
       Number(sinceId),
       Number(date),
@@ -142,7 +142,7 @@ export class RoomsController {
     @GetAccessToken() token: UserAccessToken,
     @Param('id') id: string,
   ): Promise<Message[]> {
-    return this.roomsService.getRoomMessageIds(token, Number(id));
+    return this.roomsService.getRoomMessageIds(token, id);
   }
 
   @ApiOperation({ description: 'Update a room' })
@@ -153,7 +153,7 @@ export class RoomsController {
     @GetAccessToken() token: UserAccessToken,
     @Body() updateRoomDTO: UpdateRoomDTO,
   ): Promise<Room> {
-    return this.roomsService.updateRoom(Number(id), token, updateRoomDTO);
+    return this.roomsService.updateRoom(id, token, updateRoomDTO);
   }
 
   @ApiOperation({ description: 'Update a room avatar' })
@@ -170,7 +170,7 @@ export class RoomsController {
     @GetAccessToken() token: UserAccessToken,
     @UploadedFile() file: Express.Multer.File,
   ): Promise<Room> {
-    return this.roomsService.addAvatar(Number(id), token, file);
+    return this.roomsService.addAvatar(id, token, file);
   }
 
   @ApiOperation({ description: 'Add an member to the room' })
@@ -180,7 +180,7 @@ export class RoomsController {
     @GetAccessToken() token: UserAccessToken,
     @Param('id') roomId: string,
   ): Promise<Room> {
-    return this.roomsService.addMember(token, Number(roomId));
+    return this.roomsService.addMember(token, roomId);
   }
 
   @ApiOperation({ description: 'Remove an member from the room' })
@@ -190,7 +190,7 @@ export class RoomsController {
     @GetAccessToken() token: UserAccessToken,
     @Param('id') roomId: string,
   ): Promise<Room> {
-    return this.roomsService.removeMember(token, Number(roomId));
+    return this.roomsService.removeMember(token, roomId);
   }
 
   @ApiOperation({ description: 'Add an owner to the room' })
@@ -201,7 +201,7 @@ export class RoomsController {
     @Param('id') roomId: string,
     @Body() addOwnerDTO: AddOwnerDTO,
   ): Promise<Room> {
-    return this.roomsService.addOwner(token, Number(roomId), addOwnerDTO);
+    return this.roomsService.addOwner(token, roomId, addOwnerDTO);
   }
 
   @ApiOperation({ description: 'Remove an owner from the room' })
@@ -212,7 +212,7 @@ export class RoomsController {
     @Param('id') roomId: string,
     @Body() removeOwnerDTO: RemoveOwnerDTO,
   ): Promise<Room> {
-    return this.roomsService.removeOwner(token, Number(roomId), removeOwnerDTO);
+    return this.roomsService.removeOwner(token, roomId, removeOwnerDTO);
   }
 
   @ApiOperation({ description: 'Add an tag to the room' })
@@ -223,7 +223,7 @@ export class RoomsController {
     @Param('id') roomId: string,
     @Body() addTagDTO: AddTagDTO,
   ): Promise<Room> {
-    return this.roomsService.addTag(token, Number(roomId), addTagDTO);
+    return this.roomsService.addTag(token, roomId, addTagDTO);
   }
 
   @ApiOperation({ description: 'Remove an tag from the room' })
@@ -234,7 +234,7 @@ export class RoomsController {
     @Param('id') roomId: string,
     @Body() removeTagDTO: RemoveTagDTO,
   ): Promise<Room> {
-    return this.roomsService.removeTag(token, Number(roomId), removeTagDTO);
+    return this.roomsService.removeTag(token, roomId, removeTagDTO);
   }
 
   @ApiOperation({ description: 'Delete a room.' })
@@ -244,6 +244,6 @@ export class RoomsController {
     @Param('id') id: string,
     @GetAccessToken() token: UserAccessToken,
   ): Promise<Room> {
-    return this.roomsService.softDeleteRoom(Number(id), token);
+    return this.roomsService.softDeleteRoom(id, token);
   }
 }

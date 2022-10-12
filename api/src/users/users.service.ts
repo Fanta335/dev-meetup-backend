@@ -178,7 +178,7 @@ export class UsersService {
   async addMemberToRoom(
     token: UserAccessToken,
     userId: number,
-    roomId: number,
+    roomId: string,
   ): Promise<Room[]> {
     const userIdFromToken: number = token[this.claimMysqlUser].id;
 
@@ -204,7 +204,7 @@ export class UsersService {
   async removeMemberFromRoom(
     token: UserAccessToken,
     userId: number,
-    roomId: number,
+    roomId: string,
   ): Promise<Room[]> {
     const userIdFromToken: number = token[this.claimMysqlUser].id;
 
