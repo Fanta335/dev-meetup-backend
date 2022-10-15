@@ -220,11 +220,10 @@ export class RoomsService {
     // owners property is no longer needed to update rooms table.
     delete roomToBeUpdated.owners;
 
-    let newTags: Tag[];
+    let newTags: Tag[] = [];
     // update tags.
-    if (updateRoomDTO.tagIds) {
-      const ids = updateRoomDTO.tagIds.map((obj) => Number(obj.id));
-      newTags = await this.tagsRepository.getManyByIds(ids);
+    if (updateRoomDTO.tagIds.length > 0) {
+      newTags = await this.tagsRepository.getManyByIds(updateRoomDTO.tagIds);
       delete updateRoomDTO.tagIds;
     }
 
