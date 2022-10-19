@@ -47,8 +47,12 @@ export class RoomsService {
 
     const parsedCreateRoomDTO = parseCreateRoomDTO(createRoomDTO);
 
+    const tagIds = parsedCreateRoomDTO.tagIds;
+    if (tagIds && tagIds.length > 5) {
+      throw new ForbiddenException(`Too many room tags.`);
+    }
     // Find tags by tagIds.
-    const tags = parsedCreateRoomDTO.tagIds
+    const tags = tagIds
       ? await Promise.all(
           parsedCreateRoomDTO.tagIds.map((id) =>
             this.tagsRepository.findOne({
@@ -223,6 +227,9 @@ export class RoomsService {
     let newTags: Tag[] = [];
     // update tags.
     if (updateRoomDTO.tagIds.length > 0) {
+      if (updateRoomDTO.tagIds.length > 5) {
+        throw new ForbiddenException(`Too many room tags.`);
+      }
       newTags = await this.tagsRepository.getManyByIds(updateRoomDTO.tagIds);
       delete updateRoomDTO.tagIds;
     }
