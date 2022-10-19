@@ -11,7 +11,7 @@ export type ParsedSearchQuery = {
   limit: number;
   sort: KeyOfSortOptions;
   order: KeyOfOrderOptions;
-  tagId: number;
+  tagIds: number[];
 };
 
 export const SortOptions = {

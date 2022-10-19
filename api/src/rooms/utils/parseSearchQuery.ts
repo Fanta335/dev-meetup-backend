@@ -13,7 +13,7 @@ export const parseSearchQuery = (
     limit: toNumber(limit),
     sort: sortParser(sort),
     order: orderParser(order),
-    tagId: toNumber(tagId),
+    tagIds: toNumArray(tagId),
   };
 };
 
@@ -29,4 +29,11 @@ export const toNumber = (value: string | string[]): number => {
     return Number(value[0]);
   }
   return Number(value);
+};
+
+export const toNumArray = (value: string | string[]): number[] => {
+  if (Array.isArray(value)) {
+    return value.map((v) => Number(v));
+  }
+  return [Number(value)];
 };

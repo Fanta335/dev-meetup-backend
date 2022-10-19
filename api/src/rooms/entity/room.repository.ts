@@ -57,7 +57,7 @@ export class RoomsRepository extends Repository<Room> {
   async searchRooms(
     parsedSearchQuery: ParsedSearchQuery,
   ): Promise<{ data: Room[]; count: number }> {
-    const { query, offset, limit, sort, order, tagId } = parsedSearchQuery;
+    const { query, offset, limit, sort, order, tagIds } = parsedSearchQuery;
 
     let searchQuery = this.createQueryBuilder('room')
       .where('room.name LIKE :name', { name: `%${query}%` })
@@ -67,8 +67,10 @@ export class RoomsRepository extends Repository<Room> {
       .leftJoinAndSelect('room.avatar', 'public_file')
       .loadRelationCountAndMap('room.numOfMembers', 'room.members', 'user');
 
-    if (tagId) {
-      searchQuery = searchQuery.andWhere('tag.id = :tagId', { tagId });
+    for (const id of tagIds) {
+      if (id) {
+        searchQuery = searchQuery.andWhere('tag.id = :id', { id });
+      }
     }
 
     searchQuery = searchQuery
