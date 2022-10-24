@@ -6,7 +6,10 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
+  ManyToOne,
+  JoinColumn,
 } from 'typeorm';
+import { Room } from 'src/rooms/entity/room.entity';
 
 @Entity()
 export class Invitation {
@@ -37,4 +40,11 @@ export class Invitation {
   @ApiProperty()
   @DeleteDateColumn()
   deletedAt: Date;
+
+  @ApiProperty()
+  @ManyToOne(() => Room, (room) => room.invitations)
+  @JoinColumn({
+    name: 'roomId',
+  })
+  room: Room;
 }

@@ -13,9 +13,9 @@ import {
   OneToMany,
   OneToOne,
   UpdateDateColumn,
-  PrimaryColumn,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { Invitation } from 'src/invitations/entity/invitation.entity';
 
 @Entity()
 export class Room {
@@ -66,7 +66,10 @@ export class Room {
   tags: Tag[];
 
   @ApiProperty()
-  @OneToMany(() => Message, (message) => message.room, { cascade: true })
+  @OneToMany(() => Message, (message) => message.room, {
+    cascade: true,
+    nullable: true,
+  })
   messages: Message[];
 
   @ApiProperty()
@@ -76,4 +79,10 @@ export class Room {
     nullable: true,
   })
   avatar: PublicFile;
+
+  @ApiProperty()
+  @OneToMany(() => Invitation, (invitation) => invitation.room, {
+    cascade: true,
+  })
+  invitations: Invitation[];
 }
