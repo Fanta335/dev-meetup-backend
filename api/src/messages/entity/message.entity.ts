@@ -24,7 +24,7 @@ export class Message {
   authorId: number;
 
   @ApiProperty()
-  @Column()
+  @Column('varchar', { length: 36 })
   roomId: string;
 
   @ApiProperty()

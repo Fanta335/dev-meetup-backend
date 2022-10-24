@@ -18,7 +18,7 @@ export class Invitation {
   id: string;
 
   @ApiProperty()
-  @Column()
+  @Column('varchar', { length: 36 })
   roomId: string;
 
   @ApiProperty()
