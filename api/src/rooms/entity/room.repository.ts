@@ -44,6 +44,7 @@ export class RoomsRepository extends Repository<Room> {
       .leftJoin('room.members', 'user')
       .leftJoinAndSelect('room.avatar', 'public_file')
       .where('user.id = :id', { id: memberId })
+      .orderBy('room.createdAt', 'ASC')
       .getMany();
   }
 
