@@ -2,59 +2,94 @@
 entity "user" {
   +id: INT(11)
   --
-  firstName: VARCHAR(255)
-  lastName: VARCHAR(255)
+  subId: VARCHAR(24)
+  name: VARCHAR(255)
+  email: VARCHAR(255)
+  description: VARCHAR(255)
   createdAt: DATETIME(6)
   updatedAt: DATETIME(6)
+  deletedAt: DATETIME(6)
+  avatarId: INT(11)
 }
 
 entity "message" {
   +id: INT(11)
   --
-  content: VARCHAR(255)
+  content: VARCHAR(4000)
   authorId: INT(11)
-  roomId: INT(11)
   parentId: INT(11)
+  roomId: VARCHAR(255)
   createdAt: DATETIME(6)
   updatedAt: DATETIME(6)
+  deletedAt: DATETIME(6)
 }
 
 entity "room" {
+  +id: VARCHAR(36)
+  --
+  name: VARCHAR(50)
+  description: VARCHAR(120)
+  isPrivate: TINYINT(4)
+  createdAt: DATETIME(6)
+  updatedAt: DATETIME(6)
+  deletedAt: DATETIME(6)
+  avatarId: INT(11)
+}
+
+entity "ownership" {
+  +userId: INT(11)
+  +roomId: VARCHAR(36)
+  --
+}
+
+entity "belonging" {
+  +userId: INT(11)
+  +roomId: VARCHAR(36)
+  --
+}
+
+entity "public_file" {
+  +id: INT(11)
+  --
+  url: VARCHAR(255)
+  key: VARCHAR(255)
+}
+
+entity "tag" {
   +id: INT(11)
   --
   name: VARCHAR(255)
-  createdAt: DATETIME(6)
-  updatedAt: DATETIME(6)
+  description(255)
 }
 
-entity "photo" {
+entity "rooms_tags" {
+  +tagId: INT(11)
+  +roomId: VARCHAR(36)
+  --
+}
+
+entity "invitation" {
   +id: INT(11)
   --
-  name: VARCHAR(255)
+  roomId: VARCHAR(36)
+  expirationDate: DATETIME
+  isUsed: TINYINT(4)
   createdAt: DATETIME(6)
   updatedAt: DATETIME(6)
-  userId: INT(11)
+  deletedAt: DATETIME(6)
 }
 
-entity "user_rooms_room" {
-  +userId: INT(11)
-  +roomId: INT(11)
-  --
-}
-
-entity "user_my_rooms_room" {
-  +userId: INT(11)
-  +roomId: INT(11)
-  --
-}
-
-user ||---o{ photo
-user ||--o{ user_rooms_room
-room ||--o{ user_rooms_room
-user ||-u-o{ user_my_rooms_room
-room ||-u-o{ user_my_rooms_room
-user ||-l-o{ message
+user ||-u-o| public_file
+user ||--o{ ownership
+room ||--o{ ownership
+user ||--o{ belonging
+room ||--o{ belonging
+user ||--o{ message
 message --o| message
-
+room ||--o{ message
+room ||-u-o| public_file
+tag ||--o{ rooms_tags
+room ||-u-o{ rooms_tags
+room ||--o{ invitation
 
 @enduml
