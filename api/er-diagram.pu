@@ -18,7 +18,7 @@ entity "message" {
   content: VARCHAR(4000)
   authorId: INT(11)
   parentId: INT(11)
-  roomId: VARCHAR(255)
+  roomId: VARCHAR(36)
   createdAt: DATETIME(6)
   updatedAt: DATETIME(6)
   deletedAt: DATETIME(6)
