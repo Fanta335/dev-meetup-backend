@@ -85,4 +85,26 @@ export class Room {
     cascade: true,
   })
   invitations: Invitation[];
+
+  constructor(name: string, description: string, isPrivate: boolean);
+  constructor(
+    name: string,
+    description: string,
+    isPrivate: boolean,
+    createdAt: Date,
+    id: string,
+  );
+  constructor(
+    name: string,
+    description: string,
+    isPrivate: boolean,
+    createdAt?: Date,
+    id?: string,
+  ) {
+    this.id = id ?? undefined;
+    this.name = name;
+    this.description = description;
+    this.isPrivate = isPrivate;
+    this.createdAt = createdAt ?? undefined;
+  }
 }
