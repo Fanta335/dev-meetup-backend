@@ -6,6 +6,7 @@ import { Repository } from 'typeorm';
 import { ParsedCreateRoomDTO } from '../dto/createRoom.dto';
 import { ParsedSearchQuery, RoomRelation } from '../types';
 import { Room } from './room.entity';
+import { RoomBuilder } from './RoomBuilder';
 
 @CustomRepository(Room)
 export class RoomsRepository extends Repository<Room> {
@@ -15,16 +16,16 @@ export class RoomsRepository extends Repository<Room> {
     tags: Tag[],
     avatar?: PublicFile,
   ): Promise<Room> {
-    const room = new Room();
-    room.name = name;
-    room.description = description;
-    room.isPrivate = isPrivate;
-    room.owners = [user];
-    room.members = [user];
-    room.tags = tags;
-    room.avatar = avatar === undefined ? null : avatar;
+    const rb = new RoomBuilder();
+    rb.setName(name)
+      .setDescription(description)
+      .setIsPrivate(isPrivate)
+      .setOwners([user])
+      .setMembers([user])
+      .setTags(tags)
+      .setAvatar(avatar);
 
-    return this.save(room);
+    return this.save(rb.build());
   }
 
   getAllRooms(): Promise<Room[]> {

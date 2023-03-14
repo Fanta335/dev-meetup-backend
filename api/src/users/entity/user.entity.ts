@@ -44,15 +44,15 @@ export class User {
 
   @ApiProperty()
   @UpdateDateColumn()
-  updatedAt: Date;
+  updatedAt?: Date;
 
   @ApiProperty()
   @DeleteDateColumn()
-  deletedAt: Date;
+  deletedAt?: Date;
 
   @ApiProperty()
   @OneToMany(() => Message, (message) => message.author)
-  messages: Message[];
+  messages?: Message[];
 
   @ApiProperty({ type: () => [Room] })
   @ManyToMany(() => Room, (room) => room.owners, {})
@@ -68,7 +68,7 @@ export class User {
       referencedColumnName: 'id',
     },
   })
-  ownRooms: Room[];
+  ownRooms?: Room[];
 
   @ApiProperty({ type: () => [Room] })
   @ManyToMany(() => Room, (room) => room.members, {})
@@ -83,7 +83,7 @@ export class User {
       referencedColumnName: 'id',
     },
   })
-  belongingRooms: Room[];
+  belongingRooms?: Room[];
 
   @ApiProperty()
   @JoinColumn()
@@ -91,5 +91,30 @@ export class User {
     eager: true,
     nullable: true,
   })
-  avatar: PublicFile;
+  avatar?: PublicFile;
+
+  constructor(subId: string, name: string, email: string, description: string);
+  constructor(
+    subId: string,
+    name: string,
+    email: string,
+    description: string,
+    id: number,
+    createdAt: Date,
+  );
+  constructor(
+    subId: string,
+    name: string,
+    email: string,
+    description: string,
+    id?: number,
+    createdAt?: Date,
+  ) {
+    this.id = id ?? undefined;
+    this.subId = subId;
+    this.name = name;
+    this.email = email;
+    this.description = description;
+    this.createdAt = createdAt ?? undefined;
+  }
 }

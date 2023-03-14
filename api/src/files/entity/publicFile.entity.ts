@@ -14,4 +14,12 @@ export class PublicFile {
   @ApiProperty()
   @Column()
   key: string;
+
+  constructor(url: string, key: string);
+  constructor(url: string, key: string, id: number);
+  constructor(url: string, key: string, id?: number) {
+    this.id = id ?? undefined;
+    this.url = url;
+    this.key = key;
+  }
 }

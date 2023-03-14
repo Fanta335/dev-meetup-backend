@@ -133,8 +133,8 @@ export class UsersController {
   @ApiOperation({ description: 'Retrieve user details.' })
   @ApiResponse({ status: 200, description: 'User successfully retrieved.' })
   @Get(':id')
-  findByUserId(@Param('id') id: number): Promise<User> {
-    return this.usersService.findByUserId(id);
+  findByUserId(@Param('id') id: string): Promise<User> {
+    return this.usersService.findByUserId(Number(id));
   }
 
   @Permissions('update:users')
