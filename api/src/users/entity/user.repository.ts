@@ -3,6 +3,7 @@ import { PublicFile } from 'src/files/entity/publicFile.entity';
 import { Repository } from 'typeorm';
 import { CreateUserDTO } from '../dto/createUser.dto';
 import { User } from './user.entity';
+import { UserBuilder } from './UserBuilder';
 
 @CustomRepository(User)
 export class UsersRepository extends Repository<User> {
@@ -10,11 +11,13 @@ export class UsersRepository extends Repository<User> {
     { name, email, subId }: CreateUserDTO,
     avatar: PublicFile,
   ): Promise<User> {
-    const newUser = new User();
-    newUser.subId = subId;
-    newUser.name = name;
-    newUser.email = email;
-    newUser.description = '';
+    const userBuilder = new UserBuilder();
+    userBuilder
+      .setEmail(email)
+      .setName(name)
+      .setSubId(subId)
+      .setDescription('');
+    const newUser = userBuilder.build();
     newUser.avatar = avatar;
 
     return this.save(newUser);
