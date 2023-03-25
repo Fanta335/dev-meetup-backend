@@ -8,5 +8,6 @@ import { TagsService } from './tags.service';
   imports: [TypeOrmExModule.forCustomRepository([TagsRepository])],
   controllers: [TagsController],
   providers: [TagsService],
+  exports: [TagsService],
 })
 export class TagsModule {}

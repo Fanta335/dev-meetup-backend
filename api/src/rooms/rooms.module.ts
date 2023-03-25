@@ -1,21 +1,19 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { TypeOrmExModule } from 'src/database/typeorm-ex.module';
 import { FilesModule } from 'src/files/files.module';
-import { MessagesRepository } from 'src/messages/entity/message.repsitory';
-import { TagsRepository } from 'src/tags/entity/tag.repository';
-import { UsersRepository } from 'src/users/entity/user.repository';
+import { MessagesModule } from 'src/messages/messages.module';
+import { TagsModule } from 'src/tags/tags.module';
+import { UsersModule } from 'src/users/users.module';
 import { RoomsRepository } from './entity/room.repository';
 import { RoomsController } from './rooms.controller';
 import { RoomsService } from './rooms.service';
 
 @Module({
   imports: [
-    TypeOrmExModule.forCustomRepository([
-      RoomsRepository,
-      UsersRepository,
-      MessagesRepository,
-      TagsRepository,
-    ]),
+    TypeOrmExModule.forCustomRepository([RoomsRepository]),
+    forwardRef(() => UsersModule),
+    forwardRef(() => MessagesModule),
+    TagsModule,
     FilesModule,
   ],
   controllers: [RoomsController],

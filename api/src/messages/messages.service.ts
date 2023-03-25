@@ -1,5 +1,7 @@
 import {
   ForbiddenException,
+  forwardRef,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -7,18 +9,19 @@ import { WsException } from '@nestjs/websockets';
 import { Socket } from 'socket.io';
 import { Message } from 'src/messages/entity/message.entity';
 import { User } from 'src/users/entity/user.entity';
-import { UsersRepository } from 'src/users/entity/user.repository';
 import { CreateMessageDTO } from './dto/createMessage.dto';
 import { MessagesRepository } from './entity/message.repsitory';
 import jwt_decode from 'jwt-decode';
 import { UpdateMessageDTO } from './dto/updateMessage.dto';
 import { SoftRemoveMessageDTO } from './dto/softRemoveMessage.dto';
+import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class MessagesService {
   constructor(
     private messagesRepository: MessagesRepository,
-    private usersRepository: UsersRepository,
+    @Inject(forwardRef(() => UsersService))
+    private usersService: UsersService,
   ) {}
 
   namespace = process.env.AUTH0_NAMESPACE;
@@ -60,21 +63,39 @@ export class MessagesService {
 
   async getUserFromSocket(socket: Socket): Promise<User> {
     const token = socket.handshake.auth.token;
-    // console.log('token:', token);
-
     const decoded = jwt_decode(token);
-    // console.log('decoded: ', decoded);
     const userId: number = decoded[this.claimMysqlUser].id;
-    // console.log(userId);
-    const user = await this.usersRepository.findByUserId(userId);
+    const user = await this.usersService.findByUserId(userId);
 
     if (!user) {
       throw new WsException('Invalid credentials.');
     }
 
     return user;
-    // if (typeof token === 'string') {
-    // }
+  }
+
+  async getLatestMessages(roomId: string, limit: number) {
+    return (
+      await this.messagesRepository.getLatestMessages(roomId, limit)
+    ).reverse();
+  }
+
+  async getLimitedMessagesBySinceId(
+    roomId: string,
+    sinceId: number,
+    date: number,
+    limit: number,
+  ) {
+    return this.messagesRepository.getLimitedMessagesBySinceId(
+      roomId,
+      sinceId,
+      date,
+      limit,
+    );
+  }
+
+  async getRoomMessageIds(id: string): Promise<Message[]> {
+    return this.messagesRepository.getRoomMessageIds(id);
   }
 
   async updateMessage({

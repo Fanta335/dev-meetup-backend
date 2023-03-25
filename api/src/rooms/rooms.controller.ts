@@ -142,7 +142,7 @@ export class RoomsController {
     @GetAccessToken() token: UserAccessToken,
     @Param('id') id: string,
   ): Promise<Message[]> {
-    return this.roomsService.getRoomMessageIds(token, id);
+    return this.roomsService.getRoomMessageIds(id);
   }
 
   @ApiOperation({ description: 'Update a room' })

@@ -1,12 +1,13 @@
 import {
   ForbiddenException,
+  forwardRef,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import dayjs from 'dayjs';
 import { FilesService } from 'src/files/files.service';
 import { Room } from 'src/rooms/entity/room.entity';
-import { RoomsRepository } from 'src/rooms/entity/room.repository';
 import { isValidUpdateFrequency } from './utils/checkUpdateFrequency';
 import { deleteUserInAuth0 } from './auth0/deleteUserInAuth0';
 import { fetchAuth0ManegementAPIToken } from './auth0/fetchAuth0ManagementAPIToken';
@@ -18,12 +19,14 @@ import { User } from './entity/user.entity';
 import { UsersRepository } from './entity/user.repository';
 import { UserAccessToken } from './types';
 import { isValidPassword } from './utils/isValidPassword';
+import { RoomsService } from 'src/rooms/rooms.service';
 
 @Injectable()
 export class UsersService {
   constructor(
+    @Inject(forwardRef(() => RoomsService))
+    private roomsService: RoomsService,
     private usersRepository: UsersRepository,
-    private roomsRepository: RoomsRepository,
     private filesService: FilesService,
   ) {}
 
@@ -59,22 +62,22 @@ export class UsersService {
     tokenOrId: UserAccessToken | number,
   ): Promise<Room[]> {
     if (typeof tokenOrId === 'number') {
-      return this.roomsRepository.getBelongingRooms(tokenOrId);
+      return this.roomsService.getBelongingRooms(tokenOrId);
     }
 
     const userIdFromToken: number = tokenOrId[this.claimMysqlUser].id;
-    return this.roomsRepository.getBelongingRooms(userIdFromToken);
+    return this.roomsService.getBelongingRooms(userIdFromToken);
   }
 
   async getOwnRooms(token: UserAccessToken): Promise<Room[]>;
   async getOwnRooms(id: number): Promise<Room[]>;
   async getOwnRooms(tokenOrId: UserAccessToken | number): Promise<Room[]> {
     if (typeof tokenOrId === 'number') {
-      return this.roomsRepository.getOwnRooms(tokenOrId);
+      return this.roomsService.getOwnRooms(tokenOrId);
     }
 
     const userIdFromToken: number = tokenOrId[this.claimMysqlUser].id;
-    return this.roomsRepository.getOwnRooms(userIdFromToken);
+    return this.roomsService.getOwnRooms(userIdFromToken);
   }
 
   async updateRootUser(
@@ -188,7 +191,7 @@ export class UsersService {
       );
     }
 
-    const currentBelongingRooms = await this.roomsRepository.getBelongingRooms(
+    const currentBelongingRooms = await this.roomsService.getBelongingRooms(
       userId,
     );
     const isNewRoom = currentBelongingRooms.every((room) => room.id !== roomId);
@@ -198,7 +201,7 @@ export class UsersService {
 
     await this.usersRepository.addMemberToRoom(userId, roomId);
 
-    return this.roomsRepository.getBelongingRooms(userId);
+    return this.roomsService.getBelongingRooms(userId);
   }
 
   async removeMemberFromRoom(
@@ -214,10 +217,10 @@ export class UsersService {
       );
     }
 
-    const roomToLeave = await this.roomsRepository.findOne({
-      relations: ['owners', 'members'],
-      where: { id: roomId },
-    });
+    const roomToLeave = await this.roomsService.getRoomById(roomId, [
+      'owners',
+      'members',
+    ]);
 
     const ownerIds = roomToLeave.owners.map((owner) => owner.id);
     const isOwner = ownerIds.some((ownerId) => ownerId === userId);
@@ -237,7 +240,7 @@ export class UsersService {
 
     await this.usersRepository.removeMemberFromRoom(userId, roomId);
 
-    return this.roomsRepository.getBelongingRooms(userId);
+    return this.roomsService.getBelongingRooms(userId);
   }
 
   async addAvatar(
@@ -295,7 +298,7 @@ export class UsersService {
     const userToDelete = await this.findByUserId(userId);
 
     // check if the user does not own rooms.
-    const ownRooms = await this.roomsRepository.getOwnRooms(userId);
+    const ownRooms = await this.roomsService.getOwnRooms(userId);
     console.log('own rooms ', ownRooms);
     if (ownRooms.length > 0) {
       throw new ForbiddenException(
