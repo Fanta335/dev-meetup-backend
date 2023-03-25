@@ -32,8 +32,11 @@ export class RoomsRepository extends Repository<Room> {
     return this.find();
   }
 
-  getRoomById(id: string): Promise<Room> {
-    return this.findOne({ where: { id: id } });
+  getRoomById(id: string, relations?: string[]): Promise<Room> {
+    return this.findOne({
+      relations: relations,
+      where: { id: id },
+    });
   }
 
   getRoomByName(name: string): Promise<Room> {

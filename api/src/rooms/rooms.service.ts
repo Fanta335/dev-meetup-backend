@@ -1,16 +1,18 @@
 import {
   ForbiddenException,
+  forwardRef,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { FilesService } from 'src/files/files.service';
 import { Message } from 'src/messages/entity/message.entity';
-import { MessagesRepository } from 'src/messages/entity/message.repsitory';
+import { MessagesService } from 'src/messages/messages.service';
 import { Tag } from 'src/tags/entity/tag.entity';
-import { TagsRepository } from 'src/tags/entity/tag.repository';
+import { TagsService } from 'src/tags/tags.service';
 import { User } from 'src/users/entity/user.entity';
-import { UsersRepository } from 'src/users/entity/user.repository';
 import { UserAccessToken } from 'src/users/types';
+import { UsersService } from 'src/users/users.service';
 import { AddOwnerDTO } from './dto/addOwner.dto';
 import { AddTagDTO } from './dto/addTag.dto';
 import { CreateRoomDTO } from './dto/createRoom.dto';
@@ -27,9 +29,11 @@ import { parseSearchQuery } from './utils/parseSearchQuery';
 export class RoomsService {
   constructor(
     private roomsRepository: RoomsRepository,
-    private usersRepository: UsersRepository,
-    private messageRepository: MessagesRepository,
-    private tagsRepository: TagsRepository,
+    @Inject(forwardRef(() => UsersService))
+    private usersService: UsersService,
+    @Inject(forwardRef(() => MessagesService))
+    private messageService: MessagesService,
+    private tagsService: TagsService,
     private filesService: FilesService,
   ) {}
 
@@ -43,7 +47,7 @@ export class RoomsService {
     file?: Express.Multer.File,
   ): Promise<Room> {
     const userId: number = token[this.claimMysqlUser].id;
-    const user = await this.usersRepository.findByUserId(userId);
+    const user = await this.usersService.findByUserId(userId);
 
     const parsedCreateRoomDTO = parseCreateRoomDTO(createRoomDTO);
 
@@ -55,9 +59,7 @@ export class RoomsService {
     const tags = tagIds
       ? await Promise.all(
           parsedCreateRoomDTO.tagIds.map((id) =>
-            this.tagsRepository.findOne({
-              where: { id: id },
-            }),
+            this.tagsService.getOneById(id),
           ),
         )
       : null;
@@ -81,17 +83,8 @@ export class RoomsService {
     return this.roomsRepository.getAllRooms();
   }
 
-  async getByRoomId(id: string): Promise<Room> {
-    const room = await this.roomsRepository.getRoomById(id);
-    if (!room) {
-      throw new NotFoundException(`Room not found matched id: ${id}`);
-    }
-
-    return room;
-  }
-
-  async getRoomById(id: string): Promise<Room> {
-    const room = await this.roomsRepository.getRoomById(id);
+  async getRoomById(id: string, relations?: string[]): Promise<Room> {
+    const room = await this.roomsRepository.getRoomById(id, relations);
 
     if (!room) {
       throw new NotFoundException(`Room not found matched id: ${id}`);
@@ -176,14 +169,14 @@ export class RoomsService {
 
     let messages: Message[];
     if (sinceId) {
-      messages = await this.messageRepository.getLimitedMessagesBySinceId(
+      messages = await this.messageService.getLimitedMessagesBySinceId(
         roomId,
         sinceId,
         date,
         limit,
       );
     } else {
-      messages = await this.messageRepository.getLatestMessages(roomId, limit);
+      messages = await this.messageService.getLatestMessages(roomId, limit);
       messages.reverse();
     }
 
@@ -194,11 +187,8 @@ export class RoomsService {
     return messages;
   }
 
-  async getRoomMessageIds(
-    token: UserAccessToken,
-    id: string,
-  ): Promise<Message[]> {
-    return this.messageRepository.getRoomMessageIds(id);
+  async getRoomMessageIds(id: string): Promise<Message[]> {
+    return this.messageService.getRoomMessageIds(id);
   }
 
   async updateRoom(
@@ -230,7 +220,7 @@ export class RoomsService {
       if (updateRoomDTO.tagIds.length > 5) {
         throw new ForbiddenException(`Too many room tags.`);
       }
-      newTags = await this.tagsRepository.getManyByIds(updateRoomDTO.tagIds);
+      newTags = await this.tagsService.getManyByIds(updateRoomDTO.tagIds);
       delete updateRoomDTO.tagIds;
     }
 
@@ -273,11 +263,25 @@ export class RoomsService {
     return this.roomsRepository.save(roomToBeUpdated);
   }
 
-  async addMember(token: UserAccessToken, roomId: string): Promise<Room> {
-    const userIdToAdd: number = token[this.claimMysqlUser].id;
-    const belongingRooms = await this.roomsRepository.getBelongingRooms(
-      userIdToAdd,
-    );
+  async getBelongingRooms(userId: number): Promise<Room[]> {
+    return this.roomsRepository.getBelongingRooms(userId);
+  }
+
+  async getOwnRooms(userId: number): Promise<Room[]> {
+    return this.roomsRepository.getOwnRooms(userId);
+  }
+
+  async addMember(token: UserAccessToken, roomId: string): Promise<Room>;
+  async addMember(userId: number, roomId: string): Promise<Room>;
+  async addMember(
+    tokenOrId: UserAccessToken | number,
+    roomId: string,
+  ): Promise<Room> {
+    const userIdToAdd: number =
+      typeof tokenOrId === 'number'
+        ? tokenOrId
+        : tokenOrId[this.claimMysqlUser].id;
+    const belongingRooms = await this.getBelongingRooms(userIdToAdd);
     const isMember = belongingRooms.some((room) => room.id === roomId);
     if (!isMember) {
       await this.roomsRepository.addMember(roomId, userIdToAdd);
@@ -287,9 +291,7 @@ export class RoomsService {
 
   async removeMember(token: UserAccessToken, roomId: string): Promise<Room> {
     const userIdToRemove: number = token[this.claimMysqlUser].id;
-    const belongingRooms = await this.roomsRepository.getBelongingRooms(
-      userIdToRemove,
-    );
+    const belongingRooms = await this.getBelongingRooms(userIdToRemove);
     const isMember = belongingRooms.some((room) => room.id === roomId);
     if (isMember) {
       await this.roomsRepository.removeMember(roomId, userIdToRemove);
@@ -399,10 +401,7 @@ export class RoomsService {
   }
 
   async softDeleteRoom(roomId: string, token: UserAccessToken): Promise<Room> {
-    const roomToSoftDelete = await this.roomsRepository.findOne({
-      relations: ['owners'],
-      where: { id: roomId },
-    });
+    const roomToSoftDelete = await this.getRoomById(roomId, ['owners']);
     const ownerIds = roomToSoftDelete.owners.map((owner) => owner.id);
     const userId: number = token[this.claimMysqlUser].id;
     const isOwner = ownerIds.some((ownerId) => ownerId === userId);

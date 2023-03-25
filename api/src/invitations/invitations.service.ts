@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import dayjs from 'dayjs';
 import { Room } from 'src/rooms/entity/room.entity';
-import { RoomsRepository } from 'src/rooms/entity/room.repository';
+import { RoomsService } from 'src/rooms/rooms.service';
 import { UserAccessToken } from 'src/users/types';
 import { CreateInvitationDTO } from './dto/createInvitation.dto';
 import { Invitation } from './entity/invitation.entity';
@@ -15,7 +15,7 @@ import { InvitationRepository } from './entity/invitation.repository';
 export class InvitationsService {
   constructor(
     private invitationsRepository: InvitationRepository,
-    private roomsRepository: RoomsRepository,
+    private roomsService: RoomsService,
   ) {}
 
   namespace = process.env.AUTH0_NAMESPACE;
@@ -29,10 +29,9 @@ export class InvitationsService {
     const { roomId, secondsExpirationLifetime } = createInvitationDTO;
 
     // check if the user is an owner of the room.
-    const roomToInvite = await this.roomsRepository.findOne({
-      relations: ['owners'],
-      where: { id: roomId },
-    });
+    const roomToInvite = await this.roomsService.getRoomById(roomId, [
+      'owners',
+    ]);
     const ownerIds = roomToInvite.owners.map((owner) => owner.id);
     const isOwner = ownerIds.includes(userId);
     if (!isOwner) {
@@ -73,9 +72,7 @@ export class InvitationsService {
       throw new NotFoundException(`This link has expired.`);
     }
 
-    const roomToAccess = await this.roomsRepository.getRoomById(
-      invitation.roomId,
-    );
+    const roomToAccess = await this.roomsService.getRoomById(invitation.roomId);
     // check if the room exists.
     if (!roomToAccess) {
       throw new NotFoundException(`No rooms found.`);
@@ -83,7 +80,7 @@ export class InvitationsService {
 
     // add member to the room.
     const userId: number = token[this.claimMysqlUser].id;
-    await this.roomsRepository.addMember(invitation.roomId, userId);
+    await this.roomsService.addMember(userId, invitation.roomId);
 
     // set invitation's 'isUsed' to true.
     invitation.isUsed = true;
